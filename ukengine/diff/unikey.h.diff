@@ -1,0 +1,11 @@
+23a24,30
+> /**
+> * This file was modified by Lê Quốc Tuấn <mr.lequoctuan@gmail.com>
+> * for project scim-unikey <http://scim-unikey.googlecode.com>
+> *
+> * Please read file in ukengine/diff/ for change
+> */
+> 
+111a119,120
+> 
+>   bool UnikeyAtWordBeginning();
