@@ -3,6 +3,7 @@ libexec_PROGRAMS = ibus-engine-unikey
 ibus_engine_unikey_SOURCES = \
 	main.cpp \
 	engine.cpp \
+	engine.h \
 	$(NULL)
 ibus_engine_unikey_CXXFLAGS = \
 	@IBUS_CFLAGS@ \

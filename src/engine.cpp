@@ -38,13 +38,13 @@ static void ibus_unikey_engine_class_init(IBusUnikeyEngineClass *kclass);
 static void ibus_unikey_engine_init(IBusUnikeyEngine *unikey);
 
 static GObject *ibus_unikey_engine_constructor(GType type,
-                                             guint n_construct_params,
-                                             GObjectConstructParam *construct_params);
+											   guint n_construct_params,
+											   GObjectConstructParam *construct_params);
 
 static void ibus_unikey_engine_destroy(IBusUnikeyEngine *unikey);
 static gboolean ibus_unikey_engine_process_key_event(IBusEngine *engine,
-												   guint keyval,
-												   guint modifiers);
+													 guint keyval,
+													 guint modifiers);
 static void ibus_unikey_engine_focus_in(IBusEngine *engine);
 static void ibus_unikey_engine_focus_out(IBusEngine *engine);
 static void ibus_unikey_engine_reset(IBusEngine *engine);
@@ -106,29 +106,31 @@ static void ibus_unikey_engine_class_init(IBusUnikeyEngineClass *klass)
 
 static void ibus_unikey_engine_init(IBusUnikeyEngine *unikey)
 {
-	IBusProperty *prop;
-	IBusText *label, *tooltip;
+/*
+// doan nay dung de test thoi
+IBusProperty *prop;
+IBusText *label, *tooltip;
 
-	label = ibus_text_new_from_string("Test2");
-	tooltip = ibus_text_new_from_string("Second test");
+label = ibus_text_new_from_string("Test2");
+tooltip = ibus_text_new_from_string("Second test");
 
-	prop = ibus_property_new("Test",
-							 PROP_TYPE_NORMAL,
-							 label,
-							 "gtk-preferences",
-							 tooltip,
-							 TRUE, TRUE, (IBusPropState)0, NULL);
+prop = ibus_property_new("Test",
+PROP_TYPE_NORMAL,
+label,
+"gtk-preferences",
+tooltip,
+TRUE, TRUE, (IBusPropState)0, NULL);
 
-	g_object_unref(label);
-	g_object_unref(tooltip);
+g_object_unref(label);
+g_object_unref(tooltip);
 
-	ibus_prop_list_append(unikey->prop_list, prop);
-
+ibus_prop_list_append(unikey->prop_list, prop);
+*/
 }
 
 static GObject *ibus_unikey_engine_constructor(GType type,
-											 guint n_construct_params,
-											 GObjectConstructParam *construct_params)
+											   guint n_construct_params,
+											   GObjectConstructParam *construct_params)
 {
 	IBusUnikeyEngine *unikey;
 	const gchar *engine_name;
@@ -149,8 +151,8 @@ static void ibus_unikey_engine_destroy(IBusUnikeyEngine *unikey)
 }
 
 static gboolean ibus_unikey_engine_process_key_event(IBusEngine *engine,
-												   guint keyval,
-												   guint modifiers)
+													 guint keyval,
+													 guint modifiers)
 {
 	return FALSE;
 }
@@ -216,7 +218,7 @@ IBusComponent *ibus_unikey_get_component()
 	GList *engines, *p;
 
 
-    component = ibus_component_new("org.freedesktop.IBus.Unikey",
+	component = ibus_component_new("org.freedesktop.IBus.Unikey",
 								   "Unikey",
 								   PACKAGE_VERSION,
 								   "GPL",
@@ -225,9 +227,9 @@ IBusComponent *ibus_unikey_get_component()
 								   "",
 								   PACKAGE_NAME);
 
-    engines = ibus_unikey_list_engines();
+	engines = ibus_unikey_list_engines();
 
-    for (p = engines; p != NULL; p = p->next)
+	for (p = engines; p != NULL; p = p->next)
 		ibus_component_add_engine(component, (IBusEngineDesc*)p->data);
 
 	g_list_free(engines);

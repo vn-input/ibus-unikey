@@ -64,19 +64,19 @@ static void start_component(void)
 
 static void print_engines_xml(void)
 {
-    IBusComponent *component;
-    GString *output;
+	IBusComponent *component;
+	GString *output;
 
-    ibus_init();
+	ibus_init();
 
-    component = ibus_unikey_get_component();
-    output = g_string_new("");
+	component = ibus_unikey_get_component();
+	output = g_string_new("");
 
-    ibus_component_output_engines(component, output, 0);
+	ibus_component_output_engines(component, output, 0);
 
-    fprintf(stdout, "%s", output->str);
+	fprintf(stdout, "%s", output->str);
 
-    g_string_free(output, TRUE);
+	g_string_free(output, TRUE);
 }
 
 int main(gint argc, gchar **argv)
