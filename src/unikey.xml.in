@@ -1,0 +1,15 @@
+<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<!-- filename: unikey.xml -->
+<component>
+	<name>org.freedesktop.IBus.Unikey</name>
+	<description>Unikey Component</description>
+	<exec>${libexecdir}/ibus-engine-unikey --ibus</exec>
+	<version>0.2.0</version>
+	<author>Le Quoc Tuan &lt;mr.lequoctuan@gmail.com&gt;</author>
+	<license>GPL</license>
+	<homepage>http://code.google.com/p/ibus-unikey</homepage>
+	<textdomain>ibus-unikey</textdomain>
+
+	<engines exec=\"${libexecdir}/ibus-engine-unikey --xml\" />
+
+</component>
