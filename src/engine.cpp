@@ -3,6 +3,7 @@
 #endif
 #include <ibus.h>
 #include <stdio.h>
+#include <string.h>
 #include "engine.h"
 #include "unikey.h"
 #include "vnconv.h"
@@ -16,8 +17,8 @@ const gchar          *Unikey_OCNames[]    = {"Unicode",           "TCVN3",      
 const unsigned int    Unikey_OC[]         = {CONV_CHARSET_XUTF8,  CONV_CHARSET_TCVN3, CONV_CHARSET_VNIWIN,    CONV_CHARSET_VIQR};
 const unsigned int    NUM_OUTPUTCHARSET   = sizeof(Unikey_OCNames)/sizeof(Unikey_OCNames[0]);
 
-typedef struct _IBusUnikeyEngine IBusUnikeyEngine;
-typedef struct _IBusUnikeyEngineClass IBusUnikeyEngineClass;
+typedef struct _IBusUnikeyEngine          IBusUnikeyEngine;
+typedef struct _IBusUnikeyEngineClass     IBusUnikeyEngineClass;
 
 struct _IBusUnikeyEngine
 {
@@ -27,6 +28,10 @@ struct _IBusUnikeyEngine
 	//VInputContext   *context;
 	IBusProperty    *status_prop;
 	IBusPropList    *prop_list;
+
+	UkInputMethod   im; // input method
+	unsigned int    oc; // output charset
+	gchar           strpreedit[128]; // len = MAX_UK_ENGINE in ukengine.h
 };
 
 struct _IBusUnikeyEngineClass {
@@ -51,6 +56,9 @@ static void ibus_unikey_engine_reset(IBusEngine *engine);
 static void ibus_unikey_engine_enable(IBusEngine *engine);
 static void ibus_unikey_engine_disable(IBusEngine *engine);
 
+static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine *engine,
+															 guint keyval,
+															 guint modifiers);
 
 
 static IBusEngineClass *parent_class = NULL;
@@ -76,8 +84,7 @@ GType ibus_unikey_engine_get_type(void)
 		type = g_type_register_static (IBUS_TYPE_ENGINE,
 									   "IBusUnikeyEngine",
 									   &type_info,
-									   (GTypeFlags)0
-			);
+									   (GTypeFlags)0);
 	}
 
 	return type;
@@ -85,6 +92,10 @@ GType ibus_unikey_engine_get_type(void)
 
 static void ibus_unikey_engine_class_init(IBusUnikeyEngineClass *klass)
 {
+#ifdef DEBUG
+	ibus_warning("class_init()");
+#endif
+
 	GObjectClass *object_class = G_OBJECT_CLASS(klass);
 	IBusObjectClass *ibus_object_class = IBUS_OBJECT_CLASS(klass);
 	IBusEngineClass *engine_class = IBUS_ENGINE_CLASS(klass);
@@ -106,42 +117,45 @@ static void ibus_unikey_engine_class_init(IBusUnikeyEngineClass *klass)
 
 static void ibus_unikey_engine_init(IBusUnikeyEngine *unikey)
 {
-/*
-// doan nay dung de test thoi
-IBusProperty *prop;
-IBusText *label, *tooltip;
-
-label = ibus_text_new_from_string("Test2");
-tooltip = ibus_text_new_from_string("Second test");
-
-prop = ibus_property_new("Test",
-PROP_TYPE_NORMAL,
-label,
-"gtk-preferences",
-tooltip,
-TRUE, TRUE, (IBusPropState)0, NULL);
-
-g_object_unref(label);
-g_object_unref(tooltip);
-
-ibus_prop_list_append(unikey->prop_list, prop);
-*/
+#ifdef DEBUG
+	ibus_warning("init()");
+#endif
 }
 
 static GObject *ibus_unikey_engine_constructor(GType type,
 											   guint n_construct_params,
 											   GObjectConstructParam *construct_params)
 {
+#ifdef DEBUG
+	ibus_warning("constructor()");
+#endif
+
 	IBusUnikeyEngine *unikey;
 	const gchar *engine_name;
 
-	unikey = (IBusUnikeyEngine*)G_OBJECT_CLASS(parent_class)->constructor(type,
-																		  n_construct_params,
-																		  construct_params);
+	unikey = (IBusUnikeyEngine*)G_OBJECT_CLASS(parent_class)->constructor(type, n_construct_params, construct_params);
 
 	engine_name = ibus_engine_get_name((IBusEngine*)unikey);
-	g_assert(engine_name);
 
+	// get Input Method
+	int i, n;
+	for (i=0; i<NUM_INPUTMETHOD; i++)
+		if (!strncmp(engine_name, Unikey_IMNames[i], strlen(Unikey_IMNames[i])))
+		{
+			unikey->im = Unikey_IM[i];
+			n = i;
+			break;
+		}
+
+	// get Output Charset
+	for (i=0; i<NUM_OUTPUTCHARSET; i++)
+		if (!strncmp(engine_name+strlen(Unikey_IMNames[n])+1,
+					 Unikey_OCNames[i],
+					 strlen(Unikey_OCNames[i])))
+		{
+			unikey->oc = Unikey_OC[i];
+			break;
+		}
 
 	return (GObject*)unikey;
 }
@@ -154,50 +168,86 @@ static gboolean ibus_unikey_engine_process_key_event(IBusEngine *engine,
 													 guint keyval,
 													 guint modifiers)
 {
-	return FALSE;
+#ifdef DEBUG
+	ibus_warning("process_key_event(%d, %d)", keyval, modifiers);
+#endif
+
+	return ibus_unikey_engine_process_key_event_preedit(engine, keyval, modifiers);
 }
 
 static void ibus_unikey_engine_focus_in(IBusEngine *engine)
 {
+#ifdef DEBUG
+	ibus_warning("focus_in()");
+#endif
+
+	UnikeySetInputMethod(((IBusUnikeyEngine*)engine)->im);
+	UnikeySetOutputCharset(((IBusUnikeyEngine*)engine)->oc);
 }
 
 static void ibus_unikey_engine_focus_out(IBusEngine *engine)
 {
+#ifdef DEBUG
+	ibus_warning("focus_out()");
+#endif
+
+	ibus_unikey_engine_reset(engine);
 }
 
 static void ibus_unikey_engine_reset(IBusEngine *engine)
 {
+#ifdef DEBUG
+	ibus_warning("reset()");
+#endif
+
+	UnikeyResetBuf();
 }
 
 static void ibus_unikey_engine_enable(IBusEngine *engine)
 {
+#ifdef DEBUG
+	ibus_warning("enable()");
+#endif
 }
 
 static void ibus_unikey_engine_disable(IBusEngine *engine)
 {
+#ifdef DEBUG
+	ibus_warning("disable()");
+#endif
 }
 
+static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine *engine,
+														 guint keyval,
+														 guint modifiers)
+{
 
+	
+
+	return FALSE;
+}
 
 
 
 // utils
 
-
 GList *ibus_unikey_list_engines()
 {
 	GList *engines = NULL;
 	int i, j;
-	gchar name[128];
+	gchar name[32], long_name[32], description[128];
 
 	for (i=0; i < NUM_INPUTMETHOD; i++)
 	{
 		for (j=0; j < NUM_OUTPUTCHARSET; j++)
 		{
-			sprintf(name, "%s - %s", Unikey_IMNames[i], Unikey_OCNames[j]);
+			sprintf(name, "%s-%s", Unikey_IMNames[i], Unikey_OCNames[j]);
+			sprintf(long_name, "%s - %s", Unikey_IMNames[i], Unikey_OCNames[j]);
+			sprintf(description, "Kieu go: %s, bang ma: %s", Unikey_IMNames[i], Unikey_OCNames[j]);
+
 			IBusEngineDesc *desc = ibus_engine_desc_new(name,
-														name,
-														name,
+														long_name,
+														description,
 														"vi",
 														"GPL",
 														"Le Quoc Tuan <mr.lequoctuan@gmail.com>",
@@ -205,7 +255,6 @@ GList *ibus_unikey_list_engines()
 														"us");
 
 			engines = g_list_append(engines, desc);
-									
 		}
 	}
 

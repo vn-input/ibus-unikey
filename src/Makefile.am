@@ -1,3 +1,5 @@
+INCLUDES	= @DEFINE@
+
 libexec_PROGRAMS = ibus-engine-unikey
 
 ibus_engine_unikey_SOURCES = \

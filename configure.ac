@@ -44,6 +44,15 @@ AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.17])
 
 
+AC_ARG_WITH(DEBUG, 
+	AC_HELP_STRING([--with-DEBUG],[define DEBUG (Default: no)]), 
+	[defDEBUG=$withval], [defDEBUG=no])
+
+if test "$defDEBUG" = yes; then
+	DEFINE=-DDEBUG
+fi
+AC_SUBST(DEFINE)
+
 # OUTPUT files
 AC_CONFIG_FILES( po/Makefile.in
     Makefile
