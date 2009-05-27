@@ -33,12 +33,13 @@ static void start_component(void)
 	GList *engines, *p;
 	IBusComponent *component;
 
-	ibus_init ();
+	ibus_init();
 	UnikeySetup();
 
 	bus = ibus_bus_new();
-	g_signal_connect(bus, "disconnected", G_CALLBACK (ibus_disconnected_cb), NULL);
+	g_signal_connect(bus, "disconnected", G_CALLBACK(ibus_disconnected_cb), NULL);
 
+	ibus_unikey_init(bus);
 
 	component = ibus_unikey_get_component();
 
@@ -58,8 +59,8 @@ static void start_component(void)
 
 	g_object_unref(component);
 
-	ibus_main ();
-	UnikeyCleanup();
+	ibus_main();
+	ibus_unikey_exit();
 }
 
 static void print_engines_xml(void)
@@ -91,7 +92,7 @@ int main(gint argc, gchar **argv)
 	g_option_context_add_main_entries(context, entries, "ibus-unikey");
 
 	if (!g_option_context_parse(context, &argc, &argv, &error)) {
-		g_print ("Option parsing failed: %s\n", error->message);
+		g_print("Option parsing failed: %s\n", error->message);
 		exit(-1);
 	}
 

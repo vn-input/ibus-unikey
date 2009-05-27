@@ -4,7 +4,6 @@
 #include <ibus.h>
 #include <stdio.h>
 #include <string.h>
-#include "engine.h"
 #include "unikey.h"
 #include "vnconv.h"
 
@@ -25,13 +24,11 @@ struct _IBusUnikeyEngine
 	IBusEngine parent;
 
 	/* members */
-	//VInputContext   *context;
-	IBusProperty    *status_prop;
 	IBusPropList    *prop_list;
 
 	UkInputMethod   im; // input method
 	unsigned int    oc; // output charset
-	gchar           strpreedit[128]; // len = MAX_UK_ENGINE in ukengine.h
+	gchar           preeditstr[128]; // len = MAX_UK_ENGINE in ukengine.h
 };
 
 struct _IBusUnikeyEngineClass {
@@ -50,11 +47,15 @@ static void ibus_unikey_engine_destroy(IBusUnikeyEngine *unikey);
 static gboolean ibus_unikey_engine_process_key_event(IBusEngine *engine,
 													 guint keyval,
 													 guint modifiers);
+
 static void ibus_unikey_engine_focus_in(IBusEngine *engine);
 static void ibus_unikey_engine_focus_out(IBusEngine *engine);
 static void ibus_unikey_engine_reset(IBusEngine *engine);
 static void ibus_unikey_engine_enable(IBusEngine *engine);
 static void ibus_unikey_engine_disable(IBusEngine *engine);
+static void ibus_unikey_engine_property_activate(IBusEngine *engine,
+												 const gchar *prop_name,
+												 guint prop_state);
 
 static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine *engine,
 															 guint keyval,
@@ -62,6 +63,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine *engine,
 
 
 static IBusEngineClass *parent_class = NULL;
+static IBusConfig      *config       = NULL;
 
 GType ibus_unikey_engine_get_type(void)
 {
@@ -90,6 +92,17 @@ GType ibus_unikey_engine_get_type(void)
 	return type;
 }
 
+void ibus_unikey_init(IBusBus *bus)
+{
+	UnikeySetup();
+	config = ibus_bus_get_config(bus);
+}
+
+void ibus_unikey_exit()
+{
+	UnikeyCleanup();
+}
+
 static void ibus_unikey_engine_class_init(IBusUnikeyEngineClass *klass)
 {
 #ifdef DEBUG
@@ -113,6 +126,7 @@ static void ibus_unikey_engine_class_init(IBusUnikeyEngineClass *klass)
 
 	engine_class->focus_in = ibus_unikey_engine_focus_in;
 	engine_class->focus_out = ibus_unikey_engine_focus_out;
+	engine_class->property_activate = ibus_unikey_engine_property_activate;
 }
 
 static void ibus_unikey_engine_init(IBusUnikeyEngine *unikey)
@@ -136,26 +150,6 @@ static GObject *ibus_unikey_engine_constructor(GType type,
 	unikey = (IBusUnikeyEngine*)G_OBJECT_CLASS(parent_class)->constructor(type, n_construct_params, construct_params);
 
 	engine_name = ibus_engine_get_name((IBusEngine*)unikey);
-
-	// get Input Method
-	int i, n;
-	for (i=0; i<NUM_INPUTMETHOD; i++)
-		if (!strncmp(engine_name, Unikey_IMNames[i], strlen(Unikey_IMNames[i])))
-		{
-			unikey->im = Unikey_IM[i];
-			n = i;
-			break;
-		}
-
-	// get Output Charset
-	for (i=0; i<NUM_OUTPUTCHARSET; i++)
-		if (!strncmp(engine_name+strlen(Unikey_IMNames[n])+1,
-					 Unikey_OCNames[i],
-					 strlen(Unikey_OCNames[i])))
-		{
-			unikey->oc = Unikey_OC[i];
-			break;
-		}
 
 	return (GObject*)unikey;
 }
@@ -217,9 +211,17 @@ static void ibus_unikey_engine_disable(IBusEngine *engine)
 #endif
 }
 
+static void ibus_unikey_engine_property_activate(IBusEngine *engine,
+												 const gchar *prop_name,
+												 guint prop_state)
+{
+
+
+}
+
 static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine *engine,
-														 guint keyval,
-														 guint modifiers)
+															 guint keyval,
+															 guint modifiers)
 {
 
 	
@@ -228,44 +230,10 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine *engine,
 }
 
 
-
 // utils
-
-GList *ibus_unikey_list_engines()
-{
-	GList *engines = NULL;
-	int i, j;
-	gchar name[32], long_name[32], description[128];
-
-	for (i=0; i < NUM_INPUTMETHOD; i++)
-	{
-		for (j=0; j < NUM_OUTPUTCHARSET; j++)
-		{
-			sprintf(name, "%s-%s", Unikey_IMNames[i], Unikey_OCNames[j]);
-			sprintf(long_name, "%s - %s", Unikey_IMNames[i], Unikey_OCNames[j]);
-			sprintf(description, "Kieu go: %s, bang ma: %s", Unikey_IMNames[i], Unikey_OCNames[j]);
-
-			IBusEngineDesc *desc = ibus_engine_desc_new(name,
-														long_name,
-														description,
-														"vi",
-														"GPL",
-														"Le Quoc Tuan <mr.lequoctuan@gmail.com>",
-														PKGDATADIR"/icons/ibus-unikey.png",
-														"us");
-
-			engines = g_list_append(engines, desc);
-		}
-	}
-
-	return engines;
-}
-
 IBusComponent *ibus_unikey_get_component()
 {
 	IBusComponent *component;
-	GList *engines, *p;
-
 
 	component = ibus_component_new("org.freedesktop.IBus.Unikey",
 								   "Unikey",
@@ -276,12 +244,15 @@ IBusComponent *ibus_unikey_get_component()
 								   "",
 								   PACKAGE_NAME);
 
-	engines = ibus_unikey_list_engines();
+	ibus_component_add_engine(component,
+							  ibus_engine_desc_new("Unikey",
+												   "Unikey",
+												   "Unikey Input Method",
+												   "vi",
+												   "GPL",
+												   "Le Quoc Tuan <mr.lequoctuan@gmail.com>",
+												   PKGDATADIR"/icons/ibus-unikey.png",
+												   "us"));
 
-	for (p = engines; p != NULL; p = p->next)
-		ibus_component_add_engine(component, (IBusEngineDesc*)p->data);
-
-	g_list_free(engines);
-	
 	return component;
 }
