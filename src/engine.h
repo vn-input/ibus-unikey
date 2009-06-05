@@ -5,10 +5,10 @@
 
 #define IBUS_TYPE_UNIKEY_ENGINE (ibus_unikey_engine_get_type())
 
-void ibus_unikey_init(IBusBus *bus);
+void ibus_unikey_init(IBusBus* bus);
 void ibus_unikey_exit();
-GType ibus_unikey_engine_get_type(void);
-IBusComponent *ibus_unikey_get_component(void);
+GType ibus_unikey_engine_get_type();
+IBusComponent* ibus_unikey_get_component();
 
 #endif
 
