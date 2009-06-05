@@ -8,6 +8,8 @@
 #include "vnconv.h"
 
 
+#define _(string)    (string)
+
 const gchar          *Unikey_IMNames[]    = {"Telex", "Vni"};
 const UkInputMethod   Unikey_IM[]         = {UkTelex, UkVni};
 const unsigned int    NUM_INPUTMETHOD     = sizeof(Unikey_IMNames)/sizeof(Unikey_IMNames[0]);
@@ -24,7 +26,7 @@ struct _IBusUnikeyEngine
 	IBusEngine parent;
 
 	/* members */
-	IBusPropList    *prop_list;
+	IBusPropList    *prop_list, *menu_im, *menu_oc;
 
 	UkInputMethod   im; // input method
 	unsigned int    oc; // output charset
@@ -61,6 +63,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine *engine,
 															 guint keyval,
 															 guint modifiers);
 
+static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine *unikey);
 
 static IBusEngineClass *parent_class = NULL;
 static IBusConfig      *config       = NULL;
@@ -134,6 +137,8 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine *unikey)
 #ifdef DEBUG
 	ibus_warning("init()");
 #endif
+
+	ibus_unikey_engine_create_property_list(unikey);
 }
 
 static GObject *ibus_unikey_engine_constructor(GType type,
@@ -147,7 +152,10 @@ static GObject *ibus_unikey_engine_constructor(GType type,
 	IBusUnikeyEngine *unikey;
 	const gchar *engine_name;
 
-	unikey = (IBusUnikeyEngine*)G_OBJECT_CLASS(parent_class)->constructor(type, n_construct_params, construct_params);
+	unikey = (IBusUnikeyEngine*)
+		G_OBJECT_CLASS(parent_class)->constructor(type,
+												  n_construct_params,
+												  construct_params);
 
 	engine_name = ibus_engine_get_name((IBusEngine*)unikey);
 
@@ -174,9 +182,14 @@ static void ibus_unikey_engine_focus_in(IBusEngine *engine)
 #ifdef DEBUG
 	ibus_warning("focus_in()");
 #endif
+	IBusUnikeyEngine *unikey = (IBusUnikeyEngine*)engine;
 
-	UnikeySetInputMethod(((IBusUnikeyEngine*)engine)->im);
-	UnikeySetOutputCharset(((IBusUnikeyEngine*)engine)->oc);
+	UnikeySetInputMethod(unikey->im);
+	UnikeySetOutputCharset(unikey->oc);
+
+	ibus_engine_register_properties(engine, unikey->prop_list);
+
+	parent_class->focus_in(engine);
 }
 
 static void ibus_unikey_engine_focus_out(IBusEngine *engine)
@@ -186,6 +199,8 @@ static void ibus_unikey_engine_focus_out(IBusEngine *engine)
 #endif
 
 	ibus_unikey_engine_reset(engine);
+
+	parent_class->focus_out(engine);
 }
 
 static void ibus_unikey_engine_reset(IBusEngine *engine)
@@ -195,6 +210,8 @@ static void ibus_unikey_engine_reset(IBusEngine *engine)
 #endif
 
 	UnikeyResetBuf();
+
+	parent_class->reset(engine);
 }
 
 static void ibus_unikey_engine_enable(IBusEngine *engine)
@@ -202,6 +219,8 @@ static void ibus_unikey_engine_enable(IBusEngine *engine)
 #ifdef DEBUG
 	ibus_warning("enable()");
 #endif
+
+	parent_class->enable(engine);
 }
 
 static void ibus_unikey_engine_disable(IBusEngine *engine)
@@ -209,14 +228,208 @@ static void ibus_unikey_engine_disable(IBusEngine *engine)
 #ifdef DEBUG
 	ibus_warning("disable()");
 #endif
+
+	parent_class->disable(engine);
 }
 
 static void ibus_unikey_engine_property_activate(IBusEngine *engine,
 												 const gchar *prop_name,
 												 guint prop_state)
 {
+	IBusUnikeyEngine *unikey;
+	IBusProperty *prop;
+	int i;
 
+	unikey = (IBusUnikeyEngine*)engine;
 
+	// input method active
+	if (strncmp(prop_name, "InputMethod", strlen("InputMethod")) == 0)
+	{
+		for (i=0; i<NUM_INPUTMETHOD; i++)
+			if (strncmp(prop_name+strlen("InputMethod")+1,
+						Unikey_IMNames[i],
+						strlen(Unikey_IMNames[i])) == 0)
+			{
+				unikey->im = Unikey_IM[i];
+
+				// update property state
+				for (int j=0; j<unikey->menu_im->properties->len; j++)
+				{
+					prop = ibus_prop_list_get(unikey->menu_im, j);
+					if (prop==NULL)
+						return;
+					else if (strcmp(prop->key, prop_name)==0)
+						prop->state = PROP_STATE_CHECKED;
+					else
+						prop->state = PROP_STATE_UNCHECKED;
+				}
+				
+				break;
+			}
+	}
+	// output charset active
+	else if (strncmp(prop_name, "OutputCharset", strlen("OutputCharset")) == 0)
+	{
+		for (i=0; i<NUM_OUTPUTCHARSET; i++)
+			if (strncmp(prop_name+strlen("OutputCharset")+1,
+						Unikey_OCNames[i],
+						strlen(Unikey_OCNames[i])) == 0)
+			{
+				unikey->oc = Unikey_OC[i];
+
+                // update property state
+				for (int j=0; j<unikey->menu_oc->properties->len; j++)
+				{
+					prop = ibus_prop_list_get(unikey->menu_oc, j);
+					if (prop==NULL)
+						return;
+					else if (strcmp(prop->key, prop_name)==0)
+						prop->state = PROP_STATE_CHECKED;
+					else
+						prop->state = PROP_STATE_UNCHECKED;
+				}
+
+				break;
+			}
+	}
+
+	ibus_unikey_engine_focus_out(engine);
+	ibus_unikey_engine_focus_in(engine);
+}
+
+static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine *unikey)
+{
+	IBusProperty *prop;
+	IBusText *label, *tooltip;
+	gchar name[32];
+	int i;
+
+// create property list
+
+// create input method menu
+	unikey->menu_im = ibus_prop_list_new();
+	
+	// add item
+	for (i = 0; i < NUM_INPUTMETHOD; i++)
+	{
+		label = ibus_text_new_from_string(Unikey_IMNames[i]);
+		tooltip = ibus_text_new_from_string(""); // ?
+		sprintf(name, "InputMethod-%s", Unikey_IMNames[i]);
+		prop = ibus_property_new(name,
+								 PROP_TYPE_RADIO,
+								 label,
+								 "",
+								 tooltip,
+								 TRUE,
+								 TRUE,
+								 i==unikey->im?PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
+								 NULL);
+		g_object_unref(label);
+		g_object_unref(tooltip);
+		ibus_prop_list_append(unikey->menu_im, prop);
+	}
+
+// create output charset menu
+	unikey->menu_oc = ibus_prop_list_new();
+	
+	// add item
+	for (i = 0; i < NUM_OUTPUTCHARSET; i++)
+	{
+		label = ibus_text_new_from_string(Unikey_OCNames[i]);
+		tooltip = ibus_text_new_from_string(""); // ?
+		sprintf(name, "OutputCharset-%s", Unikey_OCNames[i]);
+		prop = ibus_property_new(name,
+								 PROP_TYPE_RADIO,
+								 label,
+								 "",
+								 tooltip,
+								 TRUE,
+								 TRUE,
+								 i==unikey->oc?PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
+								 NULL);
+		g_object_unref(label);
+		g_object_unref(tooltip);
+		ibus_prop_list_append(unikey->menu_oc, prop);
+	}
+/*
+// create misc menu
+	menu_misc = ibus_prop_list_new();
+
+	// add item
+	// - Spell check
+	label = ibus_text_new_from_string(_("Enable spell check"));
+	tooltip = ibus_text_new_from_string(_("If enable, you can decrease mistake when typing"));
+	prop = ibus_property_new("Spellcheck",
+							 PROP_TYPE_TOGGLE,
+							 label,
+							 "gtk-preferences",
+							 tooltip,
+							 TRUE,
+							 TRUE,
+							 PROP_STATE_UNCHECKED,
+							 NULL);
+	g_object_unref(label);
+	g_object_unref(tooltip);
+
+	ibus_prop_list_append(menu_misc, prop);
+*/
+
+// create top menu
+	unikey->prop_list = ibus_prop_list_new();
+
+	// add item
+	// - add input method menu
+	label = ibus_text_new_from_string(_("Input method"));
+	tooltip = ibus_text_new_from_string(_("Choose input method"));
+	prop = ibus_property_new("InputMethod",
+							 PROP_TYPE_MENU,
+							 label,
+							 "add",
+							 tooltip,
+							 TRUE,
+							 TRUE,
+							 PROP_STATE_UNCHECKED,
+							 unikey->menu_im);
+	g_object_unref(label);
+	g_object_unref(tooltip);
+
+	ibus_prop_list_append(unikey->prop_list, prop);
+
+	// - add output charset menu
+	label = ibus_text_new_from_string(_("Output charset"));
+	tooltip = ibus_text_new_from_string(_("Choose output charset"));
+	prop = ibus_property_new("OutputCharset",
+							 PROP_TYPE_MENU,
+							 label,
+							 "cancel",
+							 tooltip,
+							 TRUE,
+							 TRUE,
+							 PROP_STATE_UNCHECKED,
+							 unikey->menu_oc);
+	g_object_unref(label);
+	g_object_unref(tooltip);
+
+	ibus_prop_list_append(unikey->prop_list, prop);
+
+/*
+	// - add misc menu
+	label = ibus_text_new_from_string(_("Misc options"));
+	tooltip = ibus_text_new_from_string(_(""));
+	prop = ibus_property_new("MiscOptions",
+							 PROP_TYPE_MENU,
+							 label,
+							 "gtk-preferences",
+							 tooltip,
+							 TRUE,
+							 TRUE,
+							 PROP_STATE_UNCHECKED,
+							 menu_misc);
+	g_object_unref(label);
+	g_object_unref(tooltip);
+
+	ibus_prop_list_append(unikey->prop_list, prop);
+*/
 }
 
 static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine *engine,
@@ -224,11 +437,9 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine *engine,
 															 guint modifiers)
 {
 
-	
 
 	return FALSE;
 }
-
 
 // utils
 IBusComponent *ibus_unikey_get_component()
