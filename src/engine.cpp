@@ -166,7 +166,12 @@ static void ibus_unikey_engine_reset(IBusEngine* engine)
     IBusUnikeyEngine *unikey = (IBusUnikeyEngine*)engine;
 
     UnikeyResetBuf();
-    unikey->preeditstr->clear();
+    if (unikey->preeditstr->length() > 0)
+    {
+        ibus_unikey_engine_commit_string(engine, unikey->preeditstr->c_str());
+        ibus_engine_hide_preedit_text(engine);
+        unikey->preeditstr->clear();
+    }
 
     parent_class->reset(engine);
 }
@@ -408,7 +413,7 @@ static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const g
     IBusText *text;
 
     text = ibus_text_new_from_static_string(string);
-    ibus_text_append_attribute(text, IBUS_ATTR_TYPE_UNDERLINE, 1, 0, strlen(string));
+    ibus_text_append_attribute(text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, strlen(string));
     ibus_engine_update_preedit_text(engine, text, strlen(string), visible);
     g_object_unref(text);
 }
@@ -465,13 +470,15 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
         return false;
 
     else if (modifiers & IBUS_CONTROL_MASK
-        || modifiers & IBUS_MOD1_MASK // alternate mask
-        || keyval == IBUS_Tab
-        || keyval == IBUS_Return
-        || keyval == IBUS_Delete
-        || keyval == IBUS_KP_Enter
-        || (keyval >= IBUS_Home && keyval <= IBUS_Insert)
-        || (keyval >= IBUS_KP_Home && keyval <= IBUS_KP_Delete)
+             || modifiers & IBUS_MOD1_MASK // alternate mask
+             || keyval == IBUS_Control_L
+             || keyval == IBUS_Control_R
+             || keyval == IBUS_Tab
+             || keyval == IBUS_Return
+             || keyval == IBUS_Delete
+             || keyval == IBUS_KP_Enter
+             || (keyval >= IBUS_Home && keyval <= IBUS_Insert)
+             || (keyval >= IBUS_KP_Home && keyval <= IBUS_KP_Delete)
         )
     {
         if (unikey->preeditstr->length() > 0)
@@ -546,7 +553,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
         {
             for (i =0; i < sizeof(WordAutoCommit); i++)
             {
-                if (keyval ==WordAutoCommit[i])
+                if (keyval == WordAutoCommit[i])
                 {
                     UnikeyPutChar(keyval);
                     unikey->auto_commit = true;
@@ -559,7 +566,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
 
         unikey->auto_commit = false;
         
-        if (modifiers == IBUS_SHIFT_MASK && keyval == IBUS_space && !UnikeyAtWordBeginning())
+        if (modifiers & IBUS_SHIFT_MASK && keyval == IBUS_space && !UnikeyAtWordBeginning())
         {
             UnikeyRestoreKeyStrokes();
         }
@@ -607,11 +614,12 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
             int n;
             char s[6];
 
-            n = g_unichar_to_utf8(keyval, s);
-
+            n = g_unichar_to_utf8(keyval, s); // convert ucs4 to utf8 char
             unikey->preeditstr->append(s, n);
         }
         // end process result of ukengine
+
+        ibus_warning("%s", unikey->preeditstr->c_str());
 
         // commit string: if need
         if (unikey->preeditstr->length() > 0)
