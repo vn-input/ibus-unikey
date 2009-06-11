@@ -2,71 +2,17 @@
 #include "config.h"
 #endif
 
-#include <ibus.h>
 #include <stdio.h>
 #include <string.h>
+#include <string>
+#include <ibus.h>
+
+#include "engine_private.h"
+#include "utils.h"
 #include "unikey.h"
 #include "vnconv.h"
 
-
 #define _(string) (string)
-
-const gchar*        Unikey_IMNames[] = {"Telex", "Vni"};
-const UkInputMethod Unikey_IM[]      = {UkTelex, UkVni};
-const unsigned int  NUM_INPUTMETHOD  = sizeof(Unikey_IMNames)/sizeof(Unikey_IMNames[0]);
-
-const gchar*       Unikey_OCNames[]  = {"Unicode",  "TCVN3","VNI Win",  "VIQR"};
-const unsigned int Unikey_OC[]       = {CONV_CHARSET_XUTF8,  CONV_CHARSET_TCVN3, CONV_CHARSET_VNIWIN, CONV_CHARSET_VIQR};
-const unsigned int NUM_OUTPUTCHARSET = sizeof(Unikey_OCNames)/sizeof(Unikey_OCNames[0]);
-
-typedef struct _IBusUnikeyEngine       IBusUnikeyEngine;
-typedef struct _IBusUnikeyEngineClass  IBusUnikeyEngineClass;
-
-struct _IBusUnikeyEngine
-{
-    IBusEngine parent;
-
-/* members */
-    IBusPropList* prop_list;
-    IBusPropList* menu_im;
-    IBusPropList* menu_oc;
-    UkInputMethod im; // input method
-    unsigned int  oc; // output charset
-    gchar         preeditstr[128]; // len = MAX_UK_ENGINE in ukengine.h
-};
-
-struct _IBusUnikeyEngineClass
-{
-    IBusEngineClass parent;
-};
-
-// prototype
-static void ibus_unikey_engine_class_init(IBusUnikeyEngineClass* kclass);
-static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey);
-
-static GObject* ibus_unikey_engine_constructor(GType type,
-                                               guint n_construct_params,
-                                               GObjectConstructParam* construct_params);
-
-static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey);
-static gboolean ibus_unikey_engine_process_key_event(IBusEngine* engine,
-                                                     guint keyval,
-                                                     guint modifiers);
-
-static void ibus_unikey_engine_focus_in(IBusEngine* engine);
-static void ibus_unikey_engine_focus_out(IBusEngine* engine);
-static void ibus_unikey_engine_reset(IBusEngine* engine);
-static void ibus_unikey_engine_enable(IBusEngine* engine);
-static void ibus_unikey_engine_disable(IBusEngine* engine);
-static void ibus_unikey_engine_property_activate(IBusEngine* engine,
-                                                 const gchar* prop_name,
-                                                 guint prop_state);
-
-static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
-                                                             guint keyval,
-                                                             guint modifiers);
-
-static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey);
 
 static IBusEngineClass* parent_class = NULL;
 static IBusConfig*      config       = NULL;
@@ -139,6 +85,9 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     ibus_warning("init()");
 #endif
 
+    unikey->im = UkTelex;
+    unikey->oc = CONV_CHARSET_XUTF8;
+
     ibus_unikey_engine_create_property_list(unikey);
 }
 
@@ -171,9 +120,6 @@ static gboolean ibus_unikey_engine_process_key_event(IBusEngine* engine,
                                                      guint keyval,
                                                      guint modifiers)
 {
-#ifdef DEBUG
-    ibus_warning("process_key_event(%d, %d)", keyval, modifiers);
-#endif
 
     return ibus_unikey_engine_process_key_event_preedit(engine, keyval, modifiers);
 }
@@ -210,6 +156,8 @@ static void ibus_unikey_engine_reset(IBusEngine* engine)
 #ifdef DEBUG
     ibus_warning("reset()");
 #endif
+
+    IBusUnikeyEngine *unikey = (IBusUnikeyEngine*)engine;
 
     UnikeyResetBuf();
 
@@ -329,7 +277,7 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                                  tooltip,
                                  TRUE,
                                  TRUE,
-                                 i==unikey->im?PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
+                                 Unikey_IM[i]==unikey->im?PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
                                  NULL);
         g_object_unref(label);
         g_object_unref(tooltip);
@@ -352,7 +300,7 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                                  tooltip,
                                  TRUE,
                                  TRUE,
-                                 i==unikey->oc?PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
+                                 Unikey_OC[i]==unikey->oc?PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
                                  NULL);
         g_object_unref(label);
         g_object_unref(tooltip);
@@ -439,38 +387,35 @@ ibus_prop_list_append(unikey->prop_list, prop);
 */
 }
 
+static void ibus_unikey_engine_commit_string(IBusEngine *engine, const gchar *string)
+{
+    IBusText *text;
+    text = ibus_text_new_from_static_string(string);
+    ibus_engine_commit_text(engine, text);
+    g_object_unref(text);
+}
+
+static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const gchar *string, gboolean visible)
+{
+    IBusText *text;
+    text = ibus_text_new_from_static_string(string);
+    ibus_engine_update_preedit_text(engine, text, strlen(string), visible);
+    g_object_unref(text);
+}
+
 static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
                                                              guint keyval,
                                                              guint modifiers)
 {
+    IBusUnikeyEngine* unikey;
 
+    unikey = (IBusUnikeyEngine*)engine;
 
+    if (modifiers & IBUS_RELEASE_MASK)
+        return false;
+
+    // non process key
+    ibus_unikey_engine_reset(engine);
     return false;
 }
 
-// utils
-IBusComponent* ibus_unikey_get_component()
-{
-    IBusComponent* component;
-
-    component = ibus_component_new("org.freedesktop.IBus.Unikey",
-                                   "Unikey",
-                                   PACKAGE_VERSION,
-                                   "GPL",
-                                   "Le Quoc Tuan <mr.lequoctuan@gmail.com>",
-                                   PACKAGE_BUGREPORT,
-                                   "",
-                                   PACKAGE_NAME);
-
-    ibus_component_add_engine(component,
-                              ibus_engine_desc_new("Unikey",
-                                                   "Unikey",
-                                                   "Unikey Input Method",
-                                                   "vi",
-                                                   "GPL",
-                                                   "Le Quoc Tuan <mr.lequoctuan@gmail.com>",
-                                                   PKGDATADIR"/icons/ibus-unikey.png",
-                                                   "us"));
-
-    return component;
-}

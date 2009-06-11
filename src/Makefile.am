@@ -6,6 +6,9 @@ ibus_engine_unikey_SOURCES = \
 	main.cpp \
 	engine.cpp \
 	engine.h \
+	engine_private.h \
+	utils.cpp \
+	utils.h \
 	$(NULL)
 ibus_engine_unikey_CXXFLAGS = \
 	@IBUS_CFLAGS@ \

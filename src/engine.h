@@ -8,7 +8,6 @@
 void ibus_unikey_init(IBusBus* bus);
 void ibus_unikey_exit();
 GType ibus_unikey_engine_get_type();
-IBusComponent* ibus_unikey_get_component();
 
 #endif
 

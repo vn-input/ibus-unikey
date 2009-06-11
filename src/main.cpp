@@ -1,7 +1,9 @@
-#include <ibus.h>
 #include <locale.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+#include <ibus.h>
+#include "utils.h"
 #include "engine.h"
 #include "unikey.h"
 
