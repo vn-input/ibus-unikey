@@ -413,6 +413,44 @@ static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const g
     g_object_unref(text);
 }
 
+static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars)
+{
+    IBusUnikeyEngine* unikey;
+    int i, k;
+    guchar c;
+
+    unikey = (IBusUnikeyEngine*)engine;
+    k = num_chars;
+   
+    for ( i = unikey->preeditstr->length()-1; i >= 0 && k > 0; i--)
+    {
+        c = unikey->preeditstr->at(i);
+
+        if (c < (guchar)'\x80')
+        {
+            unikey->preeditstr->erase(i, 1);
+            k--;
+        }
+        else if (c >= (guchar)'\xC0' && c < (guchar)'\xE0')
+        {
+            unikey->preeditstr->erase(i, 2);
+            k--;
+        }
+        else if (c >= (guchar)'\xE0' && c < (guchar)'\xF0')
+        {
+            unikey->preeditstr->erase(i, 3);
+            k--;
+        }
+        else if (c >= (guchar)'\xF0' && c < (guchar)'\xF8')
+        {
+            unikey->preeditstr->erase(i, 4);
+            k--;
+        }
+        // else if : 5 byte, 6 byte : not used
+        // else continue;
+    }
+}
+
 static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
                                                              guint keyval,
                                                              guint modifiers)
@@ -469,7 +507,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
             }
             else
             {
-                unikey->preeditstr->erase(unikey->preeditstr->length() - UnikeyBackspaces, UnikeyBackspaces);
+                ibus_unikey_engine_erase_chars(engine, UnikeyBackspaces);
                 ibus_unikey_engine_update_preedit_string(engine, unikey->preeditstr->c_str(), true);
             }
 
@@ -545,7 +583,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
             }
             else
             {
-                unikey->preeditstr->erase(unikey->preeditstr->length() - UnikeyBackspaces, UnikeyBackspaces);
+                ibus_unikey_engine_erase_chars(engine, UnikeyBackspaces);
             }
         }
 
