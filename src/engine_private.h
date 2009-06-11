@@ -44,8 +44,8 @@ struct _IBusUnikeyEngine
     UkInputMethod im; // input method
     unsigned int  oc; // output charset
 
-    gboolean can_commit;
-    std::string preeditstr;
+    gboolean auto_commit;
+    std::basic_string<gchar> *preeditstr;
 };
 
 struct _IBusUnikeyEngineClass
