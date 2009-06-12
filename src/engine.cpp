@@ -351,7 +351,7 @@ ibus_prop_list_append(menu_misc, prop);
     prop = ibus_property_new("InputMethod",
                              PROP_TYPE_MENU,
                              label,
-                             "add",
+                             "",
                              tooltip,
                              TRUE,
                              TRUE,
@@ -368,7 +368,7 @@ ibus_prop_list_append(menu_misc, prop);
     prop = ibus_property_new("OutputCharset",
                              PROP_TYPE_MENU,
                              label,
-                             "cancel",
+                             "",
                              tooltip,
                              TRUE,
                              TRUE,
@@ -411,17 +411,20 @@ static void ibus_unikey_engine_commit_string(IBusEngine *engine, const gchar *st
 static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const gchar *string, gboolean visible)
 {
     IBusText *text;
+    int len;
+
 
     text = ibus_text_new_from_static_string(string);
+    len = ibus_text_get_length(text);
 
-    ibus_text_append_attribute(text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_LOW, 0, strlen(string));
+    ibus_text_append_attribute(text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_LOW, 0, len);
 
     if (UnikeyLastWordIsNonVn())
     {
-        ibus_text_append_attribute(text, IBUS_ATTR_TYPE_FOREGROUND, 0xff0000, 0, strlen(string));
+        ibus_text_append_attribute(text, IBUS_ATTR_TYPE_FOREGROUND, 0xff0000, 0, len);
     }
 
-    ibus_engine_update_preedit_text(engine, text, strlen(string), visible);
+    ibus_engine_update_preedit_text(engine, text, len, visible);
     g_object_unref(text);
 }
 
