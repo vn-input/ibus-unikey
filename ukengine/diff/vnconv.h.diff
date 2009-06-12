@@ -1,0 +1,6 @@
+21a22
+> 
+102c103
+< 	char *name;
+---
+> 	const char *name;

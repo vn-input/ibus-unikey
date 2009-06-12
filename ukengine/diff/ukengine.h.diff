@@ -1,0 +1,6 @@
+22a23
+> 
+99a101
+>     bool lastWordIsNonVn();
+160d161
+<     bool lastWordIsNonVn();

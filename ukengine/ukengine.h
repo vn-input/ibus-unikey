@@ -20,6 +20,7 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
+
 #ifndef __UKENGINE_H
 #define __UKENGINE_H
 
@@ -97,6 +98,7 @@ public:
     int processMapChar(UkKeyEvent & ev);
     int processTelexW(UkKeyEvent & ev);
     int processEscChar(UkKeyEvent & ev);
+    bool lastWordIsNonVn();
 
 protected:
     static bool m_classInit;
@@ -157,7 +159,6 @@ protected:
     int processNoSpellCheck(UkKeyEvent & ev);
     int processWordEnd(UkKeyEvent & ev);
     void synchKeyStrokeBuffer();
-    bool lastWordIsNonVn();
     bool lastWordHasVnMark();
 };
 

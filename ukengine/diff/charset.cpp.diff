@@ -1,0 +1,12 @@
+23d22
+< #include "stdafx.h"
+693c692
+< char *VIQREscapes[] = {
+---
+> const char *VIQREscapes[] = {
+1031,1032c1030,1031
+< 	m_VIQREscPatterns.init(VIQREscapes, VIQREscCount);
+< 	m_VIQROutEscPatterns.init(VIQREscapes, VIQREscCount);
+---
+> 	m_VIQREscPatterns.init((char**)VIQREscapes, VIQREscCount);
+> 	m_VIQROutEscPatterns.init((char**)VIQREscapes, VIQREscCount);

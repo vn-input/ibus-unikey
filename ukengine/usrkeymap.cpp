@@ -21,20 +21,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/**
-* This file was modified by Lê Quốc Tuấn <mr.lequoctuan@gmail.com>
-* for project scim-unikey <http://scim-unikey.googlecode.com>
-*
-* Please read file in ukengine/diff/ for change
-*/
-
-#include "stdafx.h"
 #include <iostream>
+#include <string.h>
+#include <stdio.h>
 using namespace std;
 
 #include <ctype.h>
 #include "usrkeymap.h"
-#include <string.h>
+
 
 int getLabelIndex(int action);
 void initKeyMap(int keyMap[256]);
@@ -234,7 +228,7 @@ void initKeyMap(int keyMap[256])
         keyMap[c] = vneNormal;
 }
 
-char *UkKeyMapHeader = 
+const char *UkKeyMapHeader = 
     "; This is UniKey user-defined key mapping file, generated from UniKey (Windows)\n\n";
 
 DllExport int UkStoreKeyOrderMap(const char *fileName, UkKeyMapPair *pMap, int mapCount)

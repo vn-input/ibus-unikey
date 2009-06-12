@@ -20,7 +20,7 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-#include "stdafx.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -311,7 +311,7 @@ int CMacroTable::addItem(const char *item, int charset)
   char key[MAX_MACRO_KEY_LEN];
   
   // Parse the input item
-  char * pos = strchr(item, ':');
+  char * pos = (char*)strchr(item, ':');
   if (pos == NULL)
     return -1;
   int keyLen = (int)(pos - item);

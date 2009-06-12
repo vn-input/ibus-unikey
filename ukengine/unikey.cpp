@@ -21,13 +21,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 --------------------------------------------------------------------------------*/
 
-/**
-* This file was modified by Lê Quốc Tuấn <mr.lequoctuan@gmail.com>
-* for project scim-unikey <http://scim-unikey.googlecode.com>
-*
-* Please read file in ukengine/diff/ for change
-*/
-
 #include <ctype.h>
 #include <memory.h>
 #include <stdio.h>
@@ -209,3 +202,7 @@ bool UnikeyAtWordBeginning()
     return MyKbEngine.atWordBeginning();
 }
 
+bool UnikeyLastWordIsNonVn()
+{
+    return MyKbEngine.lastWordIsNonVn();
+}

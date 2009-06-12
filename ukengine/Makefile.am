@@ -19,8 +19,6 @@ libunikey_zmod_la_SOURCES = \
 	mactab.h \
 	pattern.cpp \
 	pattern.h \
-	prehdr.h \
-	stdafx.h \
 	ukengine.cpp \
 	ukengine.h \
 	unikey.cpp \

@@ -1,10 +1,11 @@
-23a24,30
-> /**
-> * This file was modified by Lê Quốc Tuấn <mr.lequoctuan@gmail.com>
-> * for project scim-unikey <http://scim-unikey.googlecode.com>
-> *
-> * Please read file in ukengine/diff/ for change
-> */
-> 
-29a37
+24d23
+< #include "stdafx.h"
+25a25,26
 > #include <string.h>
+> #include <stdio.h>
+30a32
+> 
+229c231
+< char *UkKeyMapHeader = 
+---
+> const char *UkKeyMapHeader = 

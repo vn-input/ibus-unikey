@@ -1,0 +1,10 @@
+23d22
+< #include "stdafx.h"
+185c184
+< 			system(cmd);
+---
+> 			int tmp = system(cmd);
+238c237
+< char *ErrTable[VNCONV_LAST_ERROR] = 
+---
+> const char *ErrTable[VNCONV_LAST_ERROR] = 

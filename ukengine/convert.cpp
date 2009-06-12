@@ -20,7 +20,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 --------------------------------------------------------------------------------*/
 
-#include "stdafx.h"
 #include "charset.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -182,7 +181,7 @@ DllExport int VnFileConvert(int inCharset, int outCharset, const char *inFile, c
 #if !defined(_WIN32)
 			char cmd[256];
 			sprintf(cmd, "mv %s %s", tmpName, outFile);
-			system(cmd);
+			int tmp = system(cmd);
 #else
 			if (rename(tmpName, outFile) != 0) {
 				remove(tmpName);
@@ -235,7 +234,7 @@ int vnFileStreamConvert(int inCharset, int outCharset, FILE * inf, FILE *outf)
 	return genConvert(*pInCharset, *pOutCharset, is, os);
 }
 
-char *ErrTable[VNCONV_LAST_ERROR] = 
+const char *ErrTable[VNCONV_LAST_ERROR] = 
 {"No error",
  "Unknown error",
  "Invalid charset",
