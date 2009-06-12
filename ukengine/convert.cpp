@@ -117,7 +117,7 @@ DllExport int VnFileConvert(int inCharset, int outCharset, const char *inFile, c
 	FILE *inf = NULL;
 	FILE *outf = NULL;
 	int ret = 0;
-	char *tmpName = NULL;
+	char tmpName[32];
 
 	if (inFile == NULL) {
 		inf = stdin;
@@ -151,9 +151,10 @@ DllExport int VnFileConvert(int inCharset, int outCharset, const char *inFile, c
 		else
 			*p = 0;
 
-		tmpName = tempnam(outDir, NULL);
+		strcpy(tmpName, outDir);
+        strcat(tmpName, "XXXXXX");
 
-		if (tmpName == NULL) {
+		if (mkstemp(tmpName) == -1) {
 			fclose(inf);
 			ret = VNCONV_ERR_OUTPUT_FILE;
 			goto end;
@@ -162,7 +163,6 @@ DllExport int VnFileConvert(int inCharset, int outCharset, const char *inFile, c
 
 		if (outf == NULL) {
 			fclose(inf);
-			free(tmpName);
 			ret = VNCONV_ERR_OUTPUT_FILE; 
 			goto end;
 		}
@@ -185,7 +185,6 @@ DllExport int VnFileConvert(int inCharset, int outCharset, const char *inFile, c
 #else
 			if (rename(tmpName, outFile) != 0) {
 				remove(tmpName);
-				free(tmpName);
 				ret = VNCONV_ERR_OUTPUT_FILE;
 				goto end;
 			}
@@ -193,7 +192,6 @@ DllExport int VnFileConvert(int inCharset, int outCharset, const char *inFile, c
 		}
 		else 
 			remove(tmpName);
-		free(tmpName);
 	}
 
 end:

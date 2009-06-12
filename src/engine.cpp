@@ -417,7 +417,7 @@ static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const g
     text = ibus_text_new_from_static_string(string);
     len = ibus_text_get_length(text);
 
-    ibus_text_append_attribute(text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_LOW, 0, len);
+    ibus_text_append_attribute(text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, len);
 
     if (UnikeyLastWordIsNonVn())
     {
