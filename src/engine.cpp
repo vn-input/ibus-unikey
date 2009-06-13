@@ -200,6 +200,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
 {
     IBusUnikeyEngine* unikey;
     IBusProperty* prop;
+    IBusText* label;
     int i;
 
     unikey = (IBusUnikeyEngine*)engine;
@@ -214,6 +215,21 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                         strlen(Unikey_IMNames[i])) == 0)
             {
                 unikey->im = Unikey_IM[i];
+
+                // update label
+                for (int j=0; j<unikey->prop_list->properties->len; j++)
+                {
+                    prop = ibus_prop_list_get(unikey->prop_list, j);
+                    if (prop==NULL)
+                        return;
+                    else if (strcmp(prop->key, "InputMethod")==0)
+                    {
+                        label = ibus_text_new_from_static_string(Unikey_IMNames[i]);
+                        ibus_property_set_label(prop, label);
+                        g_object_unref(label);
+                        break;
+                    }
+                } // end update label
 
                 // update property state
                 for (int j=0; j<unikey->menu_im->properties->len; j++)
@@ -242,6 +258,21 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                         strlen(Unikey_OCNames[i])) == 0)
             {
                 unikey->oc = Unikey_OC[i];
+
+                // update label
+                for (int j=0; j<unikey->prop_list->properties->len; j++)
+                {
+                    prop = ibus_prop_list_get(unikey->prop_list, j);
+                    if (prop==NULL)
+                        return;
+                    else if (strcmp(prop->key, "OutputCharset")==0)
+                    {
+                        label = ibus_text_new_from_static_string(Unikey_OCNames[i]);
+                        ibus_property_set_label(prop, label);
+                        g_object_unref(label);
+                        break;
+                    }
+                } // end update label
 
                 // update property state
                 for (int j=0; j<unikey->menu_oc->properties->len; j++)
@@ -346,7 +377,12 @@ ibus_prop_list_append(menu_misc, prop);
 
 // add item
 // - add input method menu
-    label = ibus_text_new_from_string(_("Input method"));
+    for (i = 0; i < NUM_INPUTMETHOD; i++)
+    {
+        if (Unikey_IM[i] == unikey->im)
+            break;
+    }
+    label = ibus_text_new_from_string(Unikey_IMNames[i]);
     tooltip = ibus_text_new_from_string(_("Choose input method"));
     prop = ibus_property_new("InputMethod",
                              PROP_TYPE_MENU,
@@ -363,7 +399,12 @@ ibus_prop_list_append(menu_misc, prop);
     ibus_prop_list_append(unikey->prop_list, prop);
 
 // - add output charset menu
-    label = ibus_text_new_from_string(_("Output charset"));
+    for (i = 0; i < NUM_OUTPUTCHARSET; i++)
+    {
+        if (Unikey_OC[i] == unikey->oc)
+            break;
+    }
+    label = ibus_text_new_from_string(Unikey_OCNames[i]);
     tooltip = ibus_text_new_from_string(_("Choose output charset"));
     prop = ibus_property_new("OutputCharset",
                              PROP_TYPE_MENU,
