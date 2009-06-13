@@ -1,11 +1,16 @@
-198a199,208
-> 
-> bool UnikeyAtWordBeginning()
-> {
->     return MyKbEngine.atWordBeginning();
-> }
-> 
-> bool UnikeyLastWordIsNonVn()
-> {
->     return MyKbEngine.lastWordIsNonVn();
-> }
+--- orginal/unikey.cpp	2009-04-14 01:13:02.000000000 +0700
++++ unikey.cpp	2009-06-12 10:45:31.000000000 +0700
+@@ -196,3 +196,13 @@
+     UnikeyBufChars = sizeof(UnikeyBuf);
+     MyKbEngine.restoreKeyStrokes(UnikeyBackspaces, UnikeyBuf, UnikeyBufChars, UnikeyOutput);
+ }
++
++bool UnikeyAtWordBeginning()
++{
++    return MyKbEngine.atWordBeginning();
++}
++
++bool UnikeyLastWordIsNonVn()
++{
++    return MyKbEngine.lastWordIsNonVn();
++}
