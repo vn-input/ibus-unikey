@@ -482,29 +482,13 @@ static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars)
     {
         c = unikey->preeditstr->at(i);
 
-        if (c < (guchar)'\x80')
+        if (c < (guchar)'\x80' || c >= (guchar)'\xC0')
         {
-            unikey->preeditstr->erase(i, 1);
             k--;
         }
-        else if (c >= (guchar)'\xC0' && c < (guchar)'\xE0')
-        {
-            unikey->preeditstr->erase(i, 2);
-            k--;
-        }
-        else if (c >= (guchar)'\xE0' && c < (guchar)'\xF0')
-        {
-            unikey->preeditstr->erase(i, 3);
-            k--;
-        }
-        else if (c >= (guchar)'\xF0' && c < (guchar)'\xF8')
-        {
-            unikey->preeditstr->erase(i, 4);
-            k--;
-        }
-        // else if : 5 byte, 6 byte : not used
-        // else continue;
     }
+
+    unikey->preeditstr->erase(i+1);
 }
 
 static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
