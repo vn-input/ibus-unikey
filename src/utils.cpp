@@ -3,7 +3,9 @@
 #endif
 
 #include <ibus.h>
+#include "ukengine.h"
 #include "utils.h"
+#include "engine_private.h"
 
 IBusComponent* ibus_unikey_get_component()
 {
@@ -29,6 +31,17 @@ IBusComponent* ibus_unikey_get_component()
                                                    "us"));
 
     return component;
+}
+
+void unikey_set_default_options(UnikeyOptions *pOpt)
+{
+  pOpt->freeMarking         = UNIKEY_OPT_FREEMARKING;
+  pOpt->modernStyle         = UNIKEY_OPT_MODERNSTYLE;
+  pOpt->macroEnabled        = UNIKEY_OPT_MACROENABLED;
+  pOpt->useUnicodeClipboard = 0; // not use
+  pOpt->alwaysMacro         = 0; // not use
+  pOpt->spellCheckEnabled   = UNIKEY_OPT_SPELLCHECKENABLED;
+  pOpt->autoNonVnRestore    = UNIKEY_OPT_AUTONONVNRESTORE;
 }
 
 // code from x-unikey, for convert charset that not is XUtf-8

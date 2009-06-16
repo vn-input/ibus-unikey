@@ -1,34 +1,10 @@
 #ifndef __ENGINE_PRIVATE_H__
 #define __ENGINE_PRIVATE_H__
 
+#include <string>
 #include <ibus.h>
 #include "unikey.h"
 #include "vnconv.h"
-
-const gchar*        Unikey_IMNames[] = {"Telex", "Vni"};
-const UkInputMethod Unikey_IM[]      = {UkTelex, UkVni};
-const unsigned int  NUM_INPUTMETHOD  = sizeof(Unikey_IMNames)/sizeof(Unikey_IMNames[0]);
-
-const gchar*       Unikey_OCNames[]  = {"Unicode",  "TCVN3","VNI Win",  "VIQR"};
-const unsigned int Unikey_OC[]       = {CONV_CHARSET_XUTF8,  CONV_CHARSET_TCVN3, CONV_CHARSET_VNIWIN, CONV_CHARSET_VIQR};
-const unsigned int NUM_OUTPUTCHARSET = sizeof(Unikey_OCNames)/sizeof(Unikey_OCNames[0]);
-
-static unsigned char WordBreakSyms[] =
-{
-	',', ';', ':', '.', '\"', '\'', '!', '?', ' ',
-	'<', '>', '=', '+', '-', '*', '/', '\\',
-	'_', '~', '`', '@', '#', '$', '%', '^', '&', '(', ')', '{', '}', '[', ']',
-	'|'
-};
-
-static unsigned char WordAutoCommit[] =
-{
-	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-	'b', 'c', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n',
-	'p', 'q', 'r', 's', 't', 'v', 'x', 'z',
-	'B', 'C', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N',
-	'P', 'Q', 'R', 'S', 'T', 'V', 'X', 'Z'
-};
 
 typedef struct _IBusUnikeyEngine       IBusUnikeyEngine;
 typedef struct _IBusUnikeyEngineClass  IBusUnikeyEngineClass;
@@ -43,7 +19,7 @@ struct _IBusUnikeyEngine
     IBusPropList* menu_oc;
     UkInputMethod im; // input method
     unsigned int  oc; // output charset
-    UnikeyOptions opt;
+    UnikeyOptions ukopt;
     gboolean auto_commit;
     std::basic_string<gchar> *preeditstr;
 };
@@ -85,4 +61,12 @@ static void ibus_unikey_engine_commit_string(IBusEngine *engine, const gchar *st
 static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const gchar *string, gboolean visible);
 static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars);
 #endif
+
+
+// define DEFAULT unikey options
+#define UNIKEY_OPT_FREEMARKING                 true
+#define UNIKEY_OPT_MODERNSTYLE                 false
+#define UNIKEY_OPT_MACROENABLED                false
+#define UNIKEY_OPT_SPELLCHECKENABLED           true
+#define UNIKEY_OPT_AUTONONVNRESTORE            true
 

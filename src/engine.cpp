@@ -14,6 +14,31 @@
 
 #define _(string) (string)
 
+const gchar*        Unikey_IMNames[] = {"Telex", "Vni"};
+const UkInputMethod Unikey_IM[]      = {UkTelex, UkVni};
+const unsigned int  NUM_INPUTMETHOD  = sizeof(Unikey_IMNames)/sizeof(Unikey_IMNames[0]);
+
+const gchar*       Unikey_OCNames[]  = {"Unicode",  "TCVN3","VNI Win",  "VIQR"};
+const unsigned int Unikey_OC[]       = {CONV_CHARSET_XUTF8,  CONV_CHARSET_TCVN3, CONV_CHARSET_VNIWIN, CONV_CHARSET_VIQR};
+const unsigned int NUM_OUTPUTCHARSET = sizeof(Unikey_OCNames)/sizeof(Unikey_OCNames[0]);
+
+static unsigned char WordBreakSyms[] =
+{
+	',', ';', ':', '.', '\"', '\'', '!', '?', ' ',
+	'<', '>', '=', '+', '-', '*', '/', '\\',
+	'_', '~', '`', '@', '#', '$', '%', '^', '&', '(', ')', '{', '}', '[', ']',
+	'|'
+};
+
+static unsigned char WordAutoCommit[] =
+{
+	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+	'b', 'c', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n',
+	'p', 'q', 'r', 's', 't', 'v', 'x', 'z',
+	'B', 'C', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N',
+	'P', 'Q', 'R', 'S', 'T', 'V', 'X', 'Z'
+};
+
 static IBusEngineClass* parent_class = NULL;
 static IBusConfig*      config       = NULL;
 
@@ -84,11 +109,25 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
 #ifdef DEBUG
     ibus_warning("init()");
 #endif
+    
+    bool r;
+    //GValue v = {0};
 
     unikey->preeditstr = new std::string();
 
+    // read config value
+    //g_value_init(&v, G_TYPE_STRING);
+
+    //g_value_set_static_string(&v, "abc");
+
+    //r = ibus_config_get_value(config, "engine/Unikey", "InputMethod", &v);
+
     unikey->im = UkTelex;
     unikey->oc = CONV_CHARSET_XUTF8;
+
+    unikey_set_default_options(&unikey->ukopt);
+
+    UnikeySetOptions(&unikey->ukopt);
 
     ibus_unikey_engine_create_property_list(unikey);
 }
