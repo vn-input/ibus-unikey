@@ -33,7 +33,7 @@ IBusComponent* ibus_unikey_get_component()
     return component;
 }
 
-void unikey_set_default_options(UnikeyOptions *pOpt)
+void unikey_create_default_options(UnikeyOptions *pOpt)
 {
   pOpt->freeMarking         = UNIKEY_OPT_FREEMARKING;
   pOpt->modernStyle         = UNIKEY_OPT_MODERNSTYLE;

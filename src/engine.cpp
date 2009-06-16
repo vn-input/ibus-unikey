@@ -111,23 +111,24 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
 #endif
     
     bool r;
-    //GValue v = {0};
+    GValue v = {0};
 
     unikey->preeditstr = new std::string();
 
+/*
+// the function ibus_config_get_value have bug, so it not implement in this time
     // read config value
-    //g_value_init(&v, G_TYPE_STRING);
+    g_value_init(&v, G_TYPE_STRING);
 
-    //g_value_set_static_string(&v, "abc");
+    g_value_set_static_string(&v, "abc");
 
-    //r = ibus_config_get_value(config, "engine/Unikey", "InputMethod", &v);
+    r = ibus_config_get_value(config, "engine/Unikey", "InputMethod", &v);
+*/
 
     unikey->im = UkTelex;
     unikey->oc = CONV_CHARSET_XUTF8;
 
-    unikey_set_default_options(&unikey->ukopt);
-
-    UnikeySetOptions(&unikey->ukopt);
+    unikey_create_default_options(&unikey->ukopt);
 
     ibus_unikey_engine_create_property_list(unikey);
 }
@@ -180,6 +181,7 @@ static void ibus_unikey_engine_focus_in(IBusEngine* engine)
     UnikeySetInputMethod(unikey->im);
     UnikeySetOutputCharset(unikey->oc);
 
+    UnikeySetOptions(&unikey->ukopt);
     ibus_engine_register_properties(engine, unikey->prop_list);
 
     parent_class->focus_in(engine);
@@ -330,6 +332,27 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         }
     } // end output charset active
 
+    // if spell check active
+    else if (strncmp(prop_name, "Spellcheck", strlen("Spellcheck")) == 0)
+    {
+        unikey->ukopt.spellCheckEnabled = !unikey->ukopt.spellCheckEnabled;
+
+        // update icon
+        for (int j=0; j<unikey->prop_list->properties->len; j++)
+        {
+            prop = ibus_prop_list_get(unikey->prop_list, j);
+            if (prop==NULL)
+                return;
+            else if (strcmp(prop->key, "Spellcheck")==0)
+            {
+                prop->icon = (unikey->ukopt.spellCheckEnabled==1)?
+                    (gchar*)PKGDATADIR "/icons/ibus-unikey-spellcheck-enable.png"
+                    :(gchar*)PKGDATADIR "/icons/ibus-unikey-spellcheck-disable.png";
+                break;
+            }
+        } // end update icon
+    } // end spell check active
+
     ibus_unikey_engine_focus_out(engine);
     ibus_unikey_engine_focus_in(engine);
 }
@@ -388,28 +411,7 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
         g_object_unref(tooltip);
         ibus_prop_list_append(unikey->menu_oc, prop);
     }
-/*
-// create misc menu
-menu_misc = ibus_prop_list_new();
 
-// add item
-// - Spell check
-label = ibus_text_new_from_string(_("Enable spell check"));
-tooltip = ibus_text_new_from_string(_("If enable, you can decrease mistake when typing"));
-prop = ibus_property_new("Spellcheck",
-PROP_TYPE_TOGGLE,
-label,
-"gtk-preferences",
-tooltip,
-TRUE,
-TRUE,
-PROP_STATE_UNCHECKED,
-NULL);
-g_object_unref(label);
-g_object_unref(tooltip);
-
-ibus_prop_list_append(menu_misc, prop);
-*/
 
 // create top menu
     unikey->prop_list = ibus_prop_list_new();
@@ -459,24 +461,28 @@ ibus_prop_list_append(menu_misc, prop);
 
     ibus_prop_list_append(unikey->prop_list, prop);
 
-/*
-// - add misc menu
-label = ibus_text_new_from_string(_("Misc options"));
-tooltip = ibus_text_new_from_string(_(""));
-prop = ibus_property_new("MiscOptions",
-PROP_TYPE_MENU,
-label,
-"gtk-preferences",
-tooltip,
-TRUE,
-TRUE,
-PROP_STATE_UNCHECKED,
-menu_misc);
-g_object_unref(label);
-g_object_unref(tooltip);
 
-ibus_prop_list_append(unikey->prop_list, prop);
-*/
+// - add misc property
+
+    // spell check
+    label = ibus_text_new_from_string(_("Enable spell check"));
+    tooltip = ibus_text_new_from_string(_("If enable, you can decrease mistake when typing"));
+    prop = ibus_property_new("Spellcheck",
+                             PROP_TYPE_TOGGLE,
+                             label,
+                             (unikey->ukopt.spellCheckEnabled==1)?
+                             (gchar*)PKGDATADIR "/icons/ibus-unikey-spellcheck-enable.png"
+                             :(gchar*)PKGDATADIR "/icons/ibus-unikey-spellcheck-disable.png",
+                             tooltip,
+                             TRUE,
+                             TRUE,
+                             PROP_STATE_UNCHECKED,
+                             NULL);
+    g_object_unref(label);
+    g_object_unref(tooltip);
+
+    ibus_prop_list_append(unikey->prop_list, prop);
+
 }
 
 static void ibus_unikey_engine_commit_string(IBusEngine *engine, const gchar *string)
@@ -490,21 +496,27 @@ static void ibus_unikey_engine_commit_string(IBusEngine *engine, const gchar *st
 
 static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const gchar *string, gboolean visible)
 {
+    IBusUnikeyEngine *unikey;
     IBusText *text;
     int len;
 
+    unikey = (IBusUnikeyEngine*)engine;
 
     text = ibus_text_new_from_static_string(string);
     len = ibus_text_get_length(text);
 
+    // underline text
     ibus_text_append_attribute(text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, len);
 
-    if (UnikeyLastWordIsNonVn())
+    // red text if (spellcheck enable && word is not in Vietnamese)
+    if (unikey->ukopt.spellCheckEnabled && UnikeyLastWordIsNonVn())
     {
         ibus_text_append_attribute(text, IBUS_ATTR_TYPE_FOREGROUND, 0xff0000, 0, len);
     }
 
+    // update and display text
     ibus_engine_update_preedit_text(engine, text, len, visible);
+
     g_object_unref(text);
 }
 
@@ -521,6 +533,7 @@ static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars)
     {
         c = unikey->preeditstr->at(i);
 
+        // count down if byte is begin byte of utf-8 char
         if (c < (guchar)'\x80' || c >= (guchar)'\xC0')
         {
             k--;
@@ -623,6 +636,8 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
         int i;
 
         // process keyval
+
+        // auto commit word that never need to change later in preedit string (like consonant - phu am)
         if (UnikeyAtWordBeginning() || unikey->auto_commit)
         {
             for (i =0; i < sizeof(WordAutoCommit); i++)
