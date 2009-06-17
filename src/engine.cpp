@@ -115,15 +115,12 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
 
     unikey->preeditstr = new std::string();
 
-/*
-// the function ibus_config_get_value have bug, so it not implement in this time
     // read config value
-    g_value_init(&v, G_TYPE_STRING);
 
-    g_value_set_static_string(&v, "abc");
+    //g_value_init(&v, G_TYPE_STRING);
 
-    r = ibus_config_get_value(config, "engine/Unikey", "InputMethod", &v);
-*/
+    //r = ibus_config_get_value(config, "engine/Unikey", "InputMethod", &v);
+
 
     unikey->im = UkTelex;
     unikey->oc = CONV_CHARSET_XUTF8;
