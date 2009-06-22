@@ -536,6 +536,7 @@ static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars)
 
 static gboolean ibus_unikey_engine_process_key_event(IBusEngine* engine,
                                                      guint keyval,
+                                                     guint keycode,
                                                      guint modifiers)
 {
     static IBusUnikeyEngine* unikey;
@@ -543,7 +544,7 @@ static gboolean ibus_unikey_engine_process_key_event(IBusEngine* engine,
 
     unikey = (IBusUnikeyEngine*)engine;
 
-    tmp = ibus_unikey_engine_process_key_event_preedit(engine, keyval, modifiers);
+    tmp = ibus_unikey_engine_process_key_event_preedit(engine, keyval, keycode, modifiers);
 
     // check last keyevent with shift
     if (keyval >= IBUS_space && keyval <=IBUS_asciitilde)
@@ -560,6 +561,7 @@ static gboolean ibus_unikey_engine_process_key_event(IBusEngine* engine,
 
 static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
                                                              guint keyval,
+                                                             guint keycode,
                                                              guint modifiers)
 {
     static IBusUnikeyEngine* unikey;

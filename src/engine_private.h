@@ -41,6 +41,7 @@ static GObject* ibus_unikey_engine_constructor(GType type,
 static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey);
 static gboolean ibus_unikey_engine_process_key_event(IBusEngine* engine,
                                                      guint keyval,
+                                                     guint keycode,
                                                      guint modifiers);
 
 static void ibus_unikey_engine_focus_in(IBusEngine* engine);
@@ -54,6 +55,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
 
 static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
                                                              guint keyval,
+                                                             guint keycode,
                                                              guint modifiers);
 
 static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey);
