@@ -172,13 +172,6 @@ static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey)
     delete unikey->preeditstr;
 }
 
-static gboolean ibus_unikey_engine_process_key_event(IBusEngine* engine,
-                                                     guint keyval,
-                                                     guint modifiers)
-{
-    return ibus_unikey_engine_process_key_event_preedit(engine, keyval, modifiers);
-}
-
 static void ibus_unikey_engine_focus_in(IBusEngine* engine)
 {
 #ifdef DEBUG
@@ -261,7 +254,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         for (i=0; i<NUM_INPUTMETHOD; i++)
         {
             if (strcmp(prop_name + strlen("InputMethod")+1,
-                        Unikey_IMNames[i]) == 0)
+                       Unikey_IMNames[i]) == 0)
             {
                 unikey->im = Unikey_IM[i];
 
@@ -303,7 +296,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         for (i=0; i<NUM_OUTPUTCHARSET; i++)
         {
             if (strcmp(prop_name+strlen("OutputCharset")+1,
-                        Unikey_OCNames[i]) == 0)
+                       Unikey_OCNames[i]) == 0)
             {
                 unikey->oc = Unikey_OC[i];
 
@@ -541,18 +534,44 @@ static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars)
     unikey->preeditstr->erase(i+1);
 }
 
+static gboolean ibus_unikey_engine_process_key_event(IBusEngine* engine,
+                                                     guint keyval,
+                                                     guint modifiers)
+{
+    static IBusUnikeyEngine* unikey;
+    static gboolean tmp;
+
+    unikey = (IBusUnikeyEngine*)engine;
+
+    tmp = ibus_unikey_engine_process_key_event_preedit(engine, keyval, modifiers);
+
+    // check last keyevent with shift
+    if (keyval >= IBUS_space && keyval <=IBUS_asciitilde)
+    {
+        unikey->last_key_with_shift = modifiers & IBUS_SHIFT_MASK;
+    }
+    else
+    {
+        unikey->last_key_with_shift = false;
+    } // end check last keyevent with shift
+
+    return tmp;
+}
+
 static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
                                                              guint keyval,
                                                              guint modifiers)
 {
-    IBusUnikeyEngine* unikey;
-    gchar s[6];
-    int n;
+    static IBusUnikeyEngine* unikey;
+    static gchar s[6];
+    static int n;
 
     unikey = (IBusUnikeyEngine*)engine;
 
     if (modifiers & IBUS_RELEASE_MASK)
+    {
         return false;
+    }
 
     else if (modifiers & IBUS_CONTROL_MASK
              || modifiers & IBUS_MOD1_MASK // alternate mask
@@ -577,7 +596,9 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
     }
 
     else if (keyval >= IBUS_Shift_L && keyval <= IBUS_Hyper_R)
+    {
         return false;
+    }
 
     // capture BackSpace
     else if (keyval == IBUS_BackSpace)
@@ -626,17 +647,25 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
         return true;
     } // end capture BackSpace
 
+    else if (keyval >=IBUS_KP_Multiply && keyval <=IBUS_KP_9)
+    {
+        ibus_unikey_engine_commit_string(engine, unikey->preeditstr->c_str());
+        ibus_engine_hide_preedit_text(engine);
+        unikey->preeditstr->clear();
+        ibus_unikey_engine_reset(engine);
+        return false;
+    }
 
-    // capture printable char
-    else if ((keyval >= IBUS_space && keyval <=IBUS_asciitilde)
-             || (keyval >=IBUS_KP_Multiply && keyval <=IBUS_KP_9))
+    // capture ascii printable char
+    else if (keyval >= IBUS_space && keyval <=IBUS_asciitilde)
     {
         int i;
 
         // process keyval
 
         // auto commit word that never need to change later in preedit string (like consonant - phu am)
-        if (UnikeyAtWordBeginning() || unikey->auto_commit)
+        // if macro enabled, then not auto commit. Because macro may change any word
+        if (unikey->ukopt.macroEnabled == 0 && (UnikeyAtWordBeginning() || unikey->auto_commit))
         {
             for (i =0; i < sizeof(WordAutoCommit); i++)
             {
@@ -647,21 +676,26 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
                     return false;
                 }
             }
-        }
+        } // end auto commit
 
         // :TODO: w at begin word
 
         unikey->auto_commit = false;
-        
-        if (modifiers & IBUS_SHIFT_MASK && keyval == IBUS_space && !UnikeyAtWordBeginning())
+
+        // shift + space event
+        if (unikey->last_key_with_shift == false
+            && modifiers & IBUS_SHIFT_MASK
+            && keyval == IBUS_space
+            && !UnikeyAtWordBeginning())
         {
             UnikeyRestoreKeyStrokes();
-        }
+        } // end shift + space event
+
         else if (keyval >= IBUS_KP_Multiply && keyval <= IBUS_KP_9)
         {
             UnikeyPutChar(keyval);
         }
-        // else if (   // Coder telex
+
         else
         {
             UnikeyFilter(keyval);
@@ -698,8 +732,8 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
         }
         else // if ukengine not process
         {
-            int n;
-            char s[6];
+            static int n;
+            static char s[6];
 
             n = g_unichar_to_utf8(keyval, s); // convert ucs4 to utf8 char
             unikey->preeditstr->append(s, n);
@@ -709,28 +743,17 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
         // commit string: if need
         if (unikey->preeditstr->length() > 0)
         {
-            if (keyval >= IBUS_KP_Multiply && keyval <= IBUS_KP_9)
+            static int i;
+            for (i = 0; i < sizeof(WordBreakSyms); i++)
             {
-                ibus_unikey_engine_commit_string(engine, unikey->preeditstr->c_str());
-                ibus_engine_hide_preedit_text(engine);
-                unikey->preeditstr->clear();
-                ibus_unikey_engine_reset(engine);
-                return true;
-            }
-            else
-            {
-                int i;
-                for (i =0; i < sizeof(WordBreakSyms); i++)
+                if (WordBreakSyms[i] == unikey->preeditstr->at(unikey->preeditstr->length()-1)
+                    && WordBreakSyms[i] == keyval)
                 {
-                    if (WordBreakSyms[i] == unikey->preeditstr->at(unikey->preeditstr->length()-1)
-                        && WordBreakSyms[i] == keyval)
-                    {
-                        ibus_unikey_engine_commit_string(engine, unikey->preeditstr->c_str());
-                        ibus_engine_hide_preedit_text(engine);
-                        unikey->preeditstr->clear();
-                        ibus_unikey_engine_reset(engine);
-                        return true;
-                    }
+                    ibus_unikey_engine_commit_string(engine, unikey->preeditstr->c_str());
+                    ibus_engine_hide_preedit_text(engine);
+                    unikey->preeditstr->clear();
+                    ibus_unikey_engine_reset(engine);
+                    return true;
                 }
             }
         }

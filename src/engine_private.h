@@ -21,6 +21,7 @@ struct _IBusUnikeyEngine
     unsigned int  oc; // output charset
     UnikeyOptions ukopt;
     gboolean auto_commit;
+    gboolean last_key_with_shift;
     std::basic_string<gchar> *preeditstr;
 };
 
