@@ -1,0 +1,26 @@
+--- orginal/ukengine.h	2009-04-14 00:16:33.000000000 +0700
++++ ukengine.h	2009-06-12 10:45:23.000000000 +0700
+@@ -20,6 +20,7 @@
+  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+  * Boston, MA 02111-1307, USA.
+  */
++
+ #ifndef __UKENGINE_H
+ #define __UKENGINE_H
+ 
+@@ -97,6 +98,7 @@
+     int processMapChar(UkKeyEvent & ev);
+     int processTelexW(UkKeyEvent & ev);
+     int processEscChar(UkKeyEvent & ev);
++    bool lastWordIsNonVn();
+ 
+ protected:
+     static bool m_classInit;
+@@ -157,7 +159,6 @@
+     int processNoSpellCheck(UkKeyEvent & ev);
+     int processWordEnd(UkKeyEvent & ev);
+     void synchKeyStrokeBuffer();
+-    bool lastWordIsNonVn();
+     bool lastWordHasVnMark();
+ };
+ 

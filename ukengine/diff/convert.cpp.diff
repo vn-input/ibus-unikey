@@ -1,0 +1,70 @@
+--- orginal/convert.cpp	2009-04-14 00:16:33.000000000 +0700
++++ convert.cpp	2009-06-12 14:00:32.000000000 +0700
+@@ -20,7 +20,6 @@
+ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ --------------------------------------------------------------------------------*/
+ 
+-#include "stdafx.h"
+ #include "charset.h"
+ #include <stdio.h>
+ #include <stdlib.h>
+@@ -118,7 +117,7 @@
+ 	FILE *inf = NULL;
+ 	FILE *outf = NULL;
+ 	int ret = 0;
+-	char *tmpName = NULL;
++	char tmpName[32];
+ 
+ 	if (inFile == NULL) {
+ 		inf = stdin;
+@@ -152,9 +151,10 @@
+ 		else
+ 			*p = 0;
+ 
+-		tmpName = tempnam(outDir, NULL);
++		strcpy(tmpName, outDir);
++        strcat(tmpName, "XXXXXX");
+ 
+-		if (tmpName == NULL) {
++		if (mkstemp(tmpName) == -1) {
+ 			fclose(inf);
+ 			ret = VNCONV_ERR_OUTPUT_FILE;
+ 			goto end;
+@@ -163,7 +163,6 @@
+ 
+ 		if (outf == NULL) {
+ 			fclose(inf);
+-			free(tmpName);
+ 			ret = VNCONV_ERR_OUTPUT_FILE; 
+ 			goto end;
+ 		}
+@@ -182,11 +181,10 @@
+ #if !defined(_WIN32)
+ 			char cmd[256];
+ 			sprintf(cmd, "mv %s %s", tmpName, outFile);
+-			system(cmd);
++			int tmp = system(cmd);
+ #else
+ 			if (rename(tmpName, outFile) != 0) {
+ 				remove(tmpName);
+-				free(tmpName);
+ 				ret = VNCONV_ERR_OUTPUT_FILE;
+ 				goto end;
+ 			}
+@@ -194,7 +192,6 @@
+ 		}
+ 		else 
+ 			remove(tmpName);
+-		free(tmpName);
+ 	}
+ 
+ end:
+@@ -235,7 +232,7 @@
+ 	return genConvert(*pInCharset, *pOutCharset, is, os);
+ }
+ 
+-char *ErrTable[VNCONV_LAST_ERROR] = 
++const char *ErrTable[VNCONV_LAST_ERROR] = 
+ {"No error",
+  "Unknown error",
+  "Invalid charset",

@@ -1,0 +1,28 @@
+--- orginal/usrkeymap.cpp	2009-04-14 01:12:54.000000000 +0700
++++ usrkeymap.cpp	2009-06-12 10:45:46.000000000 +0700
+@@ -21,13 +21,15 @@
+  * Boston, MA 02111-1307, USA.
+  */
+ 
+-#include "stdafx.h"
+ #include <iostream>
++#include <string.h>
++#include <stdio.h>
+ using namespace std;
+ 
+ #include <ctype.h>
+ #include "usrkeymap.h"
+ 
++
+ int getLabelIndex(int action);
+ void initKeyMap(int keyMap[256]);
+ 
+@@ -226,7 +228,7 @@
+         keyMap[c] = vneNormal;
+ }
+ 
+-char *UkKeyMapHeader = 
++const char *UkKeyMapHeader = 
+     "; This is UniKey user-defined key mapping file, generated from UniKey (Windows)\n\n";
+ 
+ DllExport int UkStoreKeyOrderMap(const char *fileName, UkKeyMapPair *pMap, int mapCount)

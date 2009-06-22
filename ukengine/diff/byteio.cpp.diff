@@ -1,0 +1,9 @@
+--- orginal/byteio.cpp	2009-04-14 00:16:33.000000000 +0700
++++ byteio.cpp	2009-06-12 10:41:04.000000000 +0700
+@@ -1,5 +1,5 @@
+ // -*- coding:unix; mode:c++; tab-width:4; c-basic-offset:4; indent-tabs-mode:nil -*-
+-#include "prehdr.h"
++#include <string.h>
+ #include "byteio.h"
+ 
+ //------------------------------------------------

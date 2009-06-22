@@ -1,0 +1,25 @@
+--- orginal/unikey.cpp	2009-04-14 01:13:02.000000000 +0700
++++ unikey.cpp	2009-06-19 11:44:56.000000000 +0700
+@@ -48,7 +48,7 @@
+ //--------------------------------------------
+ void UnikeySetInputMethod(UkInputMethod im)
+ {
+-  if (im == UkTelex || im == UkVni || im == UkViqr) {
++  if (im == UkTelex || im == UkVni || im == UkSimpleTelex || UkSimpleTelex2) {
+     pShMem->input.setIM(im);
+     MyKbEngine.reset();
+   }
+@@ -196,3 +196,13 @@
+     UnikeyBufChars = sizeof(UnikeyBuf);
+     MyKbEngine.restoreKeyStrokes(UnikeyBackspaces, UnikeyBuf, UnikeyBufChars, UnikeyOutput);
+ }
++
++bool UnikeyAtWordBeginning()
++{
++    return MyKbEngine.atWordBeginning();
++}
++
++bool UnikeyLastWordIsNonVn()
++{
++    return MyKbEngine.lastWordIsNonVn();
++}

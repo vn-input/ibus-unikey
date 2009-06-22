@@ -1,0 +1,12 @@
+--- orginal/unikey.h	2009-04-14 01:14:29.000000000 +0700
++++ unikey.h	2009-06-12 10:45:38.000000000 +0700
+@@ -109,6 +109,9 @@
+   //e.g: GD&DDT,QDDND...
+   //The engine will return to normal mode when a word-break occurs.
+   void UnikeySetSingleMode();
++
++  bool UnikeyAtWordBeginning();
++  bool UnikeyLastWordIsNonVn();
+ #if defined(__cplusplus)
+ }
+ #endif

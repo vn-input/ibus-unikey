@@ -1,0 +1,30 @@
+--- orginal/charset.cpp	2009-04-14 00:16:33.000000000 +0700
++++ charset.cpp	2009-06-12 10:44:20.000000000 +0700
+@@ -20,7 +20,6 @@
+ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ --------------------------------------------------------------------------------*/
+ 
+-#include "stdafx.h"
+ #include <stddef.h>
+ #include <search.h>
+ #include <memory.h>
+@@ -690,7 +689,7 @@
+ 
+ unsigned char VIQRTones[] = {'\'','`','?','~','.'};
+ 
+-char *VIQREscapes[] = {
++const char *VIQREscapes[] = {
+ 	"://",
+ 	"/",
+ 	"@",
+@@ -1028,8 +1027,8 @@
+ 		m_dbCharsets[i] = NULL;
+ 
+ 	VnConvResetOptions(&m_options);
+-	m_VIQREscPatterns.init(VIQREscapes, VIQREscCount);
+-	m_VIQROutEscPatterns.init(VIQREscapes, VIQREscCount);
++	m_VIQREscPatterns.init((char**)VIQREscapes, VIQREscCount);
++	m_VIQROutEscPatterns.init((char**)VIQREscapes, VIQREscCount);
+ }
+ 
+ 

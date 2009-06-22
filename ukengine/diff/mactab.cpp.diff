@@ -1,0 +1,20 @@
+--- orginal/mactab.cpp	2009-04-14 00:16:33.000000000 +0700
++++ mactab.cpp	2009-06-12 10:45:07.000000000 +0700
+@@ -20,7 +20,7 @@
+  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+  * Boston, MA 02111-1307, USA.
+  */
+-#include "stdafx.h"
++
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+@@ -311,7 +311,7 @@
+   char key[MAX_MACRO_KEY_LEN];
+   
+   // Parse the input item
+-  char * pos = strchr(item, ':');
++  char * pos = (char*)strchr(item, ':');
+   if (pos == NULL)
+     return -1;
+   int keyLen = (int)(pos - item);

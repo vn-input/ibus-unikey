@@ -1,0 +1,46 @@
+--- orginal/inputproc.cpp	2009-04-14 00:16:33.000000000 +0700
++++ inputproc.cpp	2009-06-19 11:45:58.000000000 +0700
+@@ -20,7 +20,7 @@
+  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+  * Boston, MA 02111-1307, USA.
+  */
+-#include "stdafx.h"
++
+ #include <iostream>
+ #include "inputproc.h"
+ 
+@@ -131,6 +131,21 @@
+     {0, vneNormal}
+ };
+ 
++DllExport UkKeyMapping SimpleTelex2MethodMapping[] = {
++    {'Z', vneTone0},
++    {'S', vneTone1},
++    {'F', vneTone2},
++    {'R', vneTone3},
++    {'X', vneTone4},
++    {'J', vneTone5},
++    {'W', vne_telex_w},
++    {'A', vneRoof_a},
++    {'E', vneRoof_e},
++    {'O', vneRoof_o},
++    {'D', vneDd},
++    {0, vneNormal}
++};
++
+ DllExport UkKeyMapping VniMethodMapping[] = {
+     {'0', vneTone0},
+     {'1', vneTone1},
+@@ -264,6 +279,12 @@
+         case UkTelex:
+             useBuiltIn(TelexMethodMapping);
+             break;
++        case UkSimpleTelex:
++            useBuiltIn(SimpleTelexMethodMapping);
++            break;
++        case UkSimpleTelex2:
++            useBuiltIn(SimpleTelex2MethodMapping);
++            break;
+         case UkVni:
+             useBuiltIn(VniMethodMapping);
+             break;

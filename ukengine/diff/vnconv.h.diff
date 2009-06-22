@@ -1,0 +1,19 @@
+--- orginal/vnconv.h	2009-04-14 00:16:33.000000000 +0700
++++ vnconv.h	2009-06-12 10:45:58.000000000 +0700
+@@ -19,6 +19,7 @@
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ --------------------------------------------------------------------------------*/
++
+ //
+ #ifndef __VN_CONVERT_H
+ #define __VN_CONVERT_H
+@@ -99,7 +100,7 @@
+ typedef struct _CharsetNameId CharsetNameId;
+ 
+ struct _CharsetNameId {
+-	char *name;
++	const char *name;
+ 	int id;
+ };
+ 
