@@ -23,7 +23,7 @@ IBusComponent* ibus_unikey_get_component()
     ibus_component_add_engine(component,
                               ibus_engine_desc_new("Unikey",
                                                    "Unikey",
-                                                   "Unikey Input Method",
+                                                   "Unikey Input Method\nAn IM for Vietnamese",
                                                    "vi",
                                                    "GPL",
                                                    "Le Quoc Tuan <mr.lequoctuan@gmail.com>",

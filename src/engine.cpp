@@ -14,13 +14,25 @@
 
 #define _(string) (string)
 
-const gchar*        Unikey_IMNames[] = {"Telex", "Vni"};
-const UkInputMethod Unikey_IM[]      = {UkTelex, UkVni};
-const unsigned int  NUM_INPUTMETHOD  = sizeof(Unikey_IMNames)/sizeof(Unikey_IMNames[0]);
+const gchar*          Unikey_IMNames[]    = {"Telex", "Vni", "STelex", "STelex2"};
+const UkInputMethod   Unikey_IM[]         = {UkTelex, UkVni, UkSimpleTelex, UkSimpleTelex2};
+const unsigned int    NUM_INPUTMETHOD     = sizeof(Unikey_IM)/sizeof(Unikey_IM[0]);
 
-const gchar*       Unikey_OCNames[]  = {"Unicode",  "TCVN3","VNI Win",  "VIQR"};
-const unsigned int Unikey_OC[]       = {CONV_CHARSET_XUTF8,  CONV_CHARSET_TCVN3, CONV_CHARSET_VNIWIN, CONV_CHARSET_VIQR};
-const unsigned int NUM_OUTPUTCHARSET = sizeof(Unikey_OCNames)/sizeof(Unikey_OCNames[0]);
+const gchar*          Unikey_OCNames[]    = {"Unicode",
+                                             "TCVN3",
+                                             "VNI Win",
+                                             "VIQR",
+                                             "CString",
+                                             "NCR Decimal",
+                                             "NCR Hex"};
+const unsigned int    Unikey_OC[]         = {CONV_CHARSET_XUTF8,
+                                             CONV_CHARSET_TCVN3,
+                                             CONV_CHARSET_VNIWIN,
+                                             CONV_CHARSET_VIQR,
+                                             CONV_CHARSET_UNI_CSTRING,
+                                             CONV_CHARSET_UNIREF,
+                                             CONV_CHARSET_UNIREF_HEX};
+const unsigned int    NUM_OUTPUTCHARSET   = sizeof(Unikey_OC)/sizeof(Unikey_OC[0]);
 
 static unsigned char WordBreakSyms[] =
 {
@@ -243,14 +255,13 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
 
     unikey = (IBusUnikeyEngine*)engine;
 
-    // if input method active
+    // input method active
     if (strncmp(prop_name, "InputMethod", strlen("InputMethod")) == 0)
     {
         for (i=0; i<NUM_INPUTMETHOD; i++)
         {
-            if (strncmp(prop_name+strlen("InputMethod")+1,
-                        Unikey_IMNames[i],
-                        strlen(Unikey_IMNames[i])) == 0)
+            if (strcmp(prop_name + strlen("InputMethod")+1,
+                        Unikey_IMNames[i]) == 0)
             {
                 unikey->im = Unikey_IM[i];
 
@@ -286,14 +297,13 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         }
     } // end input method active
 
-    // if output charset active
+    // output charset active
     else if (strncmp(prop_name, "OutputCharset", strlen("OutputCharset")) == 0)
     {
         for (i=0; i<NUM_OUTPUTCHARSET; i++)
         {
-            if (strncmp(prop_name+strlen("OutputCharset")+1,
-                        Unikey_OCNames[i],
-                        strlen(Unikey_OCNames[i])) == 0)
+            if (strcmp(prop_name+strlen("OutputCharset")+1,
+                        Unikey_OCNames[i]) == 0)
             {
                 unikey->oc = Unikey_OC[i];
 
@@ -329,7 +339,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         }
     } // end output charset active
 
-    // if spell check active
+    // spellcheck active
     else if (strncmp(prop_name, "Spellcheck", strlen("Spellcheck")) == 0)
     {
         unikey->ukopt.spellCheckEnabled = !unikey->ukopt.spellCheckEnabled;
@@ -348,7 +358,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                 break;
             }
         } // end update icon
-    } // end spell check active
+    } // end spellcheck active
 
     ibus_unikey_engine_focus_out(engine);
     ibus_unikey_engine_focus_in(engine);
@@ -361,12 +371,9 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
     gchar name[32];
     int i;
 
-// create property list
-
 // create input method menu
     unikey->menu_im = ibus_prop_list_new();
-
-// add item
+    // add item
     for (i = 0; i < NUM_INPUTMETHOD; i++)
     {
         label = ibus_text_new_from_string(Unikey_IMNames[i]);
@@ -388,8 +395,7 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
 
 // create output charset menu
     unikey->menu_oc = ibus_prop_list_new();
-
-// add item
+    // add item
     for (i = 0; i < NUM_OUTPUTCHARSET; i++)
     {
         label = ibus_text_new_from_string(Unikey_OCNames[i]);
@@ -409,12 +415,10 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
         ibus_prop_list_append(unikey->menu_oc, prop);
     }
 
-
 // create top menu
     unikey->prop_list = ibus_prop_list_new();
-
-// add item
-// - add input method menu
+    // add item
+    // -- add input method menu
     for (i = 0; i < NUM_INPUTMETHOD; i++)
     {
         if (Unikey_IM[i] == unikey->im)
@@ -436,7 +440,7 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
 
     ibus_prop_list_append(unikey->prop_list, prop);
 
-// - add output charset menu
+    // -- add output charset menu
     for (i = 0; i < NUM_OUTPUTCHARSET; i++)
     {
         if (Unikey_OC[i] == unikey->oc)
@@ -458,10 +462,8 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
 
     ibus_prop_list_append(unikey->prop_list, prop);
 
-
-// - add misc property
-
-    // spell check
+    // -- add misc property
+    // -- --create and add spellcheck property
     label = ibus_text_new_from_string(_("Enable spell check"));
     tooltip = ibus_text_new_from_string(_("If enable, you can decrease mistake when typing"));
     prop = ibus_property_new("Spellcheck",
@@ -479,7 +481,6 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
     g_object_unref(tooltip);
 
     ibus_prop_list_append(unikey->prop_list, prop);
-
 }
 
 static void ibus_unikey_engine_commit_string(IBusEngine *engine, const gchar *string)
@@ -506,7 +507,7 @@ static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const g
     ibus_text_append_attribute(text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, len);
 
     // red text if (spellcheck enable && word is not in Vietnamese)
-    if (unikey->ukopt.spellCheckEnabled && UnikeyLastWordIsNonVn())
+    if (unikey->ukopt.spellCheckEnabled == 1 && UnikeyLastWordIsNonVn())
     {
         ibus_text_append_attribute(text, IBUS_ATTR_TYPE_FOREGROUND, 0xff0000, 0, len);
     }

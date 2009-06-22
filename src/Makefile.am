@@ -17,7 +17,7 @@ ibus_engine_unikey_CXXFLAGS = \
 	$(NULL)
 ibus_engine_unikey_LDFLAGS = \
 	@IBUS_LIBS@ \
-	../ukengine/libunikey-zmod.la \
+	../ukengine/libunikey-ibus.la \
 	$(NULL)
 
 component_DATA = \
