@@ -1,9 +1,8 @@
 EXTRA_DIST                  = diff README COPYING
 
-#unikey_zmoddir              = ${libdir}
-noinst_LTLIBRARIES     = libunikey-zmod.la
+noinst_LTLIBRARIES     = libunikey-ibus.la
 
-libunikey_zmod_la_SOURCES = \
+libunikey_ibus_la_SOURCES = \
 	byteio.cpp \
 	byteio.h \
 	charset.cpp \
@@ -27,4 +26,5 @@ libunikey_zmod_la_SOURCES = \
 	usrkeymap.h \
 	vnconv.h \
 	vnlexi.h
+
 

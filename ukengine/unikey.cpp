@@ -48,7 +48,7 @@ UkOutputType UnikeyOutput;
 //--------------------------------------------
 void UnikeySetInputMethod(UkInputMethod im)
 {
-  if (im == UkTelex || im == UkVni || im == UkViqr) {
+  if (im == UkTelex || im == UkVni || im == UkSimpleTelex || UkSimpleTelex2) {
     pShMem->input.setIM(im);
     MyKbEngine.reset();
   }
