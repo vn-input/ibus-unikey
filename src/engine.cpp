@@ -122,22 +122,90 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     ibus_warning("init()");
 #endif
     
-    bool r;
     GValue v = {0};
+    gchar* str;
+    gboolean succ;
+    int i;
 
     unikey->preeditstr = new std::string();
-
-    // read config value
-
-    //g_value_init(&v, G_TYPE_STRING);
-
-    //r = ibus_config_get_value(config, "engine/Unikey", "InputMethod", &v);
-
-
-    unikey->im = UkTelex;
-    unikey->oc = CONV_CHARSET_XUTF8;
-
     unikey_create_default_options(&unikey->ukopt);
+
+// read config value
+    // read Input Method
+    succ = ibus_config_get_value(config, "engine/Unikey", "InputMethod", &v);
+    unikey->im = UNIKEY_DEFAULT_INPUTMETHOD;
+    if (succ)
+    {
+        str = (gchar*)g_value_get_string(&v);
+        for (i = 0; i < NUM_INPUTMETHOD; i++)
+        {
+            if (strcasecmp(str, Unikey_IMNames[i]) == 0)
+            {
+                unikey->im = Unikey_IM[i];
+            }
+        }
+        g_value_unset(&v);
+    } // end read Input Method
+
+    // read Output Charset
+    succ = ibus_config_get_value(config, "engine/Unikey", "OutputCharset", &v);
+    ibus_warning("a");
+    unikey->oc = UNIKEY_DEFAULT_OUTPUTCHARSET;
+    if (succ)
+    {
+        str = (gchar*)g_value_get_string(&v);
+        for (i = 0; i < NUM_OUTPUTCHARSET; i++)
+        {
+            if (strcasecmp(str, Unikey_OCNames[i]) == 0)
+            {
+                unikey->oc = Unikey_OC[i];
+            }
+        }
+        g_value_unset(&v);
+    } // end read Output Charset
+
+    // read Unikey Option
+    // freemarking
+    succ = ibus_config_get_value(config, "engine/Unikey/Options", "FreeMarking", &v);
+    if (succ)
+    {
+        unikey->ukopt.freeMarking = g_value_get_boolean(&v);
+        g_value_unset(&v);
+    }
+
+    // modernstyle
+    succ = ibus_config_get_value(config, "engine/Unikey/Options", "ModernStyle", &v);
+    if (succ)
+    {
+        unikey->ukopt.modernStyle = g_value_get_boolean(&v);
+        g_value_unset(&v);
+    }
+
+    // macroEnabled
+    succ = ibus_config_get_value(config, "engine/Unikey/Options", "MacroEnabled", &v);
+    if (succ)
+    {
+        unikey->ukopt.macroEnabled = g_value_get_boolean(&v);
+        g_value_unset(&v);
+    }
+
+    // spellCheckEnabled
+    succ = ibus_config_get_value(config, "engine/Unikey/Options", "SpellCheckEnabled", &v);
+    if (succ)
+    {
+        unikey->ukopt.spellCheckEnabled = g_value_get_boolean(&v);
+        g_value_unset(&v);
+    }
+
+    // autoNonVnRestore
+    succ = ibus_config_get_value(config, "engine/Unikey/Options", "AutoNonVnRestore", &v);
+    if (succ)
+    {
+        unikey->ukopt.autoNonVnRestore = g_value_get_boolean(&v);
+        g_value_unset(&v);
+    }
+    // end read Unikey Option
+// end read config value
 
     ibus_unikey_engine_create_property_list(unikey);
 }
@@ -244,6 +312,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
     IBusUnikeyEngine* unikey;
     IBusProperty* prop;
     IBusText* label;
+    GValue v = {0};
     int i;
 
     unikey = (IBusUnikeyEngine*)engine;
@@ -257,6 +326,10 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                        Unikey_IMNames[i]) == 0)
             {
                 unikey->im = Unikey_IM[i];
+
+                g_value_init(&v, G_TYPE_STRING);
+                g_value_set_string(&v, Unikey_IMNames[i]);
+                ibus_config_set_value(config, "engine/Unikey", "InputMethod", &v);
 
                 // update label
                 for (int j=0; j<unikey->prop_list->properties->len; j++)
@@ -300,6 +373,10 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
             {
                 unikey->oc = Unikey_OC[i];
 
+                g_value_init(&v, G_TYPE_STRING);
+                g_value_set_string(&v, Unikey_OCNames[i]);
+                ibus_config_set_value(config, "engine/Unikey", "OutputCharset", &v);
+
                 // update label
                 for (int j=0; j<unikey->prop_list->properties->len; j++)
                 {
@@ -336,6 +413,10 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
     else if (strncmp(prop_name, "Spellcheck", strlen("Spellcheck")) == 0)
     {
         unikey->ukopt.spellCheckEnabled = !unikey->ukopt.spellCheckEnabled;
+
+        g_value_init(&v, G_TYPE_BOOLEAN);
+        g_value_set_boolean(&v, unikey->ukopt.spellCheckEnabled);
+        ibus_config_set_value(config, "engine/Unikey/Options", "SpellCheckEnabled", &v);
 
         // update icon
         for (int j=0; j<unikey->prop_list->properties->len; j++)
@@ -692,11 +773,6 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
         {
             UnikeyRestoreKeyStrokes();
         } // end shift + space event
-
-        else if (keyval >= IBUS_KP_Multiply && keyval <= IBUS_KP_9)
-        {
-            UnikeyPutChar(keyval);
-        }
 
         else
         {

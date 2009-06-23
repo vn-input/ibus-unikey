@@ -73,3 +73,6 @@ static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars);
 #define UNIKEY_OPT_SPELLCHECKENABLED           true
 #define UNIKEY_OPT_AUTONONVNRESTORE            true
 
+#define UNIKEY_DEFAULT_INPUTMETHOD             UkTelex
+#define UNIKEY_DEFAULT_OUTPUTCHARSET           CONV_CHARSET_XUTF8
+
