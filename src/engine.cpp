@@ -555,6 +555,43 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
     g_object_unref(tooltip);
 
     ibus_prop_list_append(unikey->prop_list, prop);
+
+// test
+    IBusPropList *a = ibus_prop_list_new();
+    
+    label = ibus_text_new_from_string("test submenu");
+    tooltip = ibus_text_new_from_string("use for test");
+    prop = ibus_property_new("test_sub",
+                             PROP_TYPE_RADIO, // PROP_TYPE_TOGGLE
+                             label,
+                             "",
+                             tooltip,
+                             TRUE,
+                             TRUE,
+                             PROP_STATE_UNCHECKED,
+                             NULL);
+    g_object_unref(label);
+    g_object_unref(tooltip);
+
+    ibus_prop_list_append(a, prop);
+
+// add to languagebar
+    label = ibus_text_new_from_string("test menu");
+    tooltip = ibus_text_new_from_string("use for test");
+    prop = ibus_property_new("test",
+                             PROP_TYPE_MENU,
+                             label,
+                             "",
+                             tooltip,
+                             TRUE,
+                             TRUE,
+                             PROP_STATE_UNCHECKED,
+                             a);
+    g_object_unref(label);
+    g_object_unref(tooltip);
+
+    ibus_prop_list_append(unikey->prop_list, prop);
+// end test
 }
 
 static void ibus_unikey_engine_commit_string(IBusEngine *engine, const gchar *string)
