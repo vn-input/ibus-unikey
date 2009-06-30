@@ -36,19 +36,19 @@ const unsigned int    NUM_OUTPUTCHARSET   = sizeof(Unikey_OC)/sizeof(Unikey_OC[0
 
 static unsigned char WordBreakSyms[] =
 {
-	',', ';', ':', '.', '\"', '\'', '!', '?', ' ',
-	'<', '>', '=', '+', '-', '*', '/', '\\',
-	'_', '~', '`', '@', '#', '$', '%', '^', '&', '(', ')', '{', '}', '[', ']',
-	'|'
+    ',', ';', ':', '.', '\"', '\'', '!', '?', ' ',
+    '<', '>', '=', '+', '-', '*', '/', '\\',
+    '_', '~', '`', '@', '#', '$', '%', '^', '&', '(', ')', '{', '}', '[', ']',
+    '|'
 };
 
 static unsigned char WordAutoCommit[] =
 {
-	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-	'b', 'c', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n',
-	'p', 'q', 'r', 's', 't', 'v', 'x', 'z',
-	'B', 'C', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N',
-	'P', 'Q', 'R', 'S', 'T', 'V', 'X', 'Z'
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+    'b', 'c', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n',
+    'p', 'q', 'r', 's', 't', 'v', 'x', 'z',
+    'B', 'C', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N',
+    'P', 'Q', 'R', 'S', 'T', 'V', 'X', 'Z'
 };
 
 static IBusEngineClass* parent_class = NULL;
@@ -121,7 +121,7 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
 #ifdef DEBUG
     ibus_warning("init()");
 #endif
-    
+
     GValue v = {0};
     gchar* str;
     gboolean succ;
@@ -418,21 +418,122 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         g_value_set_boolean(&v, unikey->ukopt.spellCheckEnabled);
         ibus_config_set_value(config, "engine/Unikey/Options", "SpellCheckEnabled", &v);
 
-        // update icon
-        for (int j=0; j<unikey->prop_list->properties->len; j++)
+        // update state of state
+        for (int j = 0; j < unikey->menu_opt->properties->len ; j++)
         {
-            prop = ibus_prop_list_get(unikey->prop_list, j);
-            if (prop==NULL)
+            prop = ibus_prop_list_get(unikey->menu_opt, j);
+            if (prop == NULL)
                 return;
-            else if (strcmp(prop->key, "Spellcheck")==0)
+
+            else if (strcmp(prop->key, "Spellcheck") == 0)
             {
-                prop->icon = (unikey->ukopt.spellCheckEnabled==1)?
-                    (gchar*)PKGDATADIR "/icons/ibus-unikey-spellcheck-enable.png"
-                    :(gchar*)PKGDATADIR "/icons/ibus-unikey-spellcheck-disable.png";
+                prop->state = (unikey->ukopt.spellCheckEnabled == 1)?
+                    PROP_STATE_CHECKED:PROP_STATE_UNCHECKED;
                 break;
             }
-        } // end update icon
+        } // end update state
     } // end spellcheck active
+
+    // AutoNonVnRestore active
+    else if (strncmp(prop_name, "AutoNonVnRestore", strlen("AutoNonVnRestore")) == 0)
+    {
+        unikey->ukopt.autoNonVnRestore = !unikey->ukopt.autoNonVnRestore;
+
+        g_value_init(&v, G_TYPE_BOOLEAN);
+        g_value_set_boolean(&v, unikey->ukopt.autoNonVnRestore);
+        ibus_config_set_value(config, "engine/Unikey/Options", "AutoNonVnRestore", &v);
+
+        // update state of state
+        for (int j = 0; j < unikey->menu_opt->properties->len ; j++)
+        {
+            prop = ibus_prop_list_get(unikey->menu_opt, j);
+            if (prop == NULL)
+                return;
+
+            else if (strcmp(prop->key, "AutoNonVnRestore") == 0)
+            {
+                prop->state = (unikey->ukopt.autoNonVnRestore == 1)?
+                    PROP_STATE_CHECKED:PROP_STATE_UNCHECKED;
+                break;
+            }
+        } // end update state
+    } // end AutoNonVnRestore active
+
+    // ModernStyle active
+    else if (strncmp(prop_name, "ModernStyle", strlen("ModernStyle")) == 0)
+    {
+        unikey->ukopt.modernStyle = !unikey->ukopt.modernStyle;
+
+        g_value_init(&v, G_TYPE_BOOLEAN);
+        g_value_set_boolean(&v, unikey->ukopt.modernStyle);
+        ibus_config_set_value(config, "engine/Unikey/Options", "ModernStyle", &v);
+
+        // update state of state
+        for (int j = 0; j < unikey->menu_opt->properties->len ; j++)
+        {
+            prop = ibus_prop_list_get(unikey->menu_opt, j);
+            if (prop == NULL)
+                return;
+
+            else if (strcmp(prop->key, "ModernStyle") == 0)
+            {
+                prop->state = (unikey->ukopt.modernStyle == 1)?
+                    PROP_STATE_CHECKED:PROP_STATE_UNCHECKED;
+                break;
+            }
+        } // end update state
+    } // end ModernStyle active
+
+    // FreeMarking active
+    else if (strncmp(prop_name, "FreeMarking", strlen("FreeMarking")) == 0)
+    {
+        unikey->ukopt.freeMarking = !unikey->ukopt.freeMarking;
+
+        g_value_init(&v, G_TYPE_BOOLEAN);
+        g_value_set_boolean(&v, unikey->ukopt.freeMarking);
+        ibus_config_set_value(config, "engine/Unikey/Options", "FreeMarking", &v);
+
+        // update state of state
+        for (int j = 0; j < unikey->menu_opt->properties->len ; j++)
+        {
+            prop = ibus_prop_list_get(unikey->menu_opt, j);
+            if (prop == NULL)
+                return;
+
+            else if (strcmp(prop->key, "FreeMarking") == 0)
+            {
+                prop->state = (unikey->ukopt.freeMarking == 1)?
+                    PROP_STATE_CHECKED:PROP_STATE_UNCHECKED;
+                break;
+            }
+        } // end update state
+    } // end FreeMarking active
+
+    // MacroEnabled active
+    else if (strncmp(prop_name, "MacroEnabled", strlen("MacroEnabled")) == 0)
+    {
+        unikey->ukopt.macroEnabled = !unikey->ukopt.macroEnabled;
+
+        g_value_init(&v, G_TYPE_BOOLEAN);
+        g_value_set_boolean(&v, unikey->ukopt.macroEnabled);
+        ibus_config_set_value(config, "engine/Unikey/Options", "MacroEnabled", &v);
+
+        // update state of state
+        for (int j = 0; j < unikey->menu_opt->properties->len ; j++)
+        {
+            prop = ibus_prop_list_get(unikey->menu_opt, j);
+            if (prop == NULL)
+                return;
+
+            else if (strcmp(prop->key, "MacroEnabled") == 0)
+            {
+                prop->state = (unikey->ukopt.macroEnabled == 1)?
+                    PROP_STATE_CHECKED:PROP_STATE_UNCHECKED;
+                break;
+            }
+        } // end update state
+    } // end MacroEnabled active
+
 
     ibus_unikey_engine_focus_out(engine);
     ibus_unikey_engine_focus_in(engine);
@@ -489,6 +590,97 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
         ibus_prop_list_append(unikey->menu_oc, prop);
     }
 
+// create option menu (for configure unikey)
+    unikey->menu_opt = ibus_prop_list_new();
+    // add option property
+
+    // --create and add spellcheck property
+    label = ibus_text_new_from_string(_("Enable spell check"));
+    tooltip = ibus_text_new_from_string(_("If enable, you can decrease mistake when typing"));
+    prop = ibus_property_new("Spellcheck",
+                             PROP_TYPE_TOGGLE,
+                             label,
+                             "",
+                             tooltip,
+                             TRUE,
+                             TRUE,
+                             (unikey->ukopt.spellCheckEnabled==1)?
+                             PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
+                             NULL);
+    g_object_unref(label);
+    g_object_unref(tooltip);
+    ibus_prop_list_append(unikey->menu_opt, prop);
+
+    // --create and add autononvnrestore property
+    label = ibus_text_new_from_string(_("Auto restore keys with invalid words"));
+    tooltip = ibus_text_new_from_string(_("When typing a word not in Vietnamese,\n it will auto restore keystroke into original"));
+    prop = ibus_property_new("AutoNonVnRestore",
+                             PROP_TYPE_TOGGLE,
+                             label,
+                             "",
+                             tooltip,
+                             TRUE,
+                             TRUE,
+                             (unikey->ukopt.autoNonVnRestore==1)?
+                             PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
+                             NULL);
+    g_object_unref(label);
+    g_object_unref(tooltip);
+    ibus_prop_list_append(unikey->menu_opt, prop);
+
+    // --create and add modernstyle property
+    label = ibus_text_new_from_string(_("Use oà, uý (instead of òa, úy)"));
+    tooltip = ibus_text_new_from_string("");
+    prop = ibus_property_new("ModernStyle",
+                             PROP_TYPE_TOGGLE,
+                             label,
+                             "",
+                             tooltip,
+                             TRUE,
+                             TRUE,
+                             (unikey->ukopt.modernStyle==1)?
+                             PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
+                             NULL);
+    g_object_unref(label);
+    g_object_unref(tooltip);
+    ibus_prop_list_append(unikey->menu_opt, prop);
+
+
+    // --create and add freemarking property
+    label = ibus_text_new_from_string(_("Allow type with more freedom"));
+    tooltip = ibus_text_new_from_string("");
+    prop = ibus_property_new("FreeMarking",
+                             PROP_TYPE_TOGGLE,
+                             label,
+                             "",
+                             tooltip,
+                             TRUE,
+                             TRUE,
+                             (unikey->ukopt.freeMarking==1)?
+                             PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
+                             NULL);
+    g_object_unref(label);
+    g_object_unref(tooltip);
+    ibus_prop_list_append(unikey->menu_opt, prop);
+
+   // --create and add macroEnabled property
+    label = ibus_text_new_from_string(_("Enable Macro"));
+    tooltip = ibus_text_new_from_string("");
+    prop = ibus_property_new("MacroEnabled",
+                             PROP_TYPE_TOGGLE,
+                             label,
+                             "",
+                             tooltip,
+                             TRUE,
+                             TRUE,
+                             (unikey->ukopt.macroEnabled==1)?
+                             PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
+                             NULL);
+    g_object_unref(label);
+    g_object_unref(tooltip);
+    ibus_prop_list_append(unikey->menu_opt, prop);
+
+
 // create top menu
     unikey->prop_list = ibus_prop_list_new();
     // add item
@@ -536,62 +728,23 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
 
     ibus_prop_list_append(unikey->prop_list, prop);
 
-    // -- add misc property
-    // -- --create and add spellcheck property
-    label = ibus_text_new_from_string(_("Enable spell check"));
-    tooltip = ibus_text_new_from_string(_("If enable, you can decrease mistake when typing"));
-    prop = ibus_property_new("Spellcheck",
-                             PROP_TYPE_TOGGLE,
-                             label,
-                             (unikey->ukopt.spellCheckEnabled==1)?
-                             (gchar*)PKGDATADIR "/icons/ibus-unikey-spellcheck-enable.png"
-                             :(gchar*)PKGDATADIR "/icons/ibus-unikey-spellcheck-disable.png",
-                             tooltip,
-                             TRUE,
-                             TRUE,
-                             PROP_STATE_UNCHECKED,
-                             NULL);
-    g_object_unref(label);
-    g_object_unref(tooltip);
-
-    ibus_prop_list_append(unikey->prop_list, prop);
-
-// test
-    IBusPropList *a = ibus_prop_list_new();
-    
-    label = ibus_text_new_from_string("test submenu");
-    tooltip = ibus_text_new_from_string("use for test");
-    prop = ibus_property_new("test_sub",
-                             PROP_TYPE_RADIO, // PROP_TYPE_TOGGLE
-                             label,
-                             "",
-                             tooltip,
-                             TRUE,
-                             TRUE,
-                             PROP_STATE_UNCHECKED,
-                             NULL);
-    g_object_unref(label);
-    g_object_unref(tooltip);
-
-    ibus_prop_list_append(a, prop);
-
-// add to languagebar
-    label = ibus_text_new_from_string("test menu");
-    tooltip = ibus_text_new_from_string("use for test");
-    prop = ibus_property_new("test",
+    // -- add option menu
+    label = ibus_text_new_from_string(_("Options"));
+    tooltip = ibus_text_new_from_string("Options for Unikey");
+    prop = ibus_property_new("Options",
                              PROP_TYPE_MENU,
                              label,
-                             "",
+                             "gtk-preferences",
                              tooltip,
                              TRUE,
                              TRUE,
                              PROP_STATE_UNCHECKED,
-                             a);
+                             unikey->menu_opt);
     g_object_unref(label);
     g_object_unref(tooltip);
 
     ibus_prop_list_append(unikey->prop_list, prop);
-// end test
+// end top menu
 }
 
 static void ibus_unikey_engine_commit_string(IBusEngine *engine, const gchar *string)
@@ -637,7 +790,7 @@ static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars)
 
     unikey = (IBusUnikeyEngine*)engine;
     k = num_chars;
-   
+
     for ( i = unikey->preeditstr->length()-1; i >= 0 && k > 0; i--)
     {
         c = unikey->preeditstr->at(i);
@@ -751,7 +904,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
                 {
                     unikey->preeditstr->append((const gchar*)UnikeyBuf, UnikeyBufChars);
                 }
-                else 
+                else
                 {
                     static unsigned char buf[1024];
                     int bufSize = sizeof(buf)/sizeof(buf[0]);
@@ -836,11 +989,11 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
             {
                 unikey->preeditstr->append((const gchar*)UnikeyBuf, UnikeyBufChars);
             }
-            else 
+            else
             {
                 static unsigned char buf[1024];
                 int bufSize = sizeof(buf)/sizeof(buf[0]);
-                
+
                 latinToUtf(buf, UnikeyBuf, UnikeyBufChars, &bufSize);
                 unikey->preeditstr->append((const gchar*)buf, sizeof(buf)/sizeof(buf[0]) - bufSize);
             }
