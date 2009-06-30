@@ -1,6 +1,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <libintl.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -12,7 +13,7 @@
 #include "unikey.h"
 #include "vnconv.h"
 
-#define _(string) (string)
+#define _(string) gettext(string)
 
 const gchar*          Unikey_IMNames[]    = {"Telex", "Vni", "STelex", "STelex2"};
 const UkInputMethod   Unikey_IM[]         = {UkTelex, UkVni, UkSimpleTelex, UkSimpleTelex2};
@@ -613,7 +614,7 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
 
     // --create and add autononvnrestore property
     label = ibus_text_new_from_string(_("Auto restore keys with invalid words"));
-    tooltip = ibus_text_new_from_string(_("When typing a word not in Vietnamese,\n it will auto restore keystroke into original"));
+    tooltip = ibus_text_new_from_string(_("When typing a word not in Vietnamese,\nit will auto restore keystroke into original"));
     prop = ibus_property_new("AutoNonVnRestore",
                              PROP_TYPE_TOGGLE,
                              label,
@@ -730,7 +731,7 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
 
     // -- add option menu
     label = ibus_text_new_from_string(_("Options"));
-    tooltip = ibus_text_new_from_string("Options for Unikey");
+    tooltip = ibus_text_new_from_string(_("Options for Unikey"));
     prop = ibus_property_new("Options",
                              PROP_TYPE_MENU,
                              label,

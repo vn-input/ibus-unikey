@@ -1,3 +1,8 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include <libintl.h>
 #include <locale.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -26,7 +31,6 @@ static const GOptionEntry entries[] =
 static void
 ibus_disconnected_cb(IBusBus* bus, gpointer  user_data)
 {
-    g_debug("bus disconnected");
     ibus_quit();
 }
 
@@ -89,6 +93,8 @@ int main(gint argc, gchar** argv)
     GOptionContext* context;
 
     setlocale(LC_ALL, "");
+    bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
+    textdomain(GETTEXT_PACKAGE);
 
     context = g_option_context_new("- ibus unikey engine component");
 

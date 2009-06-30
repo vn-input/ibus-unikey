@@ -1,4 +1,7 @@
-INCLUDES	= @DEFINE@
+INCLUDES = @DEFINE@ \
+	-I$(top_srcdir)/ukengine \
+	-DPKGDATADIR=\"$(pkgdatadir)\" \
+	-DLOCALEDIR=\"$(localedir)\"
 
 libexec_PROGRAMS = ibus-engine-unikey
 
@@ -12,12 +15,10 @@ ibus_engine_unikey_SOURCES = \
 	$(NULL)
 ibus_engine_unikey_CXXFLAGS = \
 	@IBUS_CFLAGS@ \
-	-I../ukengine/ \
-	-DPKGDATADIR=\"$(pkgdatadir)\" \
 	$(NULL)
 ibus_engine_unikey_LDFLAGS = \
 	@IBUS_LIBS@ \
-	../ukengine/libunikey-ibus.la \
+	$(top_builddir)/ukengine/libunikey-ibus.la \
 	$(NULL)
 
 component_DATA = \

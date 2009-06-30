@@ -2,10 +2,14 @@
 #include "config.h"
 #endif
 
+#include <libintl.h>
+
 #include <ibus.h>
 #include "ukengine.h"
 #include "utils.h"
 #include "engine_private.h"
+
+#define _(string) gettext(string)
 
 IBusComponent* ibus_unikey_get_component()
 {
@@ -23,7 +27,7 @@ IBusComponent* ibus_unikey_get_component()
     ibus_component_add_engine(component,
                               ibus_engine_desc_new("Unikey",
                                                    "Unikey",
-                                                   "Unikey Input Method\nAn IM for Vietnamese",
+                                                   _("Unikey Input Method\nAn IM for Vietnamese"),
                                                    "vi",
                                                    "GPL",
                                                    "Le Quoc Tuan <mr.lequoctuan@gmail.com>",
