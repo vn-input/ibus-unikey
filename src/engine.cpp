@@ -209,6 +209,13 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     // end read Unikey Option
 // end read config value
 
+    if (unikey->ukopt.macroEnabled == 1)
+    {
+        gchar* fn = get_macro_file();
+        UnikeyLoadMacroTable(fn);
+        g_free(fn);
+    }
+
     ibus_unikey_engine_create_property_list(unikey);
 }
 
@@ -665,7 +672,7 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
     g_object_unref(tooltip);
     ibus_prop_list_append(unikey->menu_opt, prop);
 
-   // --create and add macroEnabled property
+    // --create and add macroEnabled property
     label = ibus_text_new_from_string(_("Enable Macro"));
     tooltip = ibus_text_new_from_string("");
     prop = ibus_property_new("MacroEnabled",

@@ -8,7 +8,7 @@
 #define UNIKEY_OPT_SPELLCHECKENABLED    true
 #define UNIKEY_OPT_AUTONONVNRESTORE     true
 
-#define UNIKEY_MACRO_FILE               "/.ibus/unikey/macro"
+#define UNIKEY_MACRO_FILE               ".ibus/unikey/macro"
 
 #endif
 

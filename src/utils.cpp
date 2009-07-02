@@ -80,3 +80,4 @@ int latinToUtf(unsigned char* dst, unsigned char* src, int inSize, int* pOutSize
     *pOutSize = outLeft;
     return (outLeft >= 0);
 }
+
