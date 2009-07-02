@@ -67,14 +67,3 @@ static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const g
 static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars);
 #endif
 
-
-// define DEFAULT unikey options
-#define UNIKEY_OPT_FREEMARKING                 true
-#define UNIKEY_OPT_MODERNSTYLE                 false
-#define UNIKEY_OPT_MACROENABLED                false
-#define UNIKEY_OPT_SPELLCHECKENABLED           true
-#define UNIKEY_OPT_AUTONONVNRESTORE            true
-
-#define UNIKEY_DEFAULT_INPUTMETHOD             UkTelex
-#define UNIKEY_DEFAULT_OUTPUTCHARSET           CONV_CHARSET_XUTF8
-

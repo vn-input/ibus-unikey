@@ -8,6 +8,7 @@
 #include <string>
 #include <ibus.h>
 
+#include "engine_const.h"
 #include "engine_private.h"
 #include "utils.h"
 #include "unikey.h"
@@ -134,7 +135,7 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
 // read config value
     // read Input Method
     succ = ibus_config_get_value(config, "engine/Unikey", "InputMethod", &v);
-    unikey->im = UNIKEY_DEFAULT_INPUTMETHOD;
+    unikey->im = UkTelex;
     if (succ)
     {
         str = (gchar*)g_value_get_string(&v);
@@ -151,7 +152,7 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     // read Output Charset
     succ = ibus_config_get_value(config, "engine/Unikey", "OutputCharset", &v);
 
-    unikey->oc = UNIKEY_DEFAULT_OUTPUTCHARSET;
+    unikey->oc = CONV_CHARSET_XUTF8;
     if (succ)
     {
         str = (gchar*)g_value_get_string(&v);

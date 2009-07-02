@@ -7,7 +7,7 @@
 #include <ibus.h>
 #include "ukengine.h"
 #include "utils.h"
-#include "engine_private.h"
+#include "engine_const.h"
 
 #define _(string) gettext(string)
 
