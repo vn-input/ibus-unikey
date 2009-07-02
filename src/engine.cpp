@@ -127,7 +127,7 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     GValue v = {0};
     gchar* str;
     gboolean succ;
-    int i;
+    guint i;
 
     unikey->preeditstr = new std::string();
     unikey_create_default_options(&unikey->ukopt);
@@ -322,7 +322,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
     IBusProperty* prop;
     IBusText* label;
     GValue v = {0};
-    int i;
+    guint i, j;
 
     unikey = (IBusUnikeyEngine*)engine;
 
@@ -341,7 +341,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                 ibus_config_set_value(config, "engine/Unikey", "InputMethod", &v);
 
                 // update label
-                for (int j=0; j<unikey->prop_list->properties->len; j++)
+                for (j=0; j<unikey->prop_list->properties->len; j++)
                 {
                     prop = ibus_prop_list_get(unikey->prop_list, j);
                     if (prop==NULL)
@@ -356,7 +356,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                 } // end update label
 
                 // update property state
-                for (int j=0; j<unikey->menu_im->properties->len; j++)
+                for (j=0; j<unikey->menu_im->properties->len; j++)
                 {
                     prop = ibus_prop_list_get(unikey->menu_im, j);
                     if (prop==NULL)
@@ -387,7 +387,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                 ibus_config_set_value(config, "engine/Unikey", "OutputCharset", &v);
 
                 // update label
-                for (int j=0; j<unikey->prop_list->properties->len; j++)
+                for (j=0; j<unikey->prop_list->properties->len; j++)
                 {
                     prop = ibus_prop_list_get(unikey->prop_list, j);
                     if (prop==NULL)
@@ -402,7 +402,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                 } // end update label
 
                 // update property state
-                for (int j=0; j<unikey->menu_oc->properties->len; j++)
+                for (j=0; j<unikey->menu_oc->properties->len; j++)
                 {
                     prop = ibus_prop_list_get(unikey->menu_oc, j);
                     if (prop==NULL)
@@ -428,7 +428,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         ibus_config_set_value(config, "engine/Unikey/Options", "SpellCheckEnabled", &v);
 
         // update state of state
-        for (int j = 0; j < unikey->menu_opt->properties->len ; j++)
+        for (j = 0; j < unikey->menu_opt->properties->len ; j++)
         {
             prop = ibus_prop_list_get(unikey->menu_opt, j);
             if (prop == NULL)
@@ -453,7 +453,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         ibus_config_set_value(config, "engine/Unikey/Options", "AutoNonVnRestore", &v);
 
         // update state of state
-        for (int j = 0; j < unikey->menu_opt->properties->len ; j++)
+        for (j = 0; j < unikey->menu_opt->properties->len ; j++)
         {
             prop = ibus_prop_list_get(unikey->menu_opt, j);
             if (prop == NULL)
@@ -478,7 +478,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         ibus_config_set_value(config, "engine/Unikey/Options", "ModernStyle", &v);
 
         // update state of state
-        for (int j = 0; j < unikey->menu_opt->properties->len ; j++)
+        for (j = 0; j < unikey->menu_opt->properties->len ; j++)
         {
             prop = ibus_prop_list_get(unikey->menu_opt, j);
             if (prop == NULL)
@@ -503,7 +503,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         ibus_config_set_value(config, "engine/Unikey/Options", "FreeMarking", &v);
 
         // update state of state
-        for (int j = 0; j < unikey->menu_opt->properties->len ; j++)
+        for (j = 0; j < unikey->menu_opt->properties->len ; j++)
         {
             prop = ibus_prop_list_get(unikey->menu_opt, j);
             if (prop == NULL)
@@ -528,7 +528,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         ibus_config_set_value(config, "engine/Unikey/Options", "MacroEnabled", &v);
 
         // update state of state
-        for (int j = 0; j < unikey->menu_opt->properties->len ; j++)
+        for (j = 0; j < unikey->menu_opt->properties->len ; j++)
         {
             prop = ibus_prop_list_get(unikey->menu_opt, j);
             if (prop == NULL)
@@ -553,7 +553,7 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
     IBusProperty* prop;
     IBusText* label,* tooltip;
     gchar name[32];
-    int i;
+    guint i;
 
 // create input method menu
     unikey->menu_im = ibus_prop_list_new();
@@ -845,8 +845,6 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
                                                              guint modifiers)
 {
     static IBusUnikeyEngine* unikey;
-    static gchar s[6];
-    static int n;
 
     unikey = (IBusUnikeyEngine*)engine;
 
@@ -894,7 +892,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
         }
         else
         {
-            if (unikey->preeditstr->length() <= UnikeyBackspaces)
+            if (unikey->preeditstr->length() <= (guint)UnikeyBackspaces)
             {
                 unikey->preeditstr->clear();
                 ibus_engine_hide_preedit_text(engine);
@@ -941,7 +939,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
     // capture ascii printable char
     else if (keyval >= IBUS_space && keyval <=IBUS_asciitilde)
     {
-        int i;
+        guint i;
 
         // process keyval
 
@@ -982,7 +980,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
         // process result of ukengine
         if (UnikeyBackspaces > 0)
         {
-            if (unikey->preeditstr->length() <= UnikeyBackspaces)
+            if (unikey->preeditstr->length() <= (guint)UnikeyBackspaces)
             {
                 unikey->preeditstr->clear();
             }
@@ -1020,7 +1018,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
         // commit string: if need
         if (unikey->preeditstr->length() > 0)
         {
-            static int i;
+            static guint i;
             for (i = 0; i < sizeof(WordBreakSyms); i++)
             {
                 if (WordBreakSyms[i] == unikey->preeditstr->at(unikey->preeditstr->length()-1)

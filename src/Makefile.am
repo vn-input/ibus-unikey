@@ -1,7 +1,8 @@
 INCLUDES = @DEFINE@ \
 	-I$(top_srcdir)/ukengine \
 	-DPKGDATADIR=\"$(pkgdatadir)\" \
-	-DLOCALEDIR=\"$(localedir)\"
+	-DLOCALEDIR=\"$(localedir)\" \
+    -Wall
 
 libexec_PROGRAMS = ibus-engine-unikey
 
