@@ -12,28 +12,27 @@ ibus_engine_unikey_SOURCES = \
 	engine.h \
 	engine_private.h \
 	utils.cpp \
-	utils.h \
-	$(NULL)
-ibus_engine_unikey_CXXFLAGS = \
-	@IBUS_CFLAGS@ \
-	$(NULL)
+	utils.h
+
+noinst_HEADERS = \
+    engine.h \
+    engine_private.h \
+    engine_const.h \
+    utils.h
+
+ibus_engine_unikey_CXXFLAGS = @IBUS_CFLAGS@
+
 ibus_engine_unikey_LDFLAGS = \
 	@IBUS_LIBS@ \
-	$(top_builddir)/ukengine/libunikey-ibus.la \
-	$(NULL)
+	$(top_builddir)/ukengine/libunikey-ibus.la
 
-component_DATA = \
-	unikey.xml \
-	$(NULL)
+component_DATA = unikey.xml
+
 componentdir = @datadir@/ibus/component
 
-EXTRA_DIST = \
-	unikey.xml.in \
-	$(NULL)
+EXTRA_DIST = unikey.xml.in
 
-CLEANFILES = \
-	unikey.xml \
-	$(NULL)
+CLEANFILES = unikey.xml
 
 unikey.xml: unikey.xml.in
 	( \
@@ -45,3 +44,4 @@ unikey.xml: unikey.xml.in
 
 test: ibus-engine-unikey
 	$(builddir)/ibus-engine-unikey
+
