@@ -576,6 +576,7 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
         g_object_unref(tooltip);
         ibus_prop_list_append(unikey->menu_im, prop);
     }
+// END create input method menu
 
 // create output charset menu
     unikey->menu_oc = ibus_prop_list_new();
@@ -598,6 +599,7 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
         g_object_unref(tooltip);
         ibus_prop_list_append(unikey->menu_oc, prop);
     }
+// END create output charset menu
 
 // create option menu (for configure unikey)
     unikey->menu_opt = ibus_prop_list_new();
@@ -678,7 +680,7 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
     prop = ibus_property_new("MacroEnabled",
                              PROP_TYPE_TOGGLE,
                              label,
-                             "",
+                             "gtk-preferences",
                              tooltip,
                              TRUE,
                              TRUE,
@@ -688,7 +690,7 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
     g_object_unref(label);
     g_object_unref(tooltip);
     ibus_prop_list_append(unikey->menu_opt, prop);
-
+// END create option menu
 
 // create top menu
     unikey->prop_list = ibus_prop_list_new();
