@@ -6,7 +6,7 @@
 void set_default_config(UnikeyMainSetupOptions* opt);
 void read_config(UnikeyMainSetupOptions* opt);
 void write_config(UnikeyMainSetupOptions* opt);
-void force_engine_to_reload_config();
+int force_engine_to_reload_config();
 
 #endif
 

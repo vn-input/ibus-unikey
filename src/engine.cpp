@@ -3,9 +3,8 @@
 #endif
 #include <libintl.h>
 
-#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include <string>
 #include <ibus.h>
 
 #include "engine_const.h"
@@ -544,6 +543,17 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
     } // end MacroEnabled active
 
 
+    // if Run setup
+    else if (strncmp(prop_name, "RunSetupGUI", strlen("RunSetupGUI")) == 0)
+    {
+        gchar s[1024];
+
+        strcpy(s, LIBEXECDIR);
+	    strcat(s, "/ibus-setup-unikey &");
+
+        system(s);
+    } // END Run setup
+
     ibus_unikey_engine_focus_out(engine);
     ibus_unikey_engine_focus_in(engine);
 }
@@ -680,12 +690,36 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
     prop = ibus_property_new("MacroEnabled",
                              PROP_TYPE_TOGGLE,
                              label,
-                             "gtk-preferences",
+                             "",
                              tooltip,
                              TRUE,
                              TRUE,
                              (unikey->ukopt.macroEnabled==1)?
                              PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
+                             NULL);
+    g_object_unref(label);
+    g_object_unref(tooltip);
+    ibus_prop_list_append(unikey->menu_opt, prop);
+
+
+    // --separator
+    prop = ibus_property_new("", PROP_TYPE_SEPARATOR,
+                             NULL, "", NULL, TRUE, TRUE,
+                             PROP_STATE_UNCHECKED, NULL);
+    ibus_prop_list_append(unikey->menu_opt, prop);
+
+
+    // --create and add Launch Setup GUI property
+    label = ibus_text_new_from_string(_("Launch Setup GUI"));
+    tooltip = ibus_text_new_from_string(_("A full setup program for Unikey"));
+    prop = ibus_property_new("RunSetupGUI",
+                             PROP_TYPE_RADIO, //we need PROP_TYPE_NORMAL
+                             label,
+                             "",
+                             tooltip,
+                             TRUE,
+                             TRUE,
+                             PROP_STATE_UNCHECKED,
                              NULL);
     g_object_unref(label);
     g_object_unref(tooltip);

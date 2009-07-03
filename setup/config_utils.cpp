@@ -138,8 +138,8 @@ void write_config(UnikeyMainSetupOptions* opt)
     gconf_engine_unref(e);
 }
 
-void force_engine_to_reload_config()
+int force_engine_to_reload_config()
 {
-    system("ibus-daemon --replace --daemonize");
+    return system("ibus-daemon --replace --daemonize");
 }
 
