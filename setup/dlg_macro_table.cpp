@@ -1,11 +1,12 @@
 #include <gtk/gtk.h>
 #include <string.h>
 
+#include <libintl.h>
 #include "keycons.h"
 #include "mactab.h"
 #include "dlg_macro_table.h"
 
-#define _(str) (str)
+#define _(str) gettext(str)
 
 
 #define STR_NULL_ITEM "..."
@@ -227,7 +228,6 @@ void value_edited_cb(GtkCellRendererText *celltext,
     GtkTreeView *tree;
     GtkTreeModel *model;
     GtkTreeIter iter;
-    GtkTreeSelection* select;
     gchar *key;
     gchar value[MAX_MACRO_TEXT_LEN];
 
@@ -244,11 +244,6 @@ void value_edited_cb(GtkCellRendererText *celltext,
     if (strcmp(key, STR_NULL_ITEM) != 0)
     {
         gtk_list_store_set(GTK_LIST_STORE(model), &iter, COL_VALUE, value, -1);
-
-        //select = gtk_tree_view_get_selection(tree);
-
-        //gtk_tree_model_iter_next(model, &iter);
-        //gtk_tree_selection_select_iter(select, &iter);
     }
 }
 
@@ -257,9 +252,8 @@ void remove_macro_clicked_cb(GtkButton *button, gpointer user_data)
     GtkTreeView     *treeview;
     GtkListStore    *list;
     GtkTreeSelection*select;
-    GtkTreeIter     iter, nextiter;
+    GtkTreeIter     iter;
     gchar           *key;
-    int n;
 
     treeview = GTK_TREE_VIEW(user_data);
 

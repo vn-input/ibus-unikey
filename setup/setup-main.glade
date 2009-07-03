@@ -193,10 +193,11 @@
                             <property name="visible">True</property>
                             <child>
                               <object class="GtkCheckButton" id="check_macroenable">
-                                <property name="label" translatable="yes">Enable macro</property>
+                                <property name="label" translatable="yes">Enable _macro</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
+                                <property name="use_underline">True</property>
                                 <property name="draw_indicator">True</property>
                               </object>
                               <packing>
@@ -205,7 +206,7 @@
                             </child>
                             <child>
                               <object class="GtkButton" id="btn_macroedit">
-                                <property name="label" translatable="yes">Edit macro</property>
+                                <property name="label" translatable="yes">_Edit macro</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
