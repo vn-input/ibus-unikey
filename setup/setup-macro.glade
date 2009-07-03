@@ -54,7 +54,7 @@
                 <property name="spacing">5</property>
                 <child>
                   <object class="GtkButton" id="btn_remove">
-                    <property name="label" translatable="yes">gtk-remove</property>
+                    <property name="label" translatable="yes">gtk-delete</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -68,7 +68,7 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_removeall">
-                    <property name="label" translatable="yes">Remove _all</property>
+                    <property name="label" translatable="yes">Delete _all</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -140,6 +140,6 @@
   </object>
   <object class="GtkImage" id="img_remove">
     <property name="visible">True</property>
-    <property name="stock">gtk-remove</property>
+    <property name="stock">gtk-delete</property>
   </object>
 </interface>
