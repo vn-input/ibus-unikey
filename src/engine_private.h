@@ -17,11 +17,14 @@ struct _IBusUnikeyEngine
     IBusPropList* prop_list;
     IBusPropList* menu_im;
     IBusPropList* menu_oc;
+
     UkInputMethod im; // input method
     unsigned int  oc; // output charset
     UnikeyOptions ukopt;
     gboolean auto_commit;
     gboolean last_key_with_shift;
+    gboolean process_w_at_begin;
+
     std::basic_string<gchar> *preeditstr;
 };
 
@@ -62,12 +65,4 @@ static void ibus_unikey_engine_commit_string(IBusEngine *engine, const gchar *st
 static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const gchar *string, gboolean visible);
 static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars);
 #endif
-
-
-// define DEFAULT unikey options
-#define UNIKEY_OPT_FREEMARKING                 true
-#define UNIKEY_OPT_MODERNSTYLE                 false
-#define UNIKEY_OPT_MACROENABLED                false
-#define UNIKEY_OPT_SPELLCHECKENABLED           true
-#define UNIKEY_OPT_AUTONONVNRESTORE            true
 

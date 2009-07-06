@@ -1,0 +1,115 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ibus-unikey 0.2\n"
+"Report-Msgid-Bugs-To: http://code.google.com/p/ibus-unikey\n"
+"POT-Creation-Date: 2009-07-07 01:16+0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/engine.cpp:510
+msgid "Choose input method"
+msgstr ""
+
+#: src/engine.cpp:532
+msgid "Choose output charset"
+msgstr ""
+
+#: src/engine.cpp:548
+msgid "Launch Setup GUI"
+msgstr ""
+
+#: src/engine.cpp:549
+msgid "A full setup program for Unikey"
+msgstr ""
+
+#: src/utils.cpp:30
+msgid ""
+"Unikey Input Method\n"
+"An IM for Vietnamese"
+msgstr ""
+
+#: setup/setup-main.glade:58
+msgid "Input method:"
+msgstr ""
+
+#: setup/setup-main.glade:69
+msgid "Output charset: "
+msgstr ""
+
+#: setup/setup-main.glade:119
+msgid "<b>Input/Output</b>"
+msgstr ""
+
+#: setup/setup-main.glade:144
+msgid "Enable spell check"
+msgstr ""
+
+#: setup/setup-main.glade:156
+msgid "Auto restore keys with invalid words"
+msgstr ""
+
+#: setup/setup-main.glade:168
+msgid "Use oà, uý (instead of òa, úy)"
+msgstr ""
+
+#: setup/setup-main.glade:180
+msgid "Allow type with more freedom"
+msgstr ""
+
+#: setup/setup-main.glade:195
+msgid "Enable _macro"
+msgstr ""
+
+#: setup/setup-main.glade:208
+msgid "_Edit macro"
+msgstr ""
+
+#: setup/setup-main.glade:226
+msgid "Process _W at word begin"
+msgstr ""
+
+#: setup/setup-main.glade:244
+msgid "<b>Options</b>"
+msgstr ""
+
+#: setup/setup-main.glade:264 setup/setup-macro.glade:101
+msgid "gtk-ok"
+msgstr ""
+
+#: setup/setup-main.glade:278 setup/setup-macro.glade:115
+msgid "gtk-cancel"
+msgstr ""
+
+#: setup/setup-macro.glade:15
+msgid "Macro table definition"
+msgstr ""
+
+#: setup/setup-macro.glade:57
+msgid "gtk-delete"
+msgstr ""
+
+#: setup/setup-macro.glade:71
+msgid "Delete _all"
+msgstr ""
+
+#: setup/dlg_macro_table.cpp:13
+msgid "(replace text)"
+msgstr ""
+
+#: setup/dlg_macro_table.cpp:55
+msgid "Word"
+msgstr ""
+
+#: setup/dlg_macro_table.cpp:69
+msgid "Replace with"
+msgstr ""

@@ -53,12 +53,23 @@ if test "$defDEBUG" = yes; then
 fi
 AC_SUBST(DEFINE)
 
+PKG_CHECK_MODULES(GTK, [
+    gtk+-2.0
+])
+AC_SUBST(GTK)
+
+PKG_CHECK_MODULES(GCONF, [
+    gconf-2.0
+])
+AC_SUBST(GCONF)
+
 # OUTPUT files
 AC_CONFIG_FILES( po/Makefile.in
     Makefile
     ukengine/Makefile
     src/unikey.xml.in
     src/Makefile
+    setup/Makefile
     icons/Makefile
     m4/Makefile
 )

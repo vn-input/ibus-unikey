@@ -1,3 +1,5 @@
+INCLUDES = -Wall
+
 EXTRA_DIST                  = diff README COPYING
 
 noinst_LTLIBRARIES     = libunikey-ibus.la

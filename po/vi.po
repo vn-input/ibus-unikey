@@ -1,0 +1,118 @@
+# Vietnamese translations for ibus-unikey package
+# Bản dịch Việt ngữ cho gói tin ibus-unikey.
+# Copyright (C) 2009 Free Software Foundation, Inc.
+# This file is distributed under the same license as the ibus-unikey package.
+# Le Quoc Tuan <mr.lequoctuan@gmail.com>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ibus-unikey 0.3.0\n"
+"Report-Msgid-Bugs-To: http://code.google.com/p/ibus-unikey\n"
+"POT-Creation-Date: 2009-07-07 01:16+0700\n"
+"PO-Revision-Date: 2009-07-06 13:22+0700\n"
+"Last-Translator: Le Quoc Tuan <mr.lequoctuan@gmail.com>\n"
+"Language-Team: Vietnamese\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: src/engine.cpp:510
+msgid "Choose input method"
+msgstr "Chọn kiểu gõ"
+
+#: src/engine.cpp:532
+msgid "Choose output charset"
+msgstr "Chọn bảng mã"
+
+#: src/engine.cpp:548
+msgid "Launch Setup GUI"
+msgstr "Chạy chương trình cài đặt"
+
+#: src/engine.cpp:549
+msgid "A full setup program for Unikey"
+msgstr "Một chương trình cài đặt đầy đủ cho Unikey"
+
+#: src/utils.cpp:30
+msgid ""
+"Unikey Input Method\n"
+"An IM for Vietnamese"
+msgstr ""
+"Bộ gõ Unikey\n"
+"Một bộ gõ cho tiếng Việt"
+
+#: setup/setup-main.glade:58
+msgid "Input method:"
+msgstr "Kiểu gõ: "
+
+#: setup/setup-main.glade:69
+msgid "Output charset: "
+msgstr "Bảng mã: "
+
+#: setup/setup-main.glade:119
+msgid "<b>Input/Output</b>"
+msgstr "<b>Nhập/Xuất</b>"
+
+#: setup/setup-main.glade:144
+msgid "Enable spell check"
+msgstr "Bật kiểm tra chính tả"
+
+#: setup/setup-main.glade:156
+msgid "Auto restore keys with invalid words"
+msgstr "Tự động trả phím khi gõ từ không hợp lệ"
+
+#: setup/setup-main.glade:168
+msgid "Use oà, uý (instead of òa, úy)"
+msgstr "Dùng oà, uý (thay vì òa, úy)"
+
+#: setup/setup-main.glade:180
+msgid "Allow type with more freedom"
+msgstr "Cho phép bỏ dấu tự do"
+
+#: setup/setup-main.glade:195
+msgid "Enable _macro"
+msgstr "Bật gõ tắt"
+
+#: setup/setup-main.glade:208
+msgid "_Edit macro"
+msgstr "Sửa bảng gõ tắt"
+
+#: setup/setup-main.glade:226
+msgid "Process _W at word begin"
+msgstr "Sử lý phím _W ở đầu từ"
+
+#: setup/setup-main.glade:244
+msgid "<b>Options</b>"
+msgstr "<b>Tùy chọn</b>"
+
+#: setup/setup-main.glade:264 setup/setup-macro.glade:101
+msgid "gtk-ok"
+msgstr ""
+
+#: setup/setup-main.glade:278 setup/setup-macro.glade:115
+msgid "gtk-cancel"
+msgstr ""
+
+#: setup/setup-macro.glade:15
+msgid "Macro table definition"
+msgstr "Định nghĩa bảng gõ tắt"
+
+#: setup/setup-macro.glade:57
+msgid "gtk-delete"
+msgstr ""
+
+#: setup/setup-macro.glade:71
+msgid "Delete _all"
+msgstr "Xóa _hết"
+
+#: setup/dlg_macro_table.cpp:13
+msgid "(replace text)"
+msgstr "(chuỗi thay thế)"
+
+#: setup/dlg_macro_table.cpp:55
+msgid "Word"
+msgstr "Từ"
+
+#: setup/dlg_macro_table.cpp:69
+msgid "Replace with"
+msgstr "Thay thế bởi"
