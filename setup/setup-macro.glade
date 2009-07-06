@@ -12,7 +12,7 @@
   </object>
   <object class="GtkDialog" id="dlg_macro_table">
     <property name="border_width">5</property>
-    <property name="title" translatable="yes">Macro definition</property>
+    <property name="title" translatable="yes">Macro table definition</property>
     <property name="modal">True</property>
     <property name="window_position">center</property>
     <property name="default_width">650</property>

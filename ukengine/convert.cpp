@@ -181,7 +181,7 @@ DllExport int VnFileConvert(int inCharset, int outCharset, const char *inFile, c
 #if !defined(_WIN32)
 			char cmd[256];
 			sprintf(cmd, "mv %s %s", tmpName, outFile);
-			int tmp = system(cmd);
+			system(cmd);
 #else
 			if (rename(tmpName, outFile) != 0) {
 				remove(tmpName);
@@ -210,8 +210,6 @@ end:
 //---------------------------------------
 int vnFileStreamConvert(int inCharset, int outCharset, FILE * inf, FILE *outf)
 {
-	int ret = 0;
-
 	VnCharset *pInCharset = VnCharsetLibObj.getVnCharset(inCharset);
 	VnCharset *pOutCharset = VnCharsetLibObj.getVnCharset(outCharset);
 

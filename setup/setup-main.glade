@@ -26,7 +26,6 @@
     <property name="border_width">5</property>
     <property name="window_position">center</property>
     <property name="type_hint">normal</property>
-    <property name="has_separator">False</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox3">
         <property name="visible">True</property>
@@ -220,6 +219,19 @@
                           </object>
                           <packing>
                             <property name="position">4</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkCheckButton" id="check_processwatbegin">
+                            <property name="label" translatable="yes">Process _W at word begin</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="use_underline">True</property>
+                            <property name="draw_indicator">True</property>
+                          </object>
+                          <packing>
+                            <property name="position">5</property>
                           </packing>
                         </child>
                       </object>

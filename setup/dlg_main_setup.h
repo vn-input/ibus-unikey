@@ -10,6 +10,7 @@ typedef struct
     gboolean modernStyle;
     gboolean freeMarking;
     gboolean enableMacro;
+    gboolean processwatbegin;
 
     gchar* macrofile;
 } UnikeyMainSetupOptions;

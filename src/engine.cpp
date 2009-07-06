@@ -205,9 +205,18 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
         unikey->ukopt.autoNonVnRestore = g_value_get_boolean(&v);
         g_value_unset(&v);
     }
+
+    // ProcessWAtBegin
+    succ = ibus_config_get_value(config, "engine/Unikey/Options", "ProcessWAtBegin", &v);
+    if (succ)
+    {
+        unikey->process_w_at_begin = g_value_get_boolean(&v);
+        g_value_unset(&v);
+    }
     // end read Unikey Option
 // end read config value
 
+    // load macro
     if (unikey->ukopt.macroEnabled == 1)
     {
         gchar* fn = get_macro_file();
@@ -542,6 +551,31 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         } // end update state
     } // end MacroEnabled active
 
+    // ProcessWAtBegin active
+    else if (strncmp(prop_name, "ProcessWAtBegin", strlen("ProcessWAtBegin")) == 0)
+    {
+        unikey->process_w_at_begin = !unikey->process_w_at_begin;
+
+        g_value_init(&v, G_TYPE_BOOLEAN);
+        g_value_set_boolean(&v, unikey->process_w_at_begin);
+        ibus_config_set_value(config, "engine/Unikey/Options", "ProcessWAtBegin", &v);
+
+        // update state of state
+        for (j = 0; j < unikey->menu_opt->properties->len ; j++)
+        {
+            prop = ibus_prop_list_get(unikey->menu_opt, j);
+            if (prop == NULL)
+                return;
+
+            else if (strcmp(prop->key, "ProcessWAtBegin") == 0)
+            {
+                prop->state = (unikey->process_w_at_begin == 1)?
+                    PROP_STATE_CHECKED:PROP_STATE_UNCHECKED;
+                break;
+            }
+        } // end update state
+    } // end ProcessWAtBegin active
+
 
     // if Run setup
     else if (strncmp(prop_name, "RunSetupGUI", strlen("RunSetupGUI")) == 0)
@@ -695,6 +729,23 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                              TRUE,
                              TRUE,
                              (unikey->ukopt.macroEnabled==1)?
+                             PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
+                             NULL);
+    g_object_unref(label);
+    g_object_unref(tooltip);
+    ibus_prop_list_append(unikey->menu_opt, prop);
+
+    // --create and add macroEnabled property
+    label = ibus_text_new_from_string(_("Process W at word begin"));
+    tooltip = ibus_text_new_from_string("");
+    prop = ibus_property_new("ProcessWAtBegin",
+                             PROP_TYPE_TOGGLE,
+                             label,
+                             "",
+                             tooltip,
+                             TRUE,
+                             TRUE,
+                             (unikey->process_w_at_begin==1)?
                              PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
                              NULL);
     g_object_unref(label);
@@ -994,7 +1045,27 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
             }
         } // end auto commit
 
-        // :TODO: w at begin word
+        if ((unikey->im == UkTelex || unikey->im == UkSimpleTelex2)
+            && unikey->process_w_at_begin == false
+            && UnikeyAtWordBeginning()
+            && (keyval == IBUS_w || keyval == IBUS_W))
+        {
+            UnikeyPutChar(keyval);
+            if (unikey->ukopt.macroEnabled == 0)
+            {
+                return false;
+            }
+            else
+            {
+                static int n;
+                static char s[6];
+
+                n = g_unichar_to_utf8(keyval, s); // convert ucs4 to utf8 char
+                unikey->preeditstr->append(s, n);
+                ibus_unikey_engine_update_preedit_string(engine, unikey->preeditstr->c_str(), true);
+                return true;
+            }
+        }
 
         unikey->auto_commit = false;
 

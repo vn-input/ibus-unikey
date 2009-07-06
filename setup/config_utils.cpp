@@ -23,6 +23,8 @@ void set_default_config(UnikeyMainSetupOptions* opt)
     opt->freeMarking = UNIKEY_OPT_FREEMARKING;
     opt->enableMacro = UNIKEY_OPT_MACROENABLED;
 
+    opt->processwatbegin = UNIKEY_OPT_PROCESSWATBEGIN;
+
     opt->macrofile = get_macro_file();
 }
 
@@ -112,6 +114,15 @@ void read_config(UnikeyMainSetupOptions* opt)
     }
     // END get enableMacro
 
+    // get ProcessWAtBegin
+    v = gconf_engine_get(e, "/desktop/ibus/engine/Unikey/Options/ProcessWAtBegin", NULL);
+    if (v!=NULL)
+    {
+        opt->processwatbegin = gconf_value_get_bool(v);
+        gconf_value_free(v);
+    }
+    // END get ProcessWAtBegin
+
     gconf_engine_unref(e);
 }
 
@@ -123,7 +134,7 @@ void write_config(UnikeyMainSetupOptions* opt)
     gconf_engine_set_string(e, "/desktop/ibus/engine/Unikey/InputMethod",
                             Unikey_IMNames[opt->input_method], NULL);
     gconf_engine_set_string(e, "/desktop/ibus/engine/Unikey/OutputCharset",
-                            Unikey_IMNames[opt->output_charset], NULL);
+                            Unikey_OCNames[opt->output_charset], NULL);
     gconf_engine_set_bool(e, "/desktop/ibus/engine/Unikey/Options/SpellCheckEnabled",
                           opt->enableSpellcheck, NULL);
     gconf_engine_set_bool(e, "/desktop/ibus/engine/Unikey/Options/AutoNonVnRestore",
@@ -134,6 +145,8 @@ void write_config(UnikeyMainSetupOptions* opt)
                           opt->freeMarking, NULL);
     gconf_engine_set_bool(e, "/desktop/ibus/engine/Unikey/Options/MacroEnabled",
                           opt->enableMacro, NULL);
+    gconf_engine_set_bool(e, "/desktop/ibus/engine/Unikey/Options/ProcessWAtBegin",
+                          opt->processwatbegin, NULL);
 
     gconf_engine_unref(e);
 }

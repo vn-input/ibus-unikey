@@ -75,6 +75,9 @@ GtkWidget* unikey_main_setup_dialog_new()
     g_object_set_data(G_OBJECT(dlg),
                       "check_freemarking",
                       gtk_builder_get_object(builder, "check_freemarking"));
+    g_object_set_data(G_OBJECT(dlg),
+                      "check_processwatbegin",
+                      gtk_builder_get_object(builder, "check_processwatbegin"));
     // END save object pointer
 
     g_object_unref(builder);
@@ -118,6 +121,9 @@ void unikey_main_setup_set_values(const GtkDialog* dlg, const UnikeyMainSetupOpt
     wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "btn_macroedit"));
     gtk_widget_set_sensitive(wid, opt->enableMacro);
 
+// set processwatbegin?
+    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_processwatbegin"));
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wid), opt->processwatbegin);
 
 // set macro file name data
     g_object_set_data(G_OBJECT(dlg), "macrofile", opt->macrofile);
@@ -147,13 +153,17 @@ void unikey_main_setup_get_values(const GtkDialog* dlg, UnikeyMainSetupOptions *
     wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_modernstyle"));
     opt->modernStyle = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(wid));
 
-// get  freemarking?
+// get freemarking?
     wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_freemarking"));
     opt->freeMarking = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(wid));
 
-// get  macroenable?
+// get macroenable?
     wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_macroenable"));
     opt->enableMacro = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(wid));
+
+// get processwatbegin?
+    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_processwatbegin"));
+    opt->processwatbegin = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(wid));
 }
 
 void macro_enable_toggle_cb(GtkToggleButton* btn, gpointer user_data)

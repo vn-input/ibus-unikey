@@ -1,6 +1,7 @@
 INCLUDES = @DEFINE@ \
 	-I$(top_srcdir)/ukengine \
 	-I$(top_srcdir)/src \
+	-DPKGDATADIR=\"$(pkgdatadir)\" \
 	-DGLADE_DATA_DIR=\"$(pkgdatadir)/setup\" \
 	-DLOCALEDIR=\"$(localedir)\" \
     -Wall
