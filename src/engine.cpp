@@ -136,7 +136,7 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     e = gconf_engine_get_default();
 
     // read Input Method
-    val = gconf_engine_get(e, "/desktop/ibus/engine/Unikey/InputMethod", NULL);
+    val = gconf_engine_get(e, GCONF_PREFIX UNIKEY_INPUTMETHOD, NULL);
     unikey->im = UkTelex;
     if (val != NULL)
     {
@@ -152,7 +152,7 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     } // end read Input Method
 
     // read Output Charset
-    val = gconf_engine_get(e, "/desktop/ibus/engine/Unikey/Options/OutputCharset", NULL);
+    val = gconf_engine_get(e, GCONF_PREFIX UNIKEY_OUTPUTCHARSET, NULL);
     unikey->oc = CONV_CHARSET_XUTF8;
     if (val != NULL)
     {
@@ -169,7 +169,7 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
 
     // read Unikey Option
     // freemarking
-    val = gconf_engine_get(e, "/desktop/ibus/engine/Unikey/Options/FreeMarking", NULL);
+    val = gconf_engine_get(e, GCONF_PREFIX UNIKEY_OPTIONS_FREEMARKING, NULL);
     if (val != NULL)
     {
         unikey->ukopt.freeMarking = gconf_value_get_bool(val);
@@ -177,7 +177,7 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     }
 
     // modernstyle
-    val = gconf_engine_get(e, "/desktop/ibus/engine/Unikey/Options/ModernStyle", NULL);
+    val = gconf_engine_get(e, GCONF_PREFIX UNIKEY_OPTIONS_MODERNSTYLE, NULL);
     if (val != NULL)
     {
         unikey->ukopt.modernStyle = gconf_value_get_bool(val);
@@ -185,7 +185,7 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     }
 
     // macroEnabled
-    val = gconf_engine_get(e, "/desktop/ibus/engine/Unikey/Options/MacroEnabled", NULL);
+    val = gconf_engine_get(e, GCONF_PREFIX UNIKEY_OPTIONS_MACROENABLED, NULL);
     if (val != NULL)
     {
         unikey->ukopt.macroEnabled = gconf_value_get_bool(val);
@@ -193,7 +193,7 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     }
 
     // spellCheckEnabled
-    val = gconf_engine_get(e, "/desktop/ibus/engine/Unikey/Options/SpellCheckEnabled", NULL);
+    val = gconf_engine_get(e, GCONF_PREFIX UNIKEY_OPTIONS_SPELLCHECK, NULL);
     if (val != NULL)
     {
         unikey->ukopt.spellCheckEnabled = gconf_value_get_bool(val);
@@ -201,7 +201,7 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     }
 
     // autoNonVnRestore
-    val = gconf_engine_get(e, "/desktop/ibus/engine/Unikey/Options/AutoNonVnRestore", NULL);
+    val = gconf_engine_get(e, GCONF_PREFIX UNIKEY_OPTIONS_AUTONONVNRESTORE, NULL);
     if (val != NULL)
     {
         unikey->ukopt.autoNonVnRestore = gconf_value_get_bool(val);
@@ -209,7 +209,7 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     }
 
     // ProcessWAtBegin
-    val = gconf_engine_get(e, "/desktop/ibus/engine/Unikey/Options/ProcessWAtBegin", NULL);
+    val = gconf_engine_get(e, GCONF_PREFIX UNIKEY_OPTIONS_PROCESSWATBEGIN, NULL);
     unikey->process_w_at_begin = UNIKEY_OPT_PROCESSWATBEGIN;
     if (val != NULL)
     {
