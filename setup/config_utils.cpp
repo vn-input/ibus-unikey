@@ -38,7 +38,7 @@ void read_config(UnikeyMainSetupOptions* opt)
     e = gconf_engine_get_default();
 
     // get Input method
-    s = gconf_engine_get_string(e, "/desktop/ibus/engine/Unikey/InputMethod", NULL);
+    s = gconf_engine_get_string(e, GCONF_PREFIX UNIKEY_INPUTMETHOD, NULL);
     if (s != NULL)
     {
         for (i = 0; i < NUM_INPUTMETHOD; i++)
@@ -54,7 +54,7 @@ void read_config(UnikeyMainSetupOptions* opt)
     // END get Input method
 
     // get Output charset
-    s = gconf_engine_get_string(e, "/desktop/ibus/engine/Unikey/OutputCharset", NULL);
+    s = gconf_engine_get_string(e, GCONF_PREFIX UNIKEY_OUTPUTCHARSET, NULL);
     if (s != NULL)
     {
         for (i = 0; i < NUM_OUTPUTCHARSET; i++)
@@ -70,7 +70,7 @@ void read_config(UnikeyMainSetupOptions* opt)
     // END get Output charset
 
     // get Spellcheck
-    v = gconf_engine_get(e, "/desktop/ibus/engine/Unikey/Options/SpellCheckEnabled", NULL);
+    v = gconf_engine_get(e, GCONF_PREFIX UNIKEY_OPTIONS_SPELLCHECK, NULL);
     if (v!=NULL)
     {
         opt->enableSpellcheck = gconf_value_get_bool(v);
@@ -79,7 +79,7 @@ void read_config(UnikeyMainSetupOptions* opt)
     // END get Spellcheck
 
     // get autoRestoreNonVn
-    v = gconf_engine_get(e, "/desktop/ibus/engine/Unikey/Options/AutoNonVnRestore", NULL);
+    v = gconf_engine_get(e, GCONF_PREFIX UNIKEY_OPTIONS_AUTONONVNRESTORE, NULL);
     if (v!=NULL)
     {
         opt->autoRestoreNonVn = gconf_value_get_bool(v);
@@ -88,7 +88,7 @@ void read_config(UnikeyMainSetupOptions* opt)
     // END get autoRestoreNonVn
 
     // get modernStyle
-    v = gconf_engine_get(e, "/desktop/ibus/engine/Unikey/Options/ModernStyle", NULL);
+    v = gconf_engine_get(e, GCONF_PREFIX UNIKEY_OPTIONS_MODERNSTYLE, NULL);
     if (v!=NULL)
     {
         opt->modernStyle = gconf_value_get_bool(v);
@@ -97,7 +97,7 @@ void read_config(UnikeyMainSetupOptions* opt)
     // END get modernStyle
 
     // get freeMarking
-    v = gconf_engine_get(e, "/desktop/ibus/engine/Unikey/Options/FreeMarking", NULL);
+    v = gconf_engine_get(e, GCONF_PREFIX UNIKEY_OPTIONS_FREEMARKING, NULL);
     if (v!=NULL)
     {
         opt->freeMarking = gconf_value_get_bool(v);
@@ -106,7 +106,7 @@ void read_config(UnikeyMainSetupOptions* opt)
     // END get freeMarking
 
     // get enableMacro
-    v = gconf_engine_get(e, "/desktop/ibus/engine/Unikey/Options/MacroEnabled", NULL);
+    v = gconf_engine_get(e, GCONF_PREFIX UNIKEY_OPTIONS_MACROENABLED, NULL);
     if (v!=NULL)
     {
         opt->enableMacro = gconf_value_get_bool(v);
@@ -115,7 +115,7 @@ void read_config(UnikeyMainSetupOptions* opt)
     // END get enableMacro
 
     // get ProcessWAtBegin
-    v = gconf_engine_get(e, "/desktop/ibus/engine/Unikey/Options/ProcessWAtBegin", NULL);
+    v = gconf_engine_get(e, GCONF_PREFIX UNIKEY_OPTIONS_PROCESSWATBEGIN, NULL);
     if (v!=NULL)
     {
         opt->processwatbegin = gconf_value_get_bool(v);
@@ -131,21 +131,21 @@ void write_config(UnikeyMainSetupOptions* opt)
     GConfEngine* e;
     e = gconf_engine_get_default();
 
-    gconf_engine_set_string(e, "/desktop/ibus/engine/Unikey/InputMethod",
+    gconf_engine_set_string(e, GCONF_PREFIX UNIKEY_INPUTMETHOD,
                             Unikey_IMNames[opt->input_method], NULL);
-    gconf_engine_set_string(e, "/desktop/ibus/engine/Unikey/OutputCharset",
+    gconf_engine_set_string(e, GCONF_PREFIX UNIKEY_OUTPUTCHARSET,
                             Unikey_OCNames[opt->output_charset], NULL);
-    gconf_engine_set_bool(e, "/desktop/ibus/engine/Unikey/Options/SpellCheckEnabled",
+    gconf_engine_set_bool(e, GCONF_PREFIX UNIKEY_OPTIONS_SPELLCHECK,
                           opt->enableSpellcheck, NULL);
-    gconf_engine_set_bool(e, "/desktop/ibus/engine/Unikey/Options/AutoNonVnRestore",
+    gconf_engine_set_bool(e, GCONF_PREFIX UNIKEY_OPTIONS_AUTONONVNRESTORE,
                           opt->autoRestoreNonVn, NULL);
-    gconf_engine_set_bool(e, "/desktop/ibus/engine/Unikey/Options/ModernStyle",
+    gconf_engine_set_bool(e, GCONF_PREFIX UNIKEY_OPTIONS_MODERNSTYLE,
                           opt->modernStyle, NULL);
-    gconf_engine_set_bool(e, "/desktop/ibus/engine/Unikey/Options/FreeMarking",
+    gconf_engine_set_bool(e, GCONF_PREFIX UNIKEY_OPTIONS_FREEMARKING,
                           opt->freeMarking, NULL);
-    gconf_engine_set_bool(e, "/desktop/ibus/engine/Unikey/Options/MacroEnabled",
+    gconf_engine_set_bool(e, GCONF_PREFIX UNIKEY_OPTIONS_MACROENABLED,
                           opt->enableMacro, NULL);
-    gconf_engine_set_bool(e, "/desktop/ibus/engine/Unikey/Options/ProcessWAtBegin",
+    gconf_engine_set_bool(e, GCONF_PREFIX UNIKEY_OPTIONS_PROCESSWATBEGIN,
                           opt->processwatbegin, NULL);
 
     gconf_engine_unref(e);
