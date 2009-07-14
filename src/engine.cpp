@@ -746,6 +746,8 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
     {
         guint i;
 
+        UnikeySetCapsState(modifiers & IBUS_SHIFT_MASK, modifiers & IBUS_LOCK_MASK);
+
         // process keyval
 
         // auto commit word that never need to change later in preedit string (like consonant - phu am)
