@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ibus-unikey 0.3.0\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/ibus-unikey\n"
-"POT-Creation-Date: 2009-07-07 17:19+0700\n"
+"POT-Creation-Date: 2009-07-14 23:17+0700\n"
 "PO-Revision-Date: 2009-07-06 13:22+0700\n"
 "Last-Translator: Le Quoc Tuan <mr.lequoctuan@gmail.com>\n"
 "Language-Team: Vietnamese\n"
@@ -41,57 +41,49 @@ msgstr ""
 "Bộ gõ Unikey\n"
 "Một bộ gõ cho tiếng Việt"
 
-#: setup/setup-main.glade:58
+#: setup/setup-main.glade:59
 msgid "Input method:"
 msgstr "Kiểu gõ: "
 
-#: setup/setup-main.glade:69
+#: setup/setup-main.glade:70
 msgid "Output charset: "
 msgstr "Bảng mã: "
 
-#: setup/setup-main.glade:119
+#: setup/setup-main.glade:121
 msgid "<b>Input/Output</b>"
 msgstr "<b>Nhập/Xuất</b>"
 
-#: setup/setup-main.glade:144
+#: setup/setup-main.glade:146
 msgid "Enable spell check"
 msgstr "Bật kiểm tra chính tả"
 
-#: setup/setup-main.glade:156
+#: setup/setup-main.glade:158
 msgid "Auto restore keys with invalid words"
 msgstr "Tự động trả phím khi gõ từ không hợp lệ"
 
-#: setup/setup-main.glade:168
+#: setup/setup-main.glade:170
 msgid "Use oà, uý (instead of òa, úy)"
 msgstr "Dùng oà, uý (thay vì òa, úy)"
 
-#: setup/setup-main.glade:180
+#: setup/setup-main.glade:182
 msgid "Allow type with more freedom"
 msgstr "Cho phép bỏ dấu tự do"
 
-#: setup/setup-main.glade:195
+#: setup/setup-main.glade:197
 msgid "Enable _macro"
 msgstr "Bật gõ tắt"
 
-#: setup/setup-main.glade:208
+#: setup/setup-main.glade:210
 msgid "_Edit macro"
 msgstr "Sửa bảng gõ tắt"
 
-#: setup/setup-main.glade:226
+#: setup/setup-main.glade:229
 msgid "Process _W at word begin"
 msgstr "Sử lý phím _W ở đầu từ"
 
-#: setup/setup-main.glade:244
+#: setup/setup-main.glade:247
 msgid "<b>Options</b>"
 msgstr "<b>Tùy chọn</b>"
-
-#: setup/setup-main.glade:264 setup/setup-macro.glade:101
-msgid "gtk-ok"
-msgstr ""
-
-#: setup/setup-main.glade:278 setup/setup-macro.glade:115
-msgid "gtk-cancel"
-msgstr ""
 
 #: setup/setup-macro.glade:15
 msgid "Macro table definition"
@@ -104,6 +96,14 @@ msgstr ""
 #: setup/setup-macro.glade:71
 msgid "Delete _all"
 msgstr "Xóa _hết"
+
+#: setup/setup-macro.glade:101
+msgid "gtk-ok"
+msgstr ""
+
+#: setup/setup-macro.glade:115
+msgid "gtk-cancel"
+msgstr ""
 
 #: setup/dlg_macro_table.cpp:13
 msgid "(replace text)"

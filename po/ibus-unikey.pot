@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ibus-unikey 0.2.0.r71\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/ibus-unikey\n"
-"POT-Creation-Date: 2009-07-07 17:19+0700\n"
+"POT-Creation-Date: 2009-07-14 23:17+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -38,56 +38,48 @@ msgid ""
 "An IM for Vietnamese"
 msgstr ""
 
-#: setup/setup-main.glade:58
+#: setup/setup-main.glade:59
 msgid "Input method:"
 msgstr ""
 
-#: setup/setup-main.glade:69
+#: setup/setup-main.glade:70
 msgid "Output charset: "
 msgstr ""
 
-#: setup/setup-main.glade:119
+#: setup/setup-main.glade:121
 msgid "<b>Input/Output</b>"
 msgstr ""
 
-#: setup/setup-main.glade:144
+#: setup/setup-main.glade:146
 msgid "Enable spell check"
 msgstr ""
 
-#: setup/setup-main.glade:156
+#: setup/setup-main.glade:158
 msgid "Auto restore keys with invalid words"
 msgstr ""
 
-#: setup/setup-main.glade:168
+#: setup/setup-main.glade:170
 msgid "Use oà, uý (instead of òa, úy)"
 msgstr ""
 
-#: setup/setup-main.glade:180
+#: setup/setup-main.glade:182
 msgid "Allow type with more freedom"
 msgstr ""
 
-#: setup/setup-main.glade:195
+#: setup/setup-main.glade:197
 msgid "Enable _macro"
 msgstr ""
 
-#: setup/setup-main.glade:208
+#: setup/setup-main.glade:210
 msgid "_Edit macro"
 msgstr ""
 
-#: setup/setup-main.glade:226
+#: setup/setup-main.glade:229
 msgid "Process _W at word begin"
 msgstr ""
 
-#: setup/setup-main.glade:244
+#: setup/setup-main.glade:247
 msgid "<b>Options</b>"
-msgstr ""
-
-#: setup/setup-main.glade:264 setup/setup-macro.glade:101
-msgid "gtk-ok"
-msgstr ""
-
-#: setup/setup-main.glade:278 setup/setup-macro.glade:115
-msgid "gtk-cancel"
 msgstr ""
 
 #: setup/setup-macro.glade:15
@@ -100,6 +92,14 @@ msgstr ""
 
 #: setup/setup-macro.glade:71
 msgid "Delete _all"
+msgstr ""
+
+#: setup/setup-macro.glade:101
+msgid "gtk-ok"
+msgstr ""
+
+#: setup/setup-macro.glade:115
+msgid "gtk-cancel"
 msgstr ""
 
 #: setup/dlg_macro_table.cpp:13

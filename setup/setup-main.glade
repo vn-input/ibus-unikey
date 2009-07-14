@@ -50,6 +50,7 @@
                         <child>
                           <object class="GtkVBox" id="vbox11">
                             <property name="visible">True</property>
+                            <property name="orientation">vertical</property>
                             <property name="homogeneous">True</property>
                             <child>
                               <object class="GtkLabel" id="label3">
@@ -82,6 +83,7 @@
                         <child>
                           <object class="GtkVBox" id="vbox12">
                             <property name="visible">True</property>
+                            <property name="orientation">vertical</property>
                             <child>
                               <object class="GtkComboBox" id="cbb_input_method">
                                 <property name="visible">True</property>
@@ -210,6 +212,7 @@
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
                                 <property name="image">img_edit</property>
+                                <property name="use_underline">True</property>
                               </object>
                               <packing>
                                 <property name="fill">False</property>
@@ -261,7 +264,7 @@
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="btn_main_ok">
-                <property name="label" translatable="yes">gtk-ok</property>
+                <property name="label">gtk-ok</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -275,7 +278,7 @@
             </child>
             <child>
               <object class="GtkButton" id="btn_main_cancel">
-                <property name="label" translatable="yes">gtk-cancel</property>
+                <property name="label">gtk-cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
