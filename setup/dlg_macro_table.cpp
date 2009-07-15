@@ -311,12 +311,12 @@ void check_last_macro_in_list(GtkListStore* list)
 
         // get key of item
         gtk_tree_model_get(GTK_TREE_MODEL(list), &iter, COL_KEY, &key, -1);
-    }
 
-    // if key is value used for NULL item
-    if (strcmp(key, STR_NULL_ITEM) == 0)
-    {
-        return;
+        // if key is value used for NULL item
+        if (strcmp(key, STR_NULL_ITEM) == 0)
+        {
+            return;
+        }
     }
 
     // if last item is valid item or no item in list, add new NULL item

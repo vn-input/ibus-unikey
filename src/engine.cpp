@@ -1026,7 +1026,9 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
     // capture ascii printable char
     else if (keyval >= IBUS_space && keyval <=IBUS_asciitilde)
     {
-        guint i;
+        static guint i;
+
+        UnikeySetCapsState(modifiers & IBUS_SHIFT_MASK, modifiers & IBUS_LOCK_MASK);
 
         // process keyval
 
