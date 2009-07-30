@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ibus-unikey 0.3.0\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/ibus-unikey\n"
-"POT-Creation-Date: 2009-07-08 23:27+0700\n"
-"PO-Revision-Date: 2009-07-08 23:27+0700\n"
+"POT-Creation-Date: 2009-07-31 00:37+0700\n"
+"PO-Revision-Date: 2009-07-31 00:31+0700\n"
 "Last-Translator: Le Quoc Tuan <mr.lequoctuan@gmail.com>\n"
 "Language-Team: Vietnamese\n"
 "MIME-Version: 1.0\n"
@@ -17,19 +17,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/engine.cpp:653 setup/setup-main.glade:144
+#: src/engine.cpp:617 setup/setup-main.glade:144
 msgid "Enable spell check"
 msgstr "Bật kiểm tra chính tả"
 
-#: src/engine.cpp:654
+#: src/engine.cpp:618
 msgid "If enable, you can decrease mistake when typing"
 msgstr "Nếu bật, bạn có thể giảm lỗi chính tả khi gõ"
 
-#: src/engine.cpp:670 setup/setup-main.glade:156
+#: src/engine.cpp:634 setup/setup-main.glade:156
 msgid "Auto restore keys with invalid words"
 msgstr "Tự động trả phím khi gõ từ không hợp lệ"
 
-#: src/engine.cpp:671
+#: src/engine.cpp:635
 msgid ""
 "When typing a word not in Vietnamese,\n"
 "it will auto restore keystroke into original"
@@ -37,43 +37,43 @@ msgstr ""
 "Khi gõ một từ không có trong tiếng Việt,\n"
 "tự động trả về từ gốc"
 
-#: src/engine.cpp:687 setup/setup-main.glade:168
+#: src/engine.cpp:651 setup/setup-main.glade:168
 msgid "Use oà, uý (instead of òa, úy)"
 msgstr "Dùng oà, uý (thay vì òa, úy)"
 
-#: src/engine.cpp:705 setup/setup-main.glade:180
+#: src/engine.cpp:669 setup/setup-main.glade:180
 msgid "Allow type with more freedom"
 msgstr "Cho phép bỏ dấu tự do"
 
-#: src/engine.cpp:722
+#: src/engine.cpp:686
 msgid "Enable Macro"
 msgstr "Bật gõ tắt"
 
-#: src/engine.cpp:739
+#: src/engine.cpp:703
 msgid "Process W at word begin"
 msgstr "Sử lý phím W ở đầu từ"
 
-#: src/engine.cpp:764
+#: src/engine.cpp:728
 msgid "Launch Unikey-setup"
 msgstr "Chạy Unikey-setup"
 
-#: src/engine.cpp:765
+#: src/engine.cpp:729
 msgid "A full setup program for Unikey"
 msgstr "Một chương trình cài đặt đầy đủ cho Unikey"
 
-#: src/engine.cpp:790
+#: src/engine.cpp:754
 msgid "Choose input method"
 msgstr "Chọn kiểu gõ"
 
-#: src/engine.cpp:812
+#: src/engine.cpp:776
 msgid "Choose output charset"
 msgstr "Chọn bảng mã"
 
-#: src/engine.cpp:828
+#: src/engine.cpp:792
 msgid "Options"
 msgstr "Tùy chọn"
 
-#: src/engine.cpp:829
+#: src/engine.cpp:793
 msgid "Options for Unikey"
 msgstr "Tùy chọn cho Unikey"
 
@@ -103,23 +103,15 @@ msgstr "Bật gõ tắt"
 
 #: setup/setup-main.glade:208
 msgid "_Edit macro"
-msgstr "Sửa bảng gõ tắt"
+msgstr "_Sửa bảng gõ tắt"
 
-#: setup/setup-main.glade:226
+#: setup/setup-main.glade:227
 msgid "Process _W at word begin"
 msgstr "Sử lý phím _W ở đầu từ"
 
-#: setup/setup-main.glade:244
+#: setup/setup-main.glade:245
 msgid "<b>Options</b>"
 msgstr "<b>Tùy chọn</b>"
-
-#: setup/setup-main.glade:264 setup/setup-macro.glade:101
-msgid "gtk-ok"
-msgstr ""
-
-#: setup/setup-main.glade:278 setup/setup-macro.glade:115
-msgid "gtk-cancel"
-msgstr ""
 
 #: setup/setup-macro.glade:15
 msgid "Macro table definition"
@@ -132,6 +124,14 @@ msgstr ""
 #: setup/setup-macro.glade:71
 msgid "Delete _all"
 msgstr "Xóa _hết"
+
+#: setup/setup-macro.glade:101
+msgid "gtk-ok"
+msgstr ""
+
+#: setup/setup-macro.glade:115
+msgid "gtk-cancel"
+msgstr ""
 
 #: setup/dlg_macro_table.cpp:13
 msgid "(replace text)"

@@ -95,10 +95,6 @@ void ibus_unikey_exit()
 
 static void ibus_unikey_engine_class_init(IBusUnikeyEngineClass* klass)
 {
-#ifdef DEBUG
-    ibus_warning("class_init()");
-#endif
-
     GObjectClass* object_class         = G_OBJECT_CLASS(klass);
     IBusObjectClass* ibus_object_class = IBUS_OBJECT_CLASS(klass);
     IBusEngineClass* engine_class      = IBUS_ENGINE_CLASS(klass);
@@ -119,10 +115,6 @@ static void ibus_unikey_engine_class_init(IBusUnikeyEngineClass* klass)
 
 static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
 {
-#ifdef DEBUG
-    ibus_warning("init()");
-#endif
-
     GValue v = {0};
     gchar* str;
     gboolean succ;
@@ -231,10 +223,6 @@ static GObject* ibus_unikey_engine_constructor(GType type,
                                                guint n_construct_params,
                                                GObjectConstructParam* construct_params)
 {
-#ifdef DEBUG
-    ibus_warning("constructor()");
-#endif
-
     IBusUnikeyEngine* unikey;
     const gchar* engine_name;
 
@@ -250,19 +238,11 @@ static GObject* ibus_unikey_engine_constructor(GType type,
 
 static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey)
 {
-#ifdef DEBUG
-    ibus_warning("destroy()");
-#endif
-
     delete unikey->preeditstr;
 }
 
 static void ibus_unikey_engine_focus_in(IBusEngine* engine)
 {
-#ifdef DEBUG
-    ibus_warning("focus_in()");
-#endif
-
     IBusUnikeyEngine* unikey = (IBusUnikeyEngine*)engine;
 
     UnikeySetInputMethod(unikey->im);
@@ -276,10 +256,6 @@ static void ibus_unikey_engine_focus_in(IBusEngine* engine)
 
 static void ibus_unikey_engine_focus_out(IBusEngine* engine)
 {
-#ifdef DEBUG
-    ibus_warning("focus_out()");
-#endif
-
     ibus_unikey_engine_reset(engine);
 
     parent_class->focus_out(engine);
@@ -287,10 +263,6 @@ static void ibus_unikey_engine_focus_out(IBusEngine* engine)
 
 static void ibus_unikey_engine_reset(IBusEngine* engine)
 {
-#ifdef DEBUG
-    ibus_warning("reset()");
-#endif
-
     IBusUnikeyEngine *unikey = (IBusUnikeyEngine*)engine;
 
     UnikeyResetBuf();
@@ -306,19 +278,11 @@ static void ibus_unikey_engine_reset(IBusEngine* engine)
 
 static void ibus_unikey_engine_enable(IBusEngine* engine)
 {
-#ifdef DEBUG
-    ibus_warning("enable()");
-#endif
-
     parent_class->enable(engine);
 }
 
 static void ibus_unikey_engine_disable(IBusEngine* engine)
 {
-#ifdef DEBUG
-    ibus_warning("disable()");
-#endif
-
     parent_class->disable(engine);
 }
 
