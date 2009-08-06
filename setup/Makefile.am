@@ -1,4 +1,4 @@
-INCLUDES = @DEFINE@ \
+INCLUDES = \
 	-I$(top_srcdir)/ukengine \
 	-I$(top_srcdir)/src \
 	-DPKGDATADIR=\"$(pkgdatadir)\" \

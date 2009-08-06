@@ -14,6 +14,8 @@
 
 enum {COL_KEY = 0, COL_VALUE, NUM_COLS};
 
+
+void check_last_macro_in_list(GtkListStore* list);
 void key_edited_cb (GtkCellRendererText *celltext,
                     const gchar *string_path,
                     const gchar *newkey,
@@ -24,8 +26,8 @@ void value_edited_cb(GtkCellRendererText *celltext,
                      gpointer data);
 void remove_macro_clicked_cb(GtkButton *button, gpointer user_data);
 void removeall_macro_clicked_cb(GtkButton *button, gpointer user_data);
-void check_last_macro_in_list(GtkListStore* list);
-
+void import_macro_clicked_cb(GtkButton *button, gpointer user_data);
+void export_macro_clicked_cb(GtkButton *button, gpointer user_data);
 
 GtkWidget* unikey_macro_dialog_new()
 {
@@ -83,27 +85,27 @@ GtkWidget* unikey_macro_dialog_new()
     // connect signal
     btn = GTK_WIDGET(gtk_builder_get_object(builder, "btn_removeall"));
     g_signal_connect(btn, "clicked", G_CALLBACK(removeall_macro_clicked_cb), tree);
+    // connect signal
+    btn = GTK_WIDGET(gtk_builder_get_object(builder, "btn_import"));
+    g_signal_connect(btn, "clicked", G_CALLBACK(import_macro_clicked_cb), dialog);
+    // connect signal
+    btn = GTK_WIDGET(gtk_builder_get_object(builder, "btn_export"));
+    g_signal_connect(btn, "clicked", G_CALLBACK(export_macro_clicked_cb), dialog);
 
     g_object_unref(builder);
 
     return dialog;
 }
 
-void unikey_macro_dialog_load_macro(GtkDialog* dialog, CMacroTable macro)
+void append_macro_to_list_store(GtkListStore* list, CMacroTable macro)
 {
-    GtkTreeView* tree;
-    GtkListStore* list;
     GtkTreeIter iter;
     gchar key[MAX_MACRO_KEY_LEN*3];
     gchar value[MAX_MACRO_TEXT_LEN*3];
+    gchar* oldkey;
     UKBYTE* p;
     int inLen, maxOutLen;
     int i, ret;
-
-    tree = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(dialog), "tree_macro"));
-    list = GTK_LIST_STORE(gtk_tree_view_get_model(tree));
-    
-    gtk_list_store_clear(list);
 
     for (i = 0 ; i < macro.getCount(); i++)
     {
@@ -116,6 +118,25 @@ void unikey_macro_dialog_load_macro(GtkDialog* dialog, CMacroTable macro)
                         &inLen, &maxOutLen);
         if (ret != 0)
             continue;
+
+        // check if any key same as newkey
+        gboolean b = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(list), &iter);
+        while (b)
+        {
+            gtk_tree_model_get(GTK_TREE_MODEL(list), &iter, COL_KEY, &oldkey, -1);
+
+            if (strcasecmp(oldkey, key) == 0)
+            {
+                break;
+            }
+
+            b = gtk_tree_model_iter_next(GTK_TREE_MODEL(list), &iter);
+        }
+        if (b)
+        {
+            continue;
+        }
+        // end check
 
         // get value and convert to XUTF charset
         p = (UKBYTE*)macro.getText(i);
@@ -131,7 +152,20 @@ void unikey_macro_dialog_load_macro(GtkDialog* dialog, CMacroTable macro)
         gtk_list_store_append(list, &iter);
         gtk_list_store_set(list, &iter, COL_KEY, key, COL_VALUE, value, -1);
     }
+}
 
+void unikey_macro_dialog_load_macro(GtkDialog* dialog, CMacroTable macro)
+{
+    GtkTreeView* tree;
+    GtkListStore* list;
+    GtkTreeIter iter;
+
+    tree = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(dialog), "tree_macro"));
+    list = GTK_LIST_STORE(gtk_tree_view_get_model(tree));
+    
+    gtk_list_store_clear(list);
+
+    append_macro_to_list_store(list, macro);
     check_last_macro_in_list(list);
 
     // select first iter
@@ -165,6 +199,38 @@ void unikey_macro_dialog_save_macro(GtkDialog* dialog, CMacroTable* macro)
 
         b = gtk_tree_model_iter_next(model, &iter);
     }
+}
+
+void check_last_macro_in_list(GtkListStore* list)
+{
+    GtkTreeIter iter;
+    gchar *key;
+    gint n;
+
+    // get number item in list
+    n = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(list), NULL);
+
+    if (n > 0)
+    {
+        // get last item
+        gtk_tree_model_iter_nth_child(GTK_TREE_MODEL(list), &iter, NULL, n-1);
+
+        // get key of item
+        gtk_tree_model_get(GTK_TREE_MODEL(list), &iter, COL_KEY, &key, -1);
+
+        // if key is value used for NULL item
+        if (strcmp(key, STR_NULL_ITEM) == 0)
+        {
+            return;
+        }
+    }
+
+    // if last item is valid item or no item in list, add new NULL item
+    gtk_list_store_append(list, &iter);
+    gtk_list_store_set(list, &iter,
+                       COL_KEY, STR_NULL_ITEM,
+                       COL_VALUE, STR_NULL_ITEM,
+                       -1);
 }
 
 void key_edited_cb (GtkCellRendererText *celltext,
@@ -295,34 +361,102 @@ void removeall_macro_clicked_cb(GtkButton *button, gpointer data)
     gtk_tree_selection_select_iter(select, &iter);
 }
 
-void check_last_macro_in_list(GtkListStore* list)
+void import_macro_clicked_cb(GtkButton *button, gpointer data)
 {
+    GtkWidget* file;
+    GtkTreeView* tree;
+    GtkListStore* list;
     GtkTreeIter iter;
-    gchar *key;
-    gint n;
+    CMacroTable macro;
+    gchar* fn;
+    int r, n;
 
-    // get number item in list
-    n = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(list), NULL);
+    file = gtk_file_chooser_dialog_new(_("Choose file to import"),
+                                       GTK_WINDOW(data),
+                                       GTK_FILE_CHOOSER_ACTION_OPEN,
+                                       GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                       GTK_STOCK_OPEN, GTK_RESPONSE_OK,
+                                       NULL);
 
-    if (n > 0)
+    gtk_widget_set_sensitive(GTK_WIDGET(data), FALSE);
+
+    r = gtk_dialog_run(GTK_DIALOG(file));
+    if (r == GTK_RESPONSE_OK)
     {
-        // get last item
-        gtk_tree_model_iter_nth_child(GTK_TREE_MODEL(list), &iter, NULL, n-1);
+        fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file));
+        macro.init();
+        macro.loadFromFile(fn);
+        g_free(fn);
 
-        // get key of item
-        gtk_tree_model_get(GTK_TREE_MODEL(list), &iter, COL_KEY, &key, -1);
+        tree = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(data), "tree_macro"));
+        list = GTK_LIST_STORE(gtk_tree_view_get_model(tree));
 
-        // if key is value used for NULL item
-        if (strcmp(key, STR_NULL_ITEM) == 0)
-        {
-            return;
-        }
+        n = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(list), NULL);     // get number of iter
+        gtk_tree_model_iter_nth_child(GTK_TREE_MODEL(list), &iter, NULL, n-1); // get last iter
+        gtk_list_store_remove(list, &iter); // remove last iter (...)
+
+        append_macro_to_list_store(list, macro);
+
+        check_last_macro_in_list(list); // add iter (...)
+
+        // select first iter
+        GtkTreeSelection* select = gtk_tree_view_get_selection(tree);
+        gtk_tree_model_get_iter_first(GTK_TREE_MODEL(list), &iter);
+        gtk_tree_selection_select_iter(select, &iter);
     }
 
-    // if last item is valid item or no item in list, add new NULL item
-    gtk_list_store_append(list, &iter);
-    gtk_list_store_set(list, &iter,
-                       COL_KEY, STR_NULL_ITEM,
-                       COL_VALUE, STR_NULL_ITEM,
-                       -1);
+    gtk_widget_destroy(file);
+
+    gtk_widget_set_sensitive(GTK_WIDGET(data), TRUE);
 }
+
+void export_macro_clicked_cb(GtkButton *button, gpointer data)
+{
+    GtkWidget* file;
+    GtkTreeView* tree;
+    GtkTreeModel* model;
+    GtkTreeIter iter;
+    CMacroTable macro;
+    gchar* key, *value;
+    gchar* fn;
+    int r;
+
+    file = gtk_file_chooser_dialog_new(_("Choose file to export"),
+                                       GTK_WINDOW(data),
+                                       GTK_FILE_CHOOSER_ACTION_SAVE,
+                                       GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                       GTK_STOCK_SAVE, GTK_RESPONSE_OK,
+                                       NULL);
+
+    gtk_widget_set_sensitive(GTK_WIDGET(data), FALSE);
+
+    r = gtk_dialog_run(GTK_DIALOG(file));
+    if (r == GTK_RESPONSE_OK)
+    {
+        macro.init();
+
+        tree = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(data), "tree_macro"));
+        model = GTK_TREE_MODEL(gtk_tree_view_get_model(tree));
+
+        gboolean b = gtk_tree_model_get_iter_first(model, &iter);
+        while (b == TRUE)
+        {
+            gtk_tree_model_get(model, &iter, COL_KEY, &key, COL_VALUE, &value, -1);
+
+            if (strcasecmp(key, STR_NULL_ITEM) != 0)
+            {
+                macro.addItem(key, value, CONV_CHARSET_XUTF8);
+            }
+            b = gtk_tree_model_iter_next(model, &iter);
+        }
+
+        fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file));
+        macro.writeToFile(fn);
+        g_free(fn);
+    }
+
+    gtk_widget_destroy(file);
+
+    gtk_widget_set_sensitive(GTK_WIDGET(data), TRUE);
+}
+
