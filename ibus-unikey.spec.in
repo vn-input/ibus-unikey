@@ -1,0 +1,45 @@
+Name:       @PACKAGE_NAME@
+Version:    @PACKAGE_VERSION@
+Release:    1%{?dist}
+Summary:    Vietnamese Input Method Engine for IBUS using Unikey IME
+Vendor:     Ubuntu-VN
+License:    GPLv2+
+Group:      Localization
+URL:        http://code.google.com/p/ibus-unikey/
+Source:     http://ibus-unikey.googlecode.com/files/%{name}-%{version}.tar.gz
+
+%description
+Ibus-unikey is a IM Engine for IBus
+Use for type Vietnamese
+Support via forum at: http://forum.ubuntu-vn.com/viewforum.php?f=85
+
+BuildRequires: ibus-devel >= 1.2
+BuildRequires: gtk2-devel
+BuildRequires: GConf2-devel
+
+Requires: ibus
+
+%prep
+%setup -q
+
+%build
+%configure --prefix=%{_prefix}
+make
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+find $RPM_BUILD_ROOT -name *.la -exec rm '{}' +
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%post -p /sbin/ldconfig
+
+%postun -p /sbin/ldconfig
+
+%files
+%defattr(-,root,root)
+%doc AUTHORS ChangeLog COPYING INSTALL NEWS README
+%{_prefix}/*
+
