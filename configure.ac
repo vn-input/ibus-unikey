@@ -5,7 +5,7 @@ m4_define([ibus_minor_version], [3])
 m4_define([ibus_micro_version], [0])
 
 m4_define([ibus_version],
-    ibus_major_version.ibus_minor_version.ibus_micro_version)
+    ibus_major_version.ibus_minor_version.ibus_micro_version.r98)
 
 AC_INIT([package_name], [ibus_version], [http://code.google.com/p/ibus-unikey], [package_name])
 AM_INIT_AUTOMAKE([1.10])
@@ -62,6 +62,7 @@ AC_CONFIG_FILES( po/Makefile.in
     setup/Makefile
     icons/Makefile
     m4/Makefile
+    ibus-unikey.spec
 )
 
 AC_OUTPUT
