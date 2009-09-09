@@ -11,9 +11,7 @@
 
 #define _(string) gettext(string)
 
-#define IU_DESC _("Unikey Input Method\n\
-A IM for Vietnamese\n\n\
-")
+#define IU_DESC _("Unikey Input Method\nA IM for Vietnamese")
 
 IBusComponent* ibus_unikey_get_component()
 {
