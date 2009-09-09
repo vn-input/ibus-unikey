@@ -10,7 +10,8 @@ SUBDIRS = \
 ACLOCAL_AMFLAGS = -I m4
 
 EXTRA_DIST = \
-    ibus-unikey.spec.in
+    ibus-unikey.spec.in \
+    debian
 
 DISTCLEANFILES = \
 	po/stamp-it \
@@ -37,5 +38,12 @@ srpm: dist @PACKAGE_NAME@.spec
 clean-rpm:
 	$(RM) -r "`uname -i`"
 
-clean-local: clean-rpm
+deb: distdir
+	cd $(distdir) && debuild --no-tgz-check
+
+clean-deb:
+	$(RM) -r @PACKAGE_NAME@_@PACKAGE_VERSION@*.{dsc,tar.gz,build,changes,deb}
+
+clean-local: clean-rpm clean-deb
+	$(RM) -r $(distdir)
 
