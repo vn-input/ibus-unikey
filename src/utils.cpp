@@ -11,6 +11,10 @@
 
 #define _(string) gettext(string)
 
+#define IU_DESC _("Unikey Input Method\n\
+A IM for Vietnamese\n\n\
+")
+
 IBusComponent* ibus_unikey_get_component()
 {
     IBusComponent* component;
@@ -27,7 +31,7 @@ IBusComponent* ibus_unikey_get_component()
     ibus_component_add_engine(component,
                               ibus_engine_desc_new("Unikey",
                                                    "Unikey",
-                                                   _("Unikey Input Method\nAn IM for Vietnamese"),
+                                                   IU_DESC,
                                                    "vi",
                                                    "GPL",
                                                    "Le Quoc Tuan <mr.lequoctuan@gmail.com>",
