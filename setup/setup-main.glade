@@ -88,6 +88,12 @@
                               <object class="GtkComboBox" id="cbb_input_method">
                                 <property name="visible">True</property>
                                 <property name="model">list_input_method</property>
+                                <child>
+                                  <object class="GtkCellRendererText" id="cellrenderertext1"/>
+                                  <attributes>
+                                    <attribute name="text">0</attribute>
+                                  </attributes>
+                                </child>
                               </object>
                               <packing>
                                 <property name="padding">2</property>
@@ -99,6 +105,12 @@
                               <object class="GtkComboBox" id="cbb_output_charset">
                                 <property name="visible">True</property>
                                 <property name="model">list_output_charset</property>
+                                <child>
+                                  <object class="GtkCellRendererText" id="cellrenderertext2"/>
+                                  <attributes>
+                                    <attribute name="text">0</attribute>
+                                  </attributes>
+                                </child>
                               </object>
                               <packing>
                                 <property name="padding">2</property>

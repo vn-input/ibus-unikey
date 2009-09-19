@@ -44,53 +44,25 @@ GtkWidget* unikey_macro_dialog_new()
     GtkTreeView* tree = GTK_TREE_VIEW(gtk_builder_get_object(builder, "tree_macro"));
     g_object_set_data(G_OBJECT(dialog), "tree_macro", tree);
 
-    GtkTreeViewColumn* col;
-    GtkCellRenderer* render;
-
-// create key column
-    render = gtk_cell_renderer_text_new();
-    g_object_set(render,
-                 "editable", TRUE,
-                 "width-chars", MAX_MACRO_KEY_LEN+8,
-                 NULL);
-    g_signal_connect(render, "edited", G_CALLBACK(key_edited_cb), tree);
-    col = gtk_tree_view_column_new_with_attributes(_("Word"),
-                                                   render,
-                                                   "text",
-                                                   COL_KEY,
-                                                   NULL);
-    gtk_tree_view_column_set_resizable(col, TRUE);
-    gtk_tree_view_append_column(tree, col);
-
-// create value column
-    render = gtk_cell_renderer_text_new();
-    g_object_set(render,
-                 "editable", TRUE,
-                 NULL);
-    g_signal_connect(render, "edited", G_CALLBACK(value_edited_cb), tree);
-    col = gtk_tree_view_column_new_with_attributes(_("Replace with"),
-                                                   render,
-                                                   "text",
-                                                   COL_VALUE,
-                                                   NULL);
-    gtk_tree_view_column_set_resizable(col, TRUE);
-    gtk_tree_view_append_column(tree, col);
-
-    GtkWidget* btn;
-
     // connect signal
-    btn = GTK_WIDGET(gtk_builder_get_object(builder, "btn_remove"));
-    g_signal_connect(btn, "clicked", G_CALLBACK(remove_macro_clicked_cb), tree);
+    g_signal_connect(gtk_builder_get_object(builder, "cellrenderertext_key"),
+                     "edited", G_CALLBACK(key_edited_cb), tree);
 
-    // connect signal
-    btn = GTK_WIDGET(gtk_builder_get_object(builder, "btn_removeall"));
-    g_signal_connect(btn, "clicked", G_CALLBACK(removeall_macro_clicked_cb), tree);
-    // connect signal
-    btn = GTK_WIDGET(gtk_builder_get_object(builder, "btn_import"));
-    g_signal_connect(btn, "clicked", G_CALLBACK(import_macro_clicked_cb), dialog);
-    // connect signal
-    btn = GTK_WIDGET(gtk_builder_get_object(builder, "btn_export"));
-    g_signal_connect(btn, "clicked", G_CALLBACK(export_macro_clicked_cb), dialog);
+    g_signal_connect(gtk_builder_get_object(builder, "cellrenderertext_value"),
+                     "edited", G_CALLBACK(value_edited_cb), tree);
+
+    g_signal_connect(gtk_builder_get_object(builder, "btn_remove"),
+                     "clicked", G_CALLBACK(remove_macro_clicked_cb), tree);
+
+    g_signal_connect(gtk_builder_get_object(builder, "btn_removeall"),
+                     "clicked", G_CALLBACK(removeall_macro_clicked_cb), tree);
+
+    g_signal_connect(gtk_builder_get_object(builder, "btn_import"),
+                     "clicked", G_CALLBACK(import_macro_clicked_cb), dialog);
+
+    g_signal_connect(gtk_builder_get_object(builder, "btn_export"),
+                     "clicked", G_CALLBACK(export_macro_clicked_cb), dialog);
+
 
     g_object_unref(builder);
 

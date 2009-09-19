@@ -18,38 +18,6 @@ GtkWidget* unikey_main_setup_dialog_new()
 
     GtkDialog* dlg = GTK_DIALOG(gtk_builder_get_object(builder, "dlg_main_setup"));
 
-
-    // set data for input method combobox
-    GtkComboBox* cbb_im = GTK_COMBO_BOX(gtk_builder_get_object(builder, "cbb_input_method"));
-    GtkTreeModel* list_im = GTK_TREE_MODEL(gtk_builder_get_object(builder, "list_input_method"));
-
-    gtk_combo_box_set_model(cbb_im, list_im); // set model
-
-    GtkCellRenderer* render = gtk_cell_renderer_text_new();
-    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(cbb_im), render, TRUE);
-
-    gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(cbb_im),
-                                   render,
-                                   "text", COL_IM_NAME,
-                                   NULL);  // set Column Input method name
-    // END set data for input method combobox
-
-
-    // set data for output charset combobox
-    GtkComboBox* cbb_oc = GTK_COMBO_BOX(gtk_builder_get_object(builder, "cbb_output_charset"));
-    GtkTreeModel* list_oc = GTK_TREE_MODEL(gtk_builder_get_object(builder, "list_output_charset"));
-
-    gtk_combo_box_set_model(cbb_oc, list_oc); // set model
-
-    render = gtk_cell_renderer_text_new();
-    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(cbb_oc), render, TRUE);
-
-    gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(cbb_oc),
-                                   render,
-                                   "text", COL_OC_NAME,
-                                   NULL);  // set Column output charset nam
-    // END set data for output charset combobox
-
     // set callback
     GtkWidget* btn = GTK_WIDGET(gtk_builder_get_object(builder, "btn_macroedit")); // macro_edit button
     g_signal_connect(btn, "clicked", G_CALLBACK(macro_edit_button_cb), dlg);
@@ -59,8 +27,12 @@ GtkWidget* unikey_main_setup_dialog_new()
     // END set callback
 
     // save object pointer for future use
-    g_object_set_data(G_OBJECT(dlg), "cbb_input_method", cbb_im);
-    g_object_set_data(G_OBJECT(dlg), "cbb_output_charset", cbb_oc);
+    g_object_set_data(G_OBJECT(dlg),
+                      "cbb_input_method",
+                      gtk_builder_get_object(builder, "cbb_input_method"));
+    g_object_set_data(G_OBJECT(dlg),
+                      "cbb_output_charset",
+                      gtk_builder_get_object(builder, "cbb_output_charset"));
     g_object_set_data(G_OBJECT(dlg), "check_macroenable", wid);
     g_object_set_data(G_OBJECT(dlg), "btn_macroedit", btn);
     g_object_set_data(G_OBJECT(dlg),
