@@ -11,30 +11,37 @@
 
 #define _(string) gettext(string)
 
-#define IU_DESC _("Unikey Input Method\nA IM for Vietnamese")
+#define IU_DESC _("Vietnamese Input Method Engine for IBus using Unikey Engine")
 
 IBusComponent* ibus_unikey_get_component()
 {
     IBusComponent* component;
+    IBusEngineDesc* engine;
 
     component = ibus_component_new("org.freedesktop.IBus.Unikey",
                                    "Unikey",
                                    PACKAGE_VERSION,
                                    "GPL",
-                                   "Le Quoc Tuan <mr.lequoctuan@gmail.com>",
+                                   "Lê Quốc Tuấn <mr.lequoctuan@gmail.com>",
                                    PACKAGE_BUGREPORT,
                                    "",
                                    PACKAGE_NAME);
 
-    ibus_component_add_engine(component,
-                              ibus_engine_desc_new("Unikey",
-                                                   "Unikey",
-                                                   IU_DESC,
-                                                   "vi",
-                                                   "GPL",
-                                                   "Le Quoc Tuan <mr.lequoctuan@gmail.com>",
-                                                   PKGDATADIR"/icons/ibus-unikey.png",
-                                                   "us"));
+    engine = ibus_engine_desc_new
+    (
+        "Unikey",
+        "Unikey",
+        IU_DESC,
+        "vi",
+        "GPL",
+        "Lê Quốc Tuấn <mr.lequoctuan@gmail.com>",
+        PKGDATADIR"/icons/ibus-unikey.png",
+        "us"
+    );
+    
+    engine->rank = 99;
+
+    ibus_component_add_engine(component, engine);
 
     return component;
 }
