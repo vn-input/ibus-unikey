@@ -11,7 +11,15 @@
 
 #define _(string) gettext(string)
 
-#define IU_DESC _("Vietnamese Input Method Engine for IBus using Unikey Engine")
+#define IU_DESC _("Vietnamese Input Method Engine for IBus using Unikey Engine\n\
+Usage:\n\
+  - Choose input method, output charset, options in language panel.\n\
+  - There are 4 input methods: Telex, Vni, STelex (simple telex) \
+and STelex2 (which same as STelex, the difference is it use w as ư).\n\
+  - And 7 output charsets: Unicode (UTF-8), TCVN3, VNI Win, VIQR, CString, NCR Decimal and NCR Hex.\n\
+  - Use <Shift>+<Space> or <Shift>+<Shift> to restore keystrokes.\n\
+  - Use <Control> to commit a word.\
+")
 
 IBusComponent* ibus_unikey_get_component()
 {
