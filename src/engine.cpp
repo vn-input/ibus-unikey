@@ -224,14 +224,11 @@ static GObject* ibus_unikey_engine_constructor(GType type,
                                                GObjectConstructParam* construct_params)
 {
     IBusUnikeyEngine* unikey;
-    const gchar* engine_name;
 
     unikey = (IBusUnikeyEngine*)
         G_OBJECT_CLASS(parent_class)->constructor(type,
                                                   n_construct_params,
                                                   construct_params);
-
-    engine_name = ibus_engine_get_name((IBusEngine*)unikey);
 
     return (GObject*)unikey;
 }
