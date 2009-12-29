@@ -66,3 +66,11 @@ AC_CONFIG_FILES( po/Makefile.in
 )
 
 AC_OUTPUT
+
+AC_MSG_RESULT([
+Build options:
+  Package           $PACKAGE
+  Version           $VERSION
+  Install prefix    $prefix
+])
+
