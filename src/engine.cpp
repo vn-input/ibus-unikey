@@ -923,7 +923,9 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
         return false;
     }
 
-    else if (keyval >= IBUS_Shift_L && keyval <= IBUS_Hyper_R)
+    else if ((keyval >= IBUS_Control_L && keyval <= IBUS_Hyper_R)
+            || (!(modifiers & IBUS_SHIFT_MASK) && (keyval == IBUS_Shift_L || keyval == IBUS_Shift_R))
+        )
     {
         return false;
     }
@@ -985,7 +987,9 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
     }
 
     // capture ascii printable char
-    else if (keyval >= IBUS_space && keyval <=IBUS_asciitilde)
+    else if ((keyval >= IBUS_space && keyval <=IBUS_asciitilde)
+            || keyval == IBUS_Shift_L
+            || keyval == IBUS_Shift_R)
     {
         static guint i;
 
@@ -1032,14 +1036,14 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
 
         unikey->auto_commit = false;
 
-        // shift + space event
-        if (unikey->last_key_with_shift == false
-            && modifiers & IBUS_SHIFT_MASK
-            && keyval == IBUS_space
-            && !UnikeyAtWordBeginning())
+        // shift + space, shift + shift event
+        if ((unikey->last_key_with_shift == false && modifiers & IBUS_SHIFT_MASK
+                    && keyval == IBUS_space && !UnikeyAtWordBeginning())
+            || (modifiers & IBUS_SHIFT_MASK && (keyval == IBUS_Shift_L || keyval == IBUS_Shift_R))
+           )
         {
             UnikeyRestoreKeyStrokes();
-        } // end shift + space event
+        } // end shift + space, shift + shift event
 
         else
         {
@@ -1075,7 +1079,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
                 unikey->preeditstr->append((const gchar*)buf, sizeof(buf)/sizeof(buf[0]) - bufSize);
             }
         }
-        else // if ukengine not process
+        else if (keyval != IBUS_Shift_L && keyval != IBUS_Shift_R) // if ukengine not process
         {
             static int n;
             static char s[6];
