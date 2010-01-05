@@ -277,11 +277,14 @@ static void ibus_unikey_engine_reset(IBusEngine* engine)
     IBusUnikeyEngine *unikey = (IBusUnikeyEngine*)engine;
 
     UnikeyResetBuf();
-    if (unikey->preeditstr->length() > 0)
+    if (unikey->preedit)
     {
-        ibus_unikey_engine_commit_string(engine, unikey->preeditstr->c_str());
-        ibus_engine_hide_preedit_text(engine);
-        unikey->preeditstr->clear();
+        if (unikey->preeditstr->length() > 0)
+        {
+            ibus_unikey_engine_commit_string(engine, unikey->preeditstr->c_str());
+            ibus_engine_hide_preedit_text(engine);
+            unikey->preeditstr->clear();
+        }
     }
 
     parent_class->reset(engine);
@@ -550,7 +553,6 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
             }
         } // end update state
     } // end ProcessWAtBegin active
-
 
     // if Run setup
     else if (strncmp(prop_name, "RunSetupGUI", strlen("RunSetupGUI")) == 0)
@@ -886,7 +888,10 @@ static gboolean ibus_unikey_engine_process_key_event(IBusEngine* engine,
 
     unikey = (IBusUnikeyEngine*)engine;
 
-    tmp = ibus_unikey_engine_process_key_event_preedit(engine, keyval, keycode, modifiers);
+    if (unikey->preedit)
+        tmp = ibus_unikey_engine_process_key_event_preedit(engine, keyval, keycode, modifiers);
+    else
+        tmp = ibus_unikey_engine_process_key_event_classic(engine, keyval, keycode, modifiers);
 
     // check last keyevent with shift
     if (keyval >= IBUS_space && keyval <=IBUS_asciitilde)
@@ -1128,5 +1133,15 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
 
     // non process key
     ibus_unikey_engine_reset(engine);
+    return false;
+}
+
+static gboolean ibus_unikey_engine_process_key_event_classic(IBusEngine* engine,
+                                                             guint keyval,
+                                                             guint keycode,
+                                                             guint modifiers)
+{
+
+
     return false;
 }

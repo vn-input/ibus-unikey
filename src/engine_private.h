@@ -63,6 +63,10 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
                                                              guint keyval,
                                                              guint keycode,
                                                              guint modifiers);
+static gboolean ibus_unikey_engine_process_key_event_classic(IBusEngine* engine,
+                                                             guint keyval,
+                                                             guint keycode,
+                                                             guint modifiers);
 
 static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey);
 
