@@ -46,9 +46,21 @@ IBusComponent* ibus_unikey_get_component()
         PKGDATADIR"/icons/ibus-unikey.png",
         "us"
     );
-    
     engine->rank = 99;
-
+    ibus_component_add_engine(component, engine);
+    
+    engine = ibus_engine_desc_new
+    (
+        "UnikeyClassic",
+        "Unikey Classic",
+        IU_DESC,
+        "vi",
+        "GPLv2",
+        "Lê Quốc Tuấn <mr.lequoctuan@gmail.com>",
+        PKGDATADIR"/icons/ibus-unikey.png",
+        "us"
+    );
+    engine->rank = 98;
     ibus_component_add_engine(component, engine);
 
     return component;
