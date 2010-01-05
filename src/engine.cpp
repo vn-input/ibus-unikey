@@ -113,6 +113,29 @@ static void ibus_unikey_engine_class_init(IBusUnikeyEngineClass* klass)
     engine_class->property_activate = ibus_unikey_engine_property_activate;
 }
 
+static GObject* ibus_unikey_engine_constructor(GType type,
+                                               guint n_construct_params,
+                                               GObjectConstructParam* construct_params)
+{
+    IBusUnikeyEngine* unikey;
+    const gchar* engine_name;
+
+    unikey = (IBusUnikeyEngine*)
+        G_OBJECT_CLASS(parent_class)->constructor(type,
+                                                  n_construct_params,
+                                                  construct_params);
+
+    engine_name = ibus_engine_get_name((IBusEngine*)unikey);
+    unikey->preedit = strcmp(engine_name, "UnikeyClassic");
+
+    return (GObject*)unikey;
+}
+
+static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey)
+{
+    delete unikey->preeditstr;
+}
+
 static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
 {
     GValue v = {0};
@@ -217,29 +240,6 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     }
 
     ibus_unikey_engine_create_property_list(unikey);
-}
-
-static GObject* ibus_unikey_engine_constructor(GType type,
-                                               guint n_construct_params,
-                                               GObjectConstructParam* construct_params)
-{
-    IBusUnikeyEngine* unikey;
-    const gchar* engine_name;
-
-    unikey = (IBusUnikeyEngine*)
-        G_OBJECT_CLASS(parent_class)->constructor(type,
-                                                  n_construct_params,
-                                                  construct_params);
-
-    engine_name = ibus_engine_get_name((IBusEngine*)unikey);
-    unikey->preedit = strcmp(engine_name, "UnikeyClassic");
-
-    return (GObject*)unikey;
-}
-
-static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey)
-{
-    delete unikey->preeditstr;
 }
 
 static void ibus_unikey_engine_focus_in(IBusEngine* engine)
