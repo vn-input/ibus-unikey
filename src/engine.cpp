@@ -127,13 +127,24 @@ static GObject* ibus_unikey_engine_constructor(GType type,
 
     engine_name = ibus_engine_get_name((IBusEngine*)unikey);
     unikey->preedit = strcmp(engine_name, "UnikeyClassic");
+    
+    if (unikey->preedit)
+        unikey->preeditstr = new std::string();
 
     return (GObject*)unikey;
 }
 
 static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey)
 {
-    delete unikey->preeditstr;
+    if (unikey->preedit)
+        delete unikey->preeditstr;
+
+    g_object_unref(unikey->prop_list);
+    g_object_unref(unikey->menu_im);
+    g_object_unref(unikey->menu_oc);
+    g_object_unref(unikey->menu_opt);
+
+    IBUS_OBJECT_CLASS(parent_class)->destroy((IBusObject*)unikey);
 }
 
 static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
@@ -143,7 +154,6 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     gboolean succ;
     guint i;
 
-    unikey->preeditstr = new std::string();
     unikey_create_default_options(&unikey->ukopt);
 
 // read config value
