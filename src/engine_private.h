@@ -14,6 +14,8 @@ struct _IBusUnikeyEngine
     IBusEngine parent;
 
 /* members */
+    gboolean preedit;
+
     IBusPropList* prop_list;
     IBusPropList* menu_im;
     IBusPropList* menu_oc;
