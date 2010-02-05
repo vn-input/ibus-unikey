@@ -13,7 +13,7 @@
 
 #define IU_DESC _("Vietnamese Input Method Engine for IBus using Unikey Engine\n\
 Usage:\n\
-  - Choose input method, output charset, options in language panel.\n\
+  - Choose input method, output charset, options in language bar.\n\
   - There are 4 input methods: Telex, Vni, STelex (simple telex) \
 and STelex2 (which same as STelex, the difference is it use w as ư).\n\
   - And 7 output charsets: Unicode (UTF-8), TCVN3, VNI Win, VIQR, CString, NCR Decimal and NCR Hex.\n\
