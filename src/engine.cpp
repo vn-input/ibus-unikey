@@ -13,8 +13,6 @@
 #include "unikey.h"
 #include "vnconv.h"
 
-#define CONVERT_BUF_SIZE 1024
-
 #define _(string) gettext(string)
 
 const gchar*          Unikey_IMNames[]    = {"Telex", "Vni", "STelex", "STelex2"};
@@ -115,40 +113,6 @@ static void ibus_unikey_engine_class_init(IBusUnikeyEngineClass* klass)
     engine_class->property_activate = ibus_unikey_engine_property_activate;
 }
 
-static GObject* ibus_unikey_engine_constructor(GType type,
-                                               guint n_construct_params,
-                                               GObjectConstructParam* construct_params)
-{
-    IBusUnikeyEngine* unikey;
-    const gchar* engine_name;
-
-    unikey = (IBusUnikeyEngine*)
-        G_OBJECT_CLASS(parent_class)->constructor(type,
-                                                  n_construct_params,
-                                                  construct_params);
-
-    engine_name = ibus_engine_get_name((IBusEngine*)unikey);
-    unikey->preedit = strcmp(engine_name, "UnikeyClassic");
-    
-    if (unikey->preedit)
-        unikey->preeditstr = new std::string();
-
-    return (GObject*)unikey;
-}
-
-static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey)
-{
-    if (unikey->preedit)
-        delete unikey->preeditstr;
-
-    g_object_unref(unikey->prop_list);
-    g_object_unref(unikey->menu_im);
-    g_object_unref(unikey->menu_oc);
-    g_object_unref(unikey->menu_opt);
-
-    IBUS_OBJECT_CLASS(parent_class)->destroy((IBusObject*)unikey);
-}
-
 static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
 {
     GValue v = {0};
@@ -156,6 +120,7 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     gboolean succ;
     guint i;
 
+    unikey->preeditstr = new std::string();
     unikey_create_default_options(&unikey->ukopt);
 
 // read config value
@@ -254,6 +219,25 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     ibus_unikey_engine_create_property_list(unikey);
 }
 
+static GObject* ibus_unikey_engine_constructor(GType type,
+                                               guint n_construct_params,
+                                               GObjectConstructParam* construct_params)
+{
+    IBusUnikeyEngine* unikey;
+
+    unikey = (IBusUnikeyEngine*)
+        G_OBJECT_CLASS(parent_class)->constructor(type,
+                                                  n_construct_params,
+                                                  construct_params);
+
+    return (GObject*)unikey;
+}
+
+static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey)
+{
+    delete unikey->preeditstr;
+}
+
 static void ibus_unikey_engine_focus_in(IBusEngine* engine)
 {
     IBusUnikeyEngine* unikey = (IBusUnikeyEngine*)engine;
@@ -279,14 +263,11 @@ static void ibus_unikey_engine_reset(IBusEngine* engine)
     IBusUnikeyEngine *unikey = (IBusUnikeyEngine*)engine;
 
     UnikeyResetBuf();
-    if (unikey->preedit)
+    if (unikey->preeditstr->length() > 0)
     {
-        if (unikey->preeditstr->length() > 0)
-        {
-            ibus_unikey_engine_commit_string(engine, unikey->preeditstr->c_str());
-            ibus_engine_hide_preedit_text(engine);
-            unikey->preeditstr->clear();
-        }
+        ibus_unikey_engine_commit_string(engine, unikey->preeditstr->c_str());
+        ibus_engine_hide_preedit_text(engine);
+        unikey->preeditstr->clear();
     }
 
     parent_class->reset(engine);
@@ -556,13 +537,14 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         } // end update state
     } // end ProcessWAtBegin active
 
+
     // if Run setup
     else if (strncmp(prop_name, "RunSetupGUI", strlen("RunSetupGUI")) == 0)
     {
         gchar s[1024];
 
         strcpy(s, LIBEXECDIR);
-        strcat(s, "/ibus-setup-unikey &");
+	    strcat(s, "/ibus-setup-unikey &");
 
         system(s);
     } // END Run setup
@@ -890,10 +872,7 @@ static gboolean ibus_unikey_engine_process_key_event(IBusEngine* engine,
 
     unikey = (IBusUnikeyEngine*)engine;
 
-    if (unikey->preedit)
-        tmp = ibus_unikey_engine_process_key_event_preedit(engine, keyval, keycode, modifiers);
-    else
-        tmp = ibus_unikey_engine_process_key_event_classic(engine, keyval, keycode, modifiers);
+    tmp = ibus_unikey_engine_process_key_event_preedit(engine, keyval, keycode, modifiers);
 
     // check last keyevent with shift
     if (keyval >= IBUS_space && keyval <=IBUS_asciitilde)
@@ -934,12 +913,18 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
              || (keyval >= IBUS_KP_Home && keyval <= IBUS_KP_Delete)
         )
     {
+        if (unikey->preeditstr->length() > 0)
+        {
+            ibus_unikey_engine_commit_string(engine, unikey->preeditstr->c_str());
+            ibus_engine_hide_preedit_text(engine);
+            unikey->preeditstr->clear();
+        }
         ibus_unikey_engine_reset(engine);
         return false;
     }
 
-    else if ((keyval >= IBUS_Caps_Lock && keyval <= IBUS_Hyper_R)
-         || (!(modifiers & IBUS_SHIFT_MASK) && (keyval == IBUS_Shift_L || keyval == IBUS_Shift_R)) // when press one shift key
+    else if ((keyval >= IBUS_Control_L && keyval <= IBUS_Hyper_R)
+            || (!(modifiers & IBUS_SHIFT_MASK) && (keyval == IBUS_Shift_L || keyval == IBUS_Shift_R))
         )
     {
         return false;
@@ -978,11 +963,11 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
                 }
                 else
                 {
-                    static unsigned char buf[CONVERT_BUF_SIZE];
-                    int bufSize = CONVERT_BUF_SIZE;
+                    static unsigned char buf[1024];
+                    int bufSize = sizeof(buf)/sizeof(buf[0]);
 
                     latinToUtf(buf, UnikeyBuf, UnikeyBufChars, &bufSize);
-                    unikey->preeditstr->append((const gchar*)buf, CONVERT_BUF_SIZE - bufSize);
+                    unikey->preeditstr->append((const gchar*)buf, sizeof(buf)/sizeof(buf[0]) - bufSize);
                 }
 
                 unikey->auto_commit = false;
@@ -994,13 +979,17 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
 
     else if (keyval >=IBUS_KP_Multiply && keyval <=IBUS_KP_9)
     {
+        ibus_unikey_engine_commit_string(engine, unikey->preeditstr->c_str());
+        ibus_engine_hide_preedit_text(engine);
+        unikey->preeditstr->clear();
         ibus_unikey_engine_reset(engine);
         return false;
     }
 
     // capture ascii printable char
     else if ((keyval >= IBUS_space && keyval <=IBUS_asciitilde)
-	     || keyval == IBUS_Shift_L || keyval == IBUS_Shift_R) // sure this have IBUS_SHIFT_MASK
+            || keyval == IBUS_Shift_L
+            || keyval == IBUS_Shift_R)
     {
         static guint i;
 
@@ -1035,7 +1024,11 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
             }
             else
             {
-                unikey->preeditstr->append(keyval==IBUS_w?"w":"W");
+                static int n;
+                static char s[6];
+
+                n = g_unichar_to_utf8(keyval, s); // convert ucs4 to utf8 char
+                unikey->preeditstr->append(s, n);
                 ibus_unikey_engine_update_preedit_string(engine, unikey->preeditstr->c_str(), true);
                 return true;
             }
@@ -1045,9 +1038,9 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
 
         // shift + space, shift + shift event
         if ((unikey->last_key_with_shift == false && modifiers & IBUS_SHIFT_MASK
-	     && keyval == IBUS_space && !UnikeyAtWordBeginning())
-            || keyval == IBUS_Shift_L || keyval == IBUS_Shift_R // && modifiers & IBUS_SHIFT_MASK, sure this have IBUS_SHIFT_MASK
-	    )
+                    && keyval == IBUS_space && !UnikeyAtWordBeginning())
+            || (modifiers & IBUS_SHIFT_MASK && (keyval == IBUS_Shift_L || keyval == IBUS_Shift_R))
+           )
         {
             UnikeyRestoreKeyStrokes();
         } // end shift + space, shift + shift event
@@ -1079,11 +1072,11 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
             }
             else
             {
-                static unsigned char buf[CONVERT_BUF_SIZE];
-                int bufSize = CONVERT_BUF_SIZE;
+                static unsigned char buf[1024];
+                int bufSize = sizeof(buf)/sizeof(buf[0]);
 
                 latinToUtf(buf, UnikeyBuf, UnikeyBufChars, &bufSize);
-                unikey->preeditstr->append((const gchar*)buf, CONVERT_BUF_SIZE - bufSize);
+                unikey->preeditstr->append((const gchar*)buf, sizeof(buf)/sizeof(buf[0]) - bufSize);
             }
         }
         else if (keyval != IBUS_Shift_L && keyval != IBUS_Shift_R) // if ukengine not process
@@ -1123,148 +1116,3 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
     ibus_unikey_engine_reset(engine);
     return false;
 }
-
-
-static void ibus_unikey_engine_send_backspaces(IBusEngine* engine, int n)
-{
-    ibus_unikey_engine_commit_string(engine, ""); // for type with autocomplete
-    ibus_engine_delete_surrounding_text(engine, -n, n);
-    for (int i = 0; i < n; i++)
-       //ibus_unikey_engine_commit_string(engine, "\b");
-    ibus_engine_forward_key_event(engine, IBUS_BackSpace, 14, 16 & IBUS_FORWARD_MASK);
-}
-
-static gboolean ibus_unikey_engine_process_key_event_classic(IBusEngine* engine,
-                                                             guint keyval,
-                                                             guint keycode,
-                                                             guint modifiers)
-{
-    static IBusUnikeyEngine* unikey;
-
-    unikey = (IBusUnikeyEngine*)engine;
-
-    if (modifiers & IBUS_RELEASE_MASK)
-    {
-        return false;
-    }
-
-    else if (modifiers & IBUS_CONTROL_MASK
-             || modifiers & IBUS_MOD1_MASK // alternate mask
-             || keyval == IBUS_Control_L
-             || keyval == IBUS_Control_R
-             || keyval == IBUS_Tab
-             || keyval == IBUS_Return
-             || keyval == IBUS_Delete
-             || keyval == IBUS_KP_Enter
-             || (keyval >= IBUS_Home && keyval <= IBUS_Insert)
-             || (keyval >= IBUS_KP_Home && keyval <= IBUS_KP_Delete)
-        )
-    {
-        ibus_unikey_engine_reset(engine);
-        return false;
-    }
-
-    else if ((keyval >= IBUS_Caps_Lock && keyval <= IBUS_Hyper_R)
-	     || (!(modifiers & IBUS_SHIFT_MASK) && (keyval == IBUS_Shift_L || keyval == IBUS_Shift_R)) // when press one shift key
-        )
-    {
-        return false;
-    }
-    
-    else if (keyval == IBUS_BackSpace)
-    {
-        UnikeyBackspacePress();
-        if (UnikeyBackspaces == 0)
-            return false;
-        else
-        {
-            ibus_unikey_engine_send_backspaces(engine, UnikeyBackspaces);
-            if (UnikeyBufChars > 0)
-            {
-                if (unikey->oc == CONV_CHARSET_XUTF8)
-                {
-                    UnikeyBuf[UnikeyBufChars] = 0;
-                    ibus_unikey_engine_commit_string(engine, (const char*)UnikeyBuf);
-                }
-                else
-                {
-                    static unsigned char buf[CONVERT_BUF_SIZE];
-                    int bufSize = CONVERT_BUF_SIZE;
-
-                    latinToUtf(buf, UnikeyBuf, UnikeyBufChars, &bufSize);
-                    buf[CONVERT_BUF_SIZE - bufSize] = 0;
-                    ibus_unikey_engine_commit_string(engine, (const char*)buf);
-                }
-            }
-            return true;
-        }
-    }
-
-    else if ((keyval >= IBUS_space && keyval <=IBUS_asciitilde)
-	     || keyval == IBUS_Shift_L || keyval == IBUS_Shift_R) // sure this have IBUS_SHIFT_MASK
-    {
-        UnikeySetCapsState(modifiers & IBUS_SHIFT_MASK, modifiers & IBUS_LOCK_MASK);
-
-        if ((unikey->im == UkTelex || unikey->im == UkSimpleTelex2)
-            && unikey->process_w_at_begin == false
-            && UnikeyAtWordBeginning()
-            && (keyval == IBUS_w || keyval == IBUS_W))
-        {
-            UnikeyPutChar(keyval);
-        }
-
-        // shift + space, shift + shift event
-        else if ((unikey->last_key_with_shift == false && modifiers & IBUS_SHIFT_MASK
-		  && keyval == IBUS_space && !UnikeyAtWordBeginning())
-		 || keyval == IBUS_Shift_L || keyval == IBUS_Shift_R
-	    )
-        {
-            UnikeyRestoreKeyStrokes();
-        } // end shift + space, shift + shift event
-
-        else
-        {
-            UnikeyFilter(keyval);
-        }
-        // end process keyval
-
-        // process result of ukengine
-        if (UnikeyBackspaces > 0)
-        {
-            ibus_unikey_engine_send_backspaces(engine, UnikeyBackspaces);
-        }
-
-        if (UnikeyBufChars > 0)
-        {
-            if (unikey->oc == CONV_CHARSET_XUTF8)
-            {
-                UnikeyBuf[UnikeyBufChars] = 0;
-                ibus_unikey_engine_commit_string(engine, (const char*)UnikeyBuf);
-            }
-            else
-            {
-                static unsigned char buf[CONVERT_BUF_SIZE];
-                int bufSize = CONVERT_BUF_SIZE;
-
-                latinToUtf(buf, UnikeyBuf, UnikeyBufChars, &bufSize);
-                buf[CONVERT_BUF_SIZE - bufSize] = 0;
-                ibus_unikey_engine_commit_string(engine, (const char*)buf);
-            }
-        }
-        else if (keyval != IBUS_Shift_L && keyval != IBUS_Shift_R) // if ukengine not process
-        {
-            static int n;
-            static char s[6];
-
-            n = g_unichar_to_utf8(keyval, s); // convert ucs4 to utf8 char
-            s[n] = 0;
-            ibus_unikey_engine_commit_string(engine, (const char*)s);
-        }
-        // end process result of ukengine
-        return true;
-    }
-
-    ibus_unikey_engine_reset(engine);
-    return false;
-}
-

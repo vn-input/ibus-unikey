@@ -14,8 +14,6 @@ struct _IBusUnikeyEngine
     IBusEngine parent;
 
 /* members */
-    gboolean preedit;
-
     IBusPropList* prop_list;
     IBusPropList* menu_im;
     IBusPropList* menu_oc;
@@ -60,10 +58,6 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                                                  guint prop_state);
 
 static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
-                                                             guint keyval,
-                                                             guint keycode,
-                                                             guint modifiers);
-static gboolean ibus_unikey_engine_process_key_event_classic(IBusEngine* engine,
                                                              guint keyval,
                                                              guint keycode,
                                                              guint modifiers);
