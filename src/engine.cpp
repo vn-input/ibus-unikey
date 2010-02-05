@@ -236,6 +236,12 @@ static GObject* ibus_unikey_engine_constructor(GType type,
 static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey)
 {
     delete unikey->preeditstr;
+    g_object_unref(unikey->prop_list);
+    g_object_unref(unikey->menu_im);
+    g_object_unref(unikey->menu_oc);
+    g_object_unref(unikey->menu_opt);
+
+    IBUS_OBJECT_CLASS(parent_class)->destroy((IBusObject*)unikey);
 }
 
 static void ibus_unikey_engine_focus_in(IBusEngine* engine)
@@ -544,7 +550,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         gchar s[1024];
 
         strcpy(s, LIBEXECDIR);
-	    strcat(s, "/ibus-setup-unikey &");
+        strcat(s, "/ibus-setup-unikey &");
 
         system(s);
     } // END Run setup
