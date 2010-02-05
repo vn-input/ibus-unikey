@@ -239,9 +239,6 @@ static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey)
 {
     delete unikey->preeditstr;
     g_object_unref(unikey->prop_list);
-    g_object_unref(unikey->menu_im);
-    g_object_unref(unikey->menu_oc);
-    g_object_unref(unikey->menu_opt);
 
     IBUS_OBJECT_CLASS(parent_class)->destroy((IBusObject*)unikey);
 }
@@ -327,7 +324,6 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                     {
                         label = ibus_text_new_from_static_string(Unikey_IMNames[i]);
                         ibus_property_set_label(prop, label);
-                        g_object_unref(label);
                         break;
                     }
                 } // end update label
@@ -373,7 +369,6 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                     {
                         label = ibus_text_new_from_static_string(Unikey_OCNames[i]);
                         ibus_property_set_label(prop, label);
-                        g_object_unref(label);
                         break;
                     }
                 } // end update label
@@ -567,14 +562,20 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
     IBusText* label,* tooltip;
     gchar name[32];
     guint i;
+    
+    unikey->prop_list = ibus_prop_list_new();
+    unikey->menu_im   = ibus_prop_list_new();
+    unikey->menu_oc   = ibus_prop_list_new();
+    unikey->menu_opt  = ibus_prop_list_new();
+
+    g_object_ref_sink(unikey->prop_list);
 
 // create input method menu
-    unikey->menu_im = ibus_prop_list_new();
     // add item
     for (i = 0; i < NUM_INPUTMETHOD; i++)
     {
-        label = ibus_text_new_from_string(Unikey_IMNames[i]);
-        tooltip = ibus_text_new_from_string(""); // ?
+        label = ibus_text_new_from_static_string(Unikey_IMNames[i]);
+        tooltip = ibus_text_new_from_static_string(""); // ?
         sprintf(name, "InputMethod-%s", Unikey_IMNames[i]);
         prop = ibus_property_new(name,
                                  PROP_TYPE_RADIO,
@@ -585,19 +586,17 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                                  TRUE,
                                  Unikey_IM[i]==unikey->im?PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
                                  NULL);
-        g_object_unref(label);
-        g_object_unref(tooltip);
+
         ibus_prop_list_append(unikey->menu_im, prop);
     }
 // END create input method menu
 
 // create output charset menu
-    unikey->menu_oc = ibus_prop_list_new();
     // add item
     for (i = 0; i < NUM_OUTPUTCHARSET; i++)
     {
-        label = ibus_text_new_from_string(Unikey_OCNames[i]);
-        tooltip = ibus_text_new_from_string(""); // ?
+        label = ibus_text_new_from_static_string(Unikey_OCNames[i]);
+        tooltip = ibus_text_new_from_static_string(""); // ?
         sprintf(name, "OutputCharset-%s", Unikey_OCNames[i]);
         prop = ibus_property_new(name,
                                  PROP_TYPE_RADIO,
@@ -608,19 +607,17 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                                  TRUE,
                                  Unikey_OC[i]==unikey->oc?PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
                                  NULL);
-        g_object_unref(label);
-        g_object_unref(tooltip);
+
         ibus_prop_list_append(unikey->menu_oc, prop);
     }
 // END create output charset menu
 
 // create option menu (for configure unikey)
-    unikey->menu_opt = ibus_prop_list_new();
     // add option property
 
     // --create and add spellcheck property
-    label = ibus_text_new_from_string(_("Enable spell check"));
-    tooltip = ibus_text_new_from_string(_("If enable, you can decrease mistake when typing"));
+    label = ibus_text_new_from_static_string(_("Enable spell check"));
+    tooltip = ibus_text_new_from_static_string(_("If enable, you can decrease mistake when typing"));
     prop = ibus_property_new("Spellcheck",
                              PROP_TYPE_TOGGLE,
                              label,
@@ -631,13 +628,12 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                              (unikey->ukopt.spellCheckEnabled==1)?
                              PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
                              NULL);
-    g_object_unref(label);
-    g_object_unref(tooltip);
+
     ibus_prop_list_append(unikey->menu_opt, prop);
 
     // --create and add autononvnrestore property
-    label = ibus_text_new_from_string(_("Auto restore keys with invalid words"));
-    tooltip = ibus_text_new_from_string(_("When typing a word not in Vietnamese,\nit will auto restore keystroke into original"));
+    label = ibus_text_new_from_static_string(_("Auto restore keys with invalid words"));
+    tooltip = ibus_text_new_from_static_string(_("When typing a word not in Vietnamese,\nit will auto restore keystroke into original"));
     prop = ibus_property_new("AutoNonVnRestore",
                              PROP_TYPE_TOGGLE,
                              label,
@@ -648,13 +644,12 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                              (unikey->ukopt.autoNonVnRestore==1)?
                              PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
                              NULL);
-    g_object_unref(label);
-    g_object_unref(tooltip);
+
     ibus_prop_list_append(unikey->menu_opt, prop);
 
     // --create and add modernstyle property
-    label = ibus_text_new_from_string(_("Use oà, uý (instead of òa, úy)"));
-    tooltip = ibus_text_new_from_string("");
+    label = ibus_text_new_from_static_string(_("Use oà, uý (instead of òa, úy)"));
+    tooltip = ibus_text_new_from_static_string("");
     prop = ibus_property_new("ModernStyle",
                              PROP_TYPE_TOGGLE,
                              label,
@@ -665,14 +660,13 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                              (unikey->ukopt.modernStyle==1)?
                              PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
                              NULL);
-    g_object_unref(label);
-    g_object_unref(tooltip);
+
     ibus_prop_list_append(unikey->menu_opt, prop);
 
 
     // --create and add freemarking property
-    label = ibus_text_new_from_string(_("Allow type with more freedom"));
-    tooltip = ibus_text_new_from_string("");
+    label = ibus_text_new_from_static_string(_("Allow type with more freedom"));
+    tooltip = ibus_text_new_from_static_string("");
     prop = ibus_property_new("FreeMarking",
                              PROP_TYPE_TOGGLE,
                              label,
@@ -683,13 +677,12 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                              (unikey->ukopt.freeMarking==1)?
                              PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
                              NULL);
-    g_object_unref(label);
-    g_object_unref(tooltip);
+
     ibus_prop_list_append(unikey->menu_opt, prop);
 
     // --create and add macroEnabled property
-    label = ibus_text_new_from_string(_("Enable Macro"));
-    tooltip = ibus_text_new_from_string("");
+    label = ibus_text_new_from_static_string(_("Enable Macro"));
+    tooltip = ibus_text_new_from_static_string("");
     prop = ibus_property_new("MacroEnabled",
                              PROP_TYPE_TOGGLE,
                              label,
@@ -700,13 +693,12 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                              (unikey->ukopt.macroEnabled==1)?
                              PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
                              NULL);
-    g_object_unref(label);
-    g_object_unref(tooltip);
+
     ibus_prop_list_append(unikey->menu_opt, prop);
 
     // --create and add macroEnabled property
-    label = ibus_text_new_from_string(_("Process W at word begin"));
-    tooltip = ibus_text_new_from_string("");
+    label = ibus_text_new_from_static_string(_("Process W at word begin"));
+    tooltip = ibus_text_new_from_static_string("");
     prop = ibus_property_new("ProcessWAtBegin",
                              PROP_TYPE_TOGGLE,
                              label,
@@ -717,8 +709,7 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                              (unikey->process_w_at_begin==1)?
                              PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
                              NULL);
-    g_object_unref(label);
-    g_object_unref(tooltip);
+
     ibus_prop_list_append(unikey->menu_opt, prop);
 
 
@@ -730,10 +721,10 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
 
 
     // --create and add Launch Setup GUI property
-    label = ibus_text_new_from_string(_("Launch Unikey Setup"));
-    tooltip = ibus_text_new_from_string("");
+    label = ibus_text_new_from_static_string(_("Launch Unikey Setup"));
+    tooltip = ibus_text_new_from_static_string("");
     prop = ibus_property_new("RunSetupGUI",
-                             PROP_TYPE_RADIO, //we need PROP_TYPE_NORMAL
+                             PROP_TYPE_NORMAL,
                              label,
                              "",
                              tooltip,
@@ -741,13 +732,11 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                              TRUE,
                              PROP_STATE_UNCHECKED,
                              NULL);
-    g_object_unref(label);
-    g_object_unref(tooltip);
+
     ibus_prop_list_append(unikey->menu_opt, prop);
 // END create option menu
 
 // create top menu
-    unikey->prop_list = ibus_prop_list_new();
     // add item
     // -- add input method menu
     for (i = 0; i < NUM_INPUTMETHOD; i++)
@@ -755,8 +744,8 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
         if (Unikey_IM[i] == unikey->im)
             break;
     }
-    label = ibus_text_new_from_string(Unikey_IMNames[i]);
-    tooltip = ibus_text_new_from_string(_("Choose input method"));
+    label = ibus_text_new_from_static_string(Unikey_IMNames[i]);
+    tooltip = ibus_text_new_from_static_string(_("Choose input method"));
     prop = ibus_property_new("InputMethod",
                              PROP_TYPE_MENU,
                              label,
@@ -766,8 +755,6 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                              TRUE,
                              PROP_STATE_UNCHECKED,
                              unikey->menu_im);
-    g_object_unref(label);
-    g_object_unref(tooltip);
 
     ibus_prop_list_append(unikey->prop_list, prop);
 
@@ -777,8 +764,8 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
         if (Unikey_OC[i] == unikey->oc)
             break;
     }
-    label = ibus_text_new_from_string(Unikey_OCNames[i]);
-    tooltip = ibus_text_new_from_string(_("Choose output charset"));
+    label = ibus_text_new_from_static_string(Unikey_OCNames[i]);
+    tooltip = ibus_text_new_from_static_string(_("Choose output charset"));
     prop = ibus_property_new("OutputCharset",
                              PROP_TYPE_MENU,
                              label,
@@ -788,14 +775,12 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                              TRUE,
                              PROP_STATE_UNCHECKED,
                              unikey->menu_oc);
-    g_object_unref(label);
-    g_object_unref(tooltip);
 
     ibus_prop_list_append(unikey->prop_list, prop);
 
     // -- add option menu
-    label = ibus_text_new_from_string(_("Options"));
-    tooltip = ibus_text_new_from_string(_("Options for Unikey"));
+    label = ibus_text_new_from_static_string(_("Options"));
+    tooltip = ibus_text_new_from_static_string(_("Options for Unikey"));
     prop = ibus_property_new("Options",
                              PROP_TYPE_MENU,
                              label,
@@ -805,8 +790,6 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                              TRUE,
                              PROP_STATE_UNCHECKED,
                              unikey->menu_opt);
-    g_object_unref(label);
-    g_object_unref(tooltip);
 
     ibus_prop_list_append(unikey->prop_list, prop);
 // end top menu
@@ -818,7 +801,6 @@ static void ibus_unikey_engine_commit_string(IBusEngine *engine, const gchar *st
 
     text = ibus_text_new_from_static_string(string);
     ibus_engine_commit_text(engine, text);
-    g_object_unref(text);
 }
 
 static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const gchar *string, gboolean visible)
@@ -843,8 +825,6 @@ static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const g
 
     // update and display text
     ibus_engine_update_preedit_text(engine, text, len, visible);
-
-    g_object_unref(text);
 }
 
 static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars)
