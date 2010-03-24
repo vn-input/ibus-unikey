@@ -13,6 +13,10 @@
 #include "unikey.h"
 #include "vnconv.h"
 
+#if !IBUS_CHECK_VERSION(1,2,99)
+#define PROP_TYPE_NORMAL PROP_TYPE_RADIO
+#endif
+
 #define _(string) gettext(string)
 
 #define CONVERT_BUF_SIZE 1024
@@ -718,7 +722,6 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                              NULL, "", NULL, TRUE, TRUE,
                              PROP_STATE_UNCHECKED, NULL);
     ibus_prop_list_append(unikey->menu_opt, prop);
-
 
     // --create and add Launch Setup GUI property
     label = ibus_text_new_from_static_string(_("Launch Unikey Setup"));
