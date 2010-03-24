@@ -1,13 +1,13 @@
 m4_define([package_name], [ibus-unikey])
-m4_define([ibus_released], [0])
-m4_define([ibus_major_version], [0])
-m4_define([ibus_minor_version], [4])
-m4_define([ibus_micro_version], [0])
+m4_define([ibus_unikey_released], [0])
+m4_define([ibus_unikey_major_version], [0])
+m4_define([ibus_unikey_minor_version], [4])
+m4_define([ibus_unikey_micro_version], [0])
 
-m4_define([ibus_version],
-    ibus_major_version.ibus_minor_version)
+m4_define([ibus_unikey_version],
+    ibus_unikey_major_version.ibus_unikey_minor_version)
 
-AC_INIT([package_name], [ibus_version], [http://code.google.com/p/ibus-unikey], [package_name])
+AC_INIT([package_name], [ibus_unikey_version], [http://code.google.com/p/ibus-unikey], [package_name])
 AM_INIT_AUTOMAKE([1.10])
 AC_GNU_SOURCE
 
@@ -27,15 +27,12 @@ AC_ISC_POSIX
 AC_HEADER_STDC
 AM_PROG_LIBTOOL
 
-# check ibus
+AM_PATH_PYTHON([2.5])
+
 PKG_CHECK_MODULES(IBUS, [
     ibus-1.0 >= 1.2
 ])
 
-#check python
-AM_PATH_PYTHON([2.5])
-
-# define GETTEXT_* variables
 GETTEXT_PACKAGE="$PACKAGE_NAME"
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Define to the read-only architecture-independent data directory.])
@@ -66,11 +63,4 @@ AC_CONFIG_FILES( po/Makefile.in
 )
 
 AC_OUTPUT
-
-AC_MSG_RESULT([
-Build options:
-  Package           $PACKAGE
-  Version           $VERSION
-  Install prefix    $prefix
-])
 
