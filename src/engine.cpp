@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <X11/Xlib.h>
 #include <ibus.h>
 
 #include "engine_const.h"
@@ -129,6 +130,10 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     guint i;
 
     unikey->preeditstr = new std::string();
+    pthread_mutex_init(&unikey->mutex_mcap, NULL);
+    pthread_mutex_trylock(&unikey->mutex_mcap);
+    pthread_create(&unikey->th_mcap, NULL, &thread_mouse_capture, unikey);
+
     unikey_create_default_options(&unikey->ukopt);
 
 // read config value
@@ -244,6 +249,7 @@ static GObject* ibus_unikey_engine_constructor(GType type,
 static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey)
 {
     delete unikey->preeditstr;
+    pthread_mutex_destroy(&unikey->mutex_mcap);
     g_object_unref(unikey->prop_list);
 
     IBUS_OBJECT_CLASS(parent_class)->destroy((IBusObject*)unikey);
@@ -828,6 +834,7 @@ static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const g
 
     // update and display text
     ibus_engine_update_preedit_text(engine, text, ibus_text_get_length(text), visible);
+    pthread_mutex_unlock(&unikey->mutex_mcap);
 }
 
 static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars)
@@ -1089,5 +1096,31 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
     // non process key
     ibus_unikey_engine_reset(engine);
     return false;
+}
+
+static void* thread_mouse_capture(void* data)
+{
+    XEvent event;
+    Display* dpy;
+    Window w;
+    IBusUnikeyEngine* unikey;
+
+    unikey = (IBusUnikeyEngine*)data;
+    dpy = XOpenDisplay(NULL);
+    w = XDefaultRootWindow(dpy);
+
+    while (1)
+    {
+        pthread_mutex_lock(&unikey->mutex_mcap);
+        XGrabPointer(dpy, w, 0, ButtonPressMask | PointerMotionMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+        XPeekEvent(dpy, &event);
+        pthread_mutex_trylock(&unikey->mutex_mcap);
+        XUngrabPointer(dpy, CurrentTime);
+        XSync(dpy, TRUE);
+        ibus_unikey_engine_reset((IBusEngine*)unikey);
+    }
+    XCloseDisplay(dpy);
+
+    return NULL;
 }
 
