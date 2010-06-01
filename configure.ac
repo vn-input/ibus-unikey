@@ -9,6 +9,7 @@ m4_define([ibus_unikey_version],
 
 AC_INIT([package_name], [ibus_unikey_version], [http://code.google.com/p/ibus-unikey], [package_name])
 AM_INIT_AUTOMAKE([1.10])
+m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 AC_GNU_SOURCE
 
 AC_CONFIG_HEADERS([config.h])
@@ -26,6 +27,7 @@ AC_PROG_CXX
 AC_ISC_POSIX
 AC_HEADER_STDC
 AM_PROG_LIBTOOL
+
 
 AM_PATH_PYTHON([2.5])
 

@@ -36,7 +36,8 @@ EXTRA_DIST = unikey.xml.in
 CLEANFILES = unikey.xml
 
 unikey.xml: unikey.xml.in
-	( \
+	$(AM_V_GEN)
+	$(AM_V_at)( \
 		libexecdir=${libexecdir}; \
 		pkgdatadir=${pkgdatadir}; \
 		s=`cat $<`; \
