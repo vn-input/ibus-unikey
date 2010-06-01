@@ -29,12 +29,10 @@
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox3">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child>
           <object class="GtkVBox" id="vbox1">
             <property name="visible">True</property>
-            <property name="orientation">vertical</property>
             <child>
               <object class="GtkFrame" id="fr_input_output">
                 <property name="visible">True</property>
@@ -50,7 +48,6 @@
                         <child>
                           <object class="GtkVBox" id="vbox11">
                             <property name="visible">True</property>
-                            <property name="orientation">vertical</property>
                             <property name="homogeneous">True</property>
                             <child>
                               <object class="GtkLabel" id="label3">
@@ -83,7 +80,6 @@
                         <child>
                           <object class="GtkVBox" id="vbox12">
                             <property name="visible">True</property>
-                            <property name="orientation">vertical</property>
                             <child>
                               <object class="GtkComboBox" id="cbb_input_method">
                                 <property name="visible">True</property>
@@ -151,7 +147,6 @@
                     <child>
                       <object class="GtkVBox" id="vbox2">
                         <property name="visible">True</property>
-                        <property name="orientation">vertical</property>
                         <property name="spacing">4</property>
                         <child>
                           <object class="GtkCheckButton" id="check_spellcheck">
@@ -337,6 +332,9 @@
       </row>
       <row>
         <col id="0" translatable="yes">VIQR</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">BK HCM 2</col>
       </row>
       <row>
         <col id="0" translatable="yes">CString</col>
