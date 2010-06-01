@@ -274,8 +274,8 @@ static void ibus_unikey_engine_reset(IBusEngine* engine)
     UnikeyResetBuf();
     if (unikey->preeditstr->length() > 0)
     {
-        ibus_unikey_engine_commit_string(engine, unikey->preeditstr->c_str());
         ibus_engine_hide_preedit_text(engine);
+        ibus_unikey_engine_commit_string(engine, unikey->preeditstr->c_str());
         unikey->preeditstr->clear();
     }
 
@@ -810,24 +810,22 @@ static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const g
 {
     IBusUnikeyEngine *unikey;
     IBusText *text;
-    int len;
 
     unikey = (IBusUnikeyEngine*)engine;
 
     text = ibus_text_new_from_static_string(string);
-    len = ibus_text_get_length(text);
 
     // underline text
-    ibus_text_append_attribute(text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, len);
+    ibus_text_append_attribute(text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, -1);
 
     // red text if (spellcheck enable && word is not in Vietnamese)
     if (unikey->ukopt.spellCheckEnabled == 1 && UnikeyLastWordIsNonVn())
     {
-        ibus_text_append_attribute(text, IBUS_ATTR_TYPE_FOREGROUND, 0xff0000, 0, len);
+        ibus_text_append_attribute(text, IBUS_ATTR_TYPE_FOREGROUND, 0xff0000, 0, -1);
     }
 
     // update and display text
-    ibus_engine_update_preedit_text(engine, text, len, visible);
+    ibus_engine_update_preedit_text(engine, text, ibus_text_get_length(text), visible);
 }
 
 static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars)
