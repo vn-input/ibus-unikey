@@ -1,7 +1,7 @@
 Name:       @PACKAGE_NAME@
 Version:    @PACKAGE_VERSION@
 Release:    1%{?dist}
-Summary:    Vietnamese Input Method Engine for IBUS using Unikey IME
+Summary:    Vietnamese input method for Ibus Use Unikey engine
 Vendor:     Ubuntu-VN
 License:    GPLv2+
 Group:      Localization
@@ -9,9 +9,11 @@ URL:        http://code.google.com/p/ibus-unikey/
 Source:     http://ibus-unikey.googlecode.com/files/%{name}-%{version}.tar.gz
 
 %description
-Ibus-unikey is a IM Engine for IBus
-Use for type Vietnamese
-Support via forum at: http://forum.ubuntu-vn.com/viewforum.php?f=85
+IBus is an Intelligent Input Bus.
+It is a new input framework for Linux OS.
+It provides full featured and user friendly input method user interface.
+It also may help developers to develop input method easily.
+Ibus-Unikey is a Vietnamese input method for Ibus Use Unikey engine to process keyevent
 
 BuildRequires: ibus-devel >= 1.2
 BuildRequires: gtk2-devel
