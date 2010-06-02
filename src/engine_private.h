@@ -25,9 +25,11 @@ struct _IBusUnikeyEngine
     gboolean auto_commit;
     gboolean last_key_with_shift;
     gboolean process_w_at_begin;
+    gboolean mouse_capture;
 
     pthread_t th_mcap;
     pthread_mutex_t mutex_mcap;
+    gboolean mcap_running;
 
     std::basic_string<gchar> *preeditstr;
 };

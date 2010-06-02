@@ -130,12 +130,12 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     guint i;
 
     unikey->preeditstr = new std::string();
-    pthread_mutex_init(&unikey->mutex_mcap, NULL);
-    pthread_mutex_trylock(&unikey->mutex_mcap);
     pthread_create(&unikey->th_mcap, NULL, &thread_mouse_capture, unikey);
+    pthread_detach(unikey->th_mcap);
+    unikey->mouse_capture = TRUE;
 
     unikey_create_default_options(&unikey->ukopt);
-
+ibus_warning("create");
 // read config value
     // read Input Method
     succ = ibus_config_get_value(config, "engine/Unikey", "InputMethod", &v);
@@ -248,8 +248,10 @@ static GObject* ibus_unikey_engine_constructor(GType type,
 static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey)
 {
     delete unikey->preeditstr;
-    pthread_mutex_destroy(&unikey->mutex_mcap);
     g_object_unref(unikey->prop_list);
+
+    unikey->mcap_running = FALSE;
+    pthread_mutex_unlock(&unikey->mutex_mcap);
 
     IBUS_OBJECT_CLASS(parent_class)->destroy((IBusObject*)unikey);
 }
@@ -833,7 +835,8 @@ static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const g
 
     // update and display text
     ibus_engine_update_preedit_text(engine, text, ibus_text_get_length(text), visible);
-    pthread_mutex_unlock(&unikey->mutex_mcap);
+    if (unikey->mouse_capture)
+        pthread_mutex_unlock(&unikey->mutex_mcap);
 }
 
 static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars)
@@ -1108,7 +1111,11 @@ static void* thread_mouse_capture(void* data)
     dpy = XOpenDisplay(NULL);
     w = XDefaultRootWindow(dpy);
 
-    while (1)
+    pthread_mutex_init(&unikey->mutex_mcap, NULL);
+    pthread_mutex_trylock(&unikey->mutex_mcap);
+    unikey->mcap_running = TRUE;
+
+    while (unikey->mcap_running)
     {
         pthread_mutex_lock(&unikey->mutex_mcap);
         XGrabPointer(dpy, w, 0, ButtonPressMask | PointerMotionMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
@@ -1116,8 +1123,11 @@ static void* thread_mouse_capture(void* data)
         pthread_mutex_trylock(&unikey->mutex_mcap);
         XUngrabPointer(dpy, CurrentTime);
         XSync(dpy, TRUE);
-        ibus_unikey_engine_reset((IBusEngine*)unikey);
+        if (unikey->mcap_running)
+            ibus_unikey_engine_reset((IBusEngine*)unikey);
     }
+    pthread_mutex_destroy(&unikey->mutex_mcap);
+
     XCloseDisplay(dpy);
 
     return NULL;
