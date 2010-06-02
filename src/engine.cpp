@@ -155,7 +155,6 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
 
     // read Output Charset
     succ = ibus_config_get_value(config, "engine/Unikey", "OutputCharset", &v);
-
     unikey->oc = CONV_CHARSET_XUTF8;
     if (succ)
     {
