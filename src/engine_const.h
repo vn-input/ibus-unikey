@@ -13,16 +13,17 @@
 
 #define UNIKEY_MACRO_FILE               ".ibus/unikey/macro"
 
-#define GCONF_PREFIX                    "/desktop/ibus/"
+#define GCONF_PREFIX                    "/desktop/ibus/engine/Unikey/"
 
-#define UNIKEY_INPUTMETHOD              "engine/Unikey/InputMethod"
-#define UNIKEY_OUTPUTCHARSET            "engine/Unikey/OutputCharset"
-#define UNIKEY_OPTION_SPELLCHECK        "engine/Unikey/Options/SpellCheckEnabled"
-#define UNIKEY_OPTION_AUTONONVNRESTORE  "engine/Unikey/Options/AutoNonVnRestore"
-#define UNIKEY_OPTION_MODERNSTYLE       "engine/Unikey/Options/ModernStyle"
-#define UNIKEY_OPTION_FREEMARKING       "engine/Unikey/Options/FreeMarking"
-#define UNIKEY_OPTION_MACROENABLED      "engine/Unikey/Options/MacroEnabled"
-#define UNIKEY_OPTION_PROCESSWATBEGIN   "engine/Unikey/Options/ProcessWAtBegin"
+#define UNIKEY_INPUTMETHOD              "InputMethod"
+#define UNIKEY_OUTPUTCHARSET            "OutputCharset"
+#define UNIKEY_OPTION_SPELLCHECK        "Options/SpellCheckEnabled"
+#define UNIKEY_OPTION_AUTONONVNRESTORE  "Options/AutoNonVnRestore"
+#define UNIKEY_OPTION_MODERNSTYLE       "Options/ModernStyle"
+#define UNIKEY_OPTION_FREEMARKING       "Options/FreeMarking"
+#define UNIKEY_OPTION_MACROENABLED      "Options/MacroEnabled"
+#define UNIKEY_OPTION_PROCESSWATBEGIN   "Options/ProcessWAtBegin"
+#define UNIKEY_OPTION_MOUSE_CAPTURE     "Options/MouseCapture"
 
 #endif
 

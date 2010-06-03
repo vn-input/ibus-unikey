@@ -132,14 +132,23 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     unikey->preeditstr = new std::string();
     pthread_create(&unikey->th_mcap, NULL, &thread_mouse_capture, unikey);
     pthread_detach(unikey->th_mcap);
-    unikey->mouse_capture = TRUE;
 
-    unikey_create_default_options(&unikey->ukopt);
-ibus_warning("create");
+//set default options
+    unikey->im = Unikey_IM[0];
+    unikey->oc = Unikey_OC[0];
+    unikey->ukopt.freeMarking           = UNIKEY_OPT_FREEMARKING;
+    unikey->ukopt.modernStyle           = UNIKEY_OPT_MODERNSTYLE;
+    unikey->ukopt.macroEnabled          = UNIKEY_OPT_MACROENABLED;
+    unikey->ukopt.useUnicodeClipboard   = 0; // not use
+    unikey->ukopt.alwaysMacro           = 0; // not use
+    unikey->ukopt.spellCheckEnabled     = UNIKEY_OPT_SPELLCHECKENABLED;
+    unikey->ukopt.autoNonVnRestore      = UNIKEY_OPT_AUTONONVNRESTORE;
+    unikey->process_w_at_begin          = UNIKEY_OPT_PROCESSWATBEGIN;
+    unikey->mouse_capture               = UNIKEY_OPT_MOUSE_CAPTURE;
+
 // read config value
     // read Input Method
     succ = ibus_config_get_value(config, "engine/Unikey", "InputMethod", &v);
-    unikey->im = UkTelex;
     if (succ)
     {
         str = (gchar*)g_value_get_string(&v);
@@ -155,7 +164,6 @@ ibus_warning("create");
 
     // read Output Charset
     succ = ibus_config_get_value(config, "engine/Unikey", "OutputCharset", &v);
-    unikey->oc = CONV_CHARSET_XUTF8;
     if (succ)
     {
         str = (gchar*)g_value_get_string(&v);
