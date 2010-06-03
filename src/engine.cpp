@@ -225,6 +225,14 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
         unikey->process_w_at_begin = g_value_get_boolean(&v);
         g_value_unset(&v);
     }
+
+    // MouseCapture
+    succ = ibus_config_get_value(config, "engine/Unikey/Options", "MouseCapture", &v);
+    if (succ)
+    {
+        unikey->mouse_capture = g_value_get_boolean(&v);
+        g_value_unset(&v);
+    }
     // end read Unikey Option
 // end read config value
 
@@ -259,7 +267,7 @@ static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey)
     g_object_unref(unikey->prop_list);
 
     unikey->mcap_running = FALSE;
-    pthread_mutex_unlock(&unikey->mutex_mcap);
+    pthread_mutex_unlock(&unikey->mutex_mcap); // unlock mutex, so thread can exit
 
     IBUS_OBJECT_CLASS(parent_class)->destroy((IBusObject*)unikey);
 }
@@ -561,6 +569,31 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         } // end update state
     } // end ProcessWAtBegin active
 
+    // MouseCapture active
+    else if (strncmp(prop_name, "MouseCapture", strlen("MouseCapture")) == 0)
+    {
+        unikey->mouse_capture = !unikey->mouse_capture;
+
+        g_value_init(&v, G_TYPE_BOOLEAN);
+        g_value_set_boolean(&v, unikey->mouse_capture);
+        ibus_config_set_value(config, "engine/Unikey/Options", "MouseCapture", &v);
+
+        // update state of state
+        for (j = 0; j < unikey->menu_opt->properties->len ; j++)
+        {
+            prop = ibus_prop_list_get(unikey->menu_opt, j);
+            if (prop == NULL)
+                return;
+
+            else if (strcmp(prop->key, "MouseCapture") == 0)
+            {
+                prop->state = (unikey->mouse_capture == 1)?
+                    PROP_STATE_CHECKED:PROP_STATE_UNCHECKED;
+                break;
+            }
+        } // end update state
+    } // end MouseCapture active
+
 
     // if Run setup
     else if (strncmp(prop_name, "RunSetupGUI", strlen("RunSetupGUI")) == 0)
@@ -583,7 +616,7 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
     IBusText* label,* tooltip;
     gchar name[32];
     guint i;
-    
+
     unikey->prop_list = ibus_prop_list_new();
     unikey->menu_im   = ibus_prop_list_new();
     unikey->menu_oc   = ibus_prop_list_new();
@@ -717,7 +750,7 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
 
     ibus_prop_list_append(unikey->menu_opt, prop);
 
-    // --create and add macroEnabled property
+    // --create and add ProcessWAtBegin property
     label = ibus_text_new_from_static_string(_("Process W at word begin"));
     tooltip = ibus_text_new_from_static_string("");
     prop = ibus_property_new("ProcessWAtBegin",
@@ -728,6 +761,22 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                              TRUE,
                              TRUE,
                              (unikey->process_w_at_begin==1)?
+                             PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
+                             NULL);
+
+    ibus_prop_list_append(unikey->menu_opt, prop);
+
+    // --create and add MouseCapture property
+    label = ibus_text_new_from_static_string(_("Mouse capture"));
+    tooltip = ibus_text_new_from_static_string("");
+    prop = ibus_property_new("MouseCapture",
+                             PROP_TYPE_TOGGLE,
+                             label,
+                             "",
+                             tooltip,
+                             TRUE,
+                             TRUE,
+                             (unikey->mouse_capture==1)?
                              PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
                              NULL);
 
@@ -833,7 +882,10 @@ static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const g
     text = ibus_text_new_from_static_string(string);
 
     // underline text
-    ibus_text_append_attribute(text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, -1);
+    if (!unikey->mouse_capture)
+    {
+        ibus_text_append_attribute(text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, -1);
+    }
 
     // red text if (spellcheck enable && word is not in Vietnamese)
     if (unikey->ukopt.spellCheckEnabled == 1 && UnikeyLastWordIsNonVn())
@@ -843,8 +895,12 @@ static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const g
 
     // update and display text
     ibus_engine_update_preedit_text(engine, text, ibus_text_get_length(text), visible);
+
     if (unikey->mouse_capture)
+    {
+        // unlock capture thread (start capture)
         pthread_mutex_unlock(&unikey->mutex_mcap);
+    }
 }
 
 static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars)
@@ -1128,7 +1184,7 @@ static void* thread_mouse_capture(void* data)
         pthread_mutex_lock(&unikey->mutex_mcap);
         XGrabPointer(dpy, w, 0, ButtonPressMask | PointerMotionMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
         XPeekEvent(dpy, &event);
-        pthread_mutex_trylock(&unikey->mutex_mcap);
+        pthread_mutex_trylock(&unikey->mutex_mcap); // set mutex to lock status, so process will wait until next unlock
         XUngrabPointer(dpy, CurrentTime);
         XSync(dpy, TRUE);
         if (unikey->mcap_running)
