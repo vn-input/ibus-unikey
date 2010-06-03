@@ -884,12 +884,6 @@ static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const g
         ibus_text_append_attribute(text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, -1);
     }
 
-    // red text if (spellcheck enable && word is not in Vietnamese)
-    if (unikey->ukopt.spellCheckEnabled == 1 && UnikeyLastWordIsNonVn())
-    {
-        ibus_text_append_attribute(text, IBUS_ATTR_TYPE_FOREGROUND, 0xff0000, 0, -1);
-    }
-
     // update and display text
     ibus_engine_update_preedit_text(engine, text, ibus_text_get_length(text), visible);
 

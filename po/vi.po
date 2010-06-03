@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ibus-unikey 0.3.0\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/ibus-unikey\n"
-"POT-Creation-Date: 2010-06-01 20:39+0700\n"
+"POT-Creation-Date: 2010-06-03 20:10+0700\n"
 "PO-Revision-Date: 2010-02-05 18:15+0700\n"
 "Last-Translator: Lê Quốc Tuấn <mr.lequoctuan@gmail.com>\n"
 "Language-Team: Vietnamese\n"
@@ -17,19 +17,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/engine.cpp:631 setup/setup-main.glade:153
+#: src/engine.cpp:673 setup/setup-main.glade:153
 msgid "Enable spell check"
 msgstr "Bật kiểm tra chính tả"
 
-#: src/engine.cpp:632
+#: src/engine.cpp:674
 msgid "If enable, you can decrease mistake when typing"
 msgstr "Nếu bật, bạn có thể giảm lỗi chính tả khi gõ"
 
-#: src/engine.cpp:647 setup/setup-main.glade:165
+#: src/engine.cpp:689 setup/setup-main.glade:165
 msgid "Auto restore keys with invalid words"
 msgstr "Tự động trả phím khi gõ từ không hợp lệ"
 
-#: src/engine.cpp:648
+#: src/engine.cpp:690
 msgid ""
 "When typing a word not in Vietnamese,\n"
 "it will auto restore keystroke into original"
@@ -37,39 +37,47 @@ msgstr ""
 "Khi gõ một từ không có trong tiếng Việt,\n"
 "tự động trả về từ gốc"
 
-#: src/engine.cpp:663 setup/setup-main.glade:177
+#: src/engine.cpp:705 setup/setup-main.glade:177
 msgid "Use oà, uý (instead of òa, úy)"
 msgstr "Dùng oà, uý (thay vì òa, úy)"
 
-#: src/engine.cpp:680 setup/setup-main.glade:189
+#: src/engine.cpp:722 setup/setup-main.glade:189
 msgid "Allow type with more freedom"
 msgstr "Cho phép bỏ dấu tự do"
 
-#: src/engine.cpp:696
+#: src/engine.cpp:738
 msgid "Enable Macro"
 msgstr "Bật gõ tắt"
 
-#: src/engine.cpp:712
+#: src/engine.cpp:754
 msgid "Process W at word begin"
 msgstr "Sử lý phím W ở đầu từ"
 
-#: src/engine.cpp:735
+#: src/engine.cpp:770
+msgid "Mouse capture"
+msgstr ""
+
+#: src/engine.cpp:771
+msgid "Auto commit word when mouse move or click"
+msgstr ""
+
+#: src/engine.cpp:793
 msgid "Launch Unikey Setup"
 msgstr "Chạy trình cài đặt Unikey"
 
-#: src/engine.cpp:759
+#: src/engine.cpp:817
 msgid "Choose input method"
 msgstr "Chọn kiểu gõ"
 
-#: src/engine.cpp:779
+#: src/engine.cpp:837
 msgid "Choose output charset"
 msgstr "Chọn bảng mã"
 
-#: src/engine.cpp:793
+#: src/engine.cpp:851
 msgid "Options"
 msgstr "Tùy chọn"
 
-#: src/engine.cpp:794
+#: src/engine.cpp:852
 msgid "Options for Unikey"
 msgstr "Tùy chọn cho Unikey"
 
