@@ -14,7 +14,7 @@
 #include "unikey.h"
 #include "vnconv.h"
 
-#if !IBUS_CHECK_VERSION(1,2,99)
+#if !IBUS_CHECK_VERSION(1,2,99) // ibus version 1.2.99 below have problem with PROP_TYPE_NORMAL, use RADIO instead
 #define PROP_TYPE_NORMAL PROP_TYPE_RADIO
 #endif
 
