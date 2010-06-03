@@ -1179,15 +1179,19 @@ static void* thread_mouse_capture(void* data)
     pthread_mutex_trylock(&unikey->mutex_mcap);
     unikey->mcap_running = TRUE;
 
-    while (unikey->mcap_running)
+    while (1)
     {
         pthread_mutex_lock(&unikey->mutex_mcap);
+        if (!unikey->mcap_running)
+            break;
         XGrabPointer(dpy, w, 0, ButtonPressMask | PointerMotionMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
         XPeekEvent(dpy, &event);
         pthread_mutex_trylock(&unikey->mutex_mcap); // set mutex to lock status, so process will wait until next unlock
         XUngrabPointer(dpy, CurrentTime);
         XSync(dpy, TRUE);
-        if (unikey->mcap_running)
+        if (!unikey->mcap_running)
+            break;
+        else
             ibus_unikey_engine_reset((IBusEngine*)unikey);
     }
     pthread_mutex_destroy(&unikey->mutex_mcap);
