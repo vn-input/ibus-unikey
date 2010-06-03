@@ -598,12 +598,9 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
     // if Run setup
     else if (strncmp(prop_name, "RunSetupGUI", strlen("RunSetupGUI")) == 0)
     {
-        gchar s[1024];
-
-        strcpy(s, LIBEXECDIR);
-        strcat(s, "/ibus-setup-unikey &");
-
-        system(s);
+        pthread_t pid;
+        pthread_create(&pid, NULL, &thread_run_setup, NULL);
+        pthread_detach(pid);
     } // END Run setup
 
     ibus_unikey_engine_focus_out(engine);
@@ -768,7 +765,7 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
 
     // --create and add MouseCapture property
     label = ibus_text_new_from_static_string(_("Mouse capture"));
-    tooltip = ibus_text_new_from_static_string("");
+    tooltip = ibus_text_new_from_static_string(_("Auto commit word when mouse move or click"));
     prop = ibus_property_new("MouseCapture",
                              PROP_TYPE_TOGGLE,
                              label,
@@ -1198,6 +1195,15 @@ static void* thread_mouse_capture(void* data)
 
     XCloseDisplay(dpy);
 
+    return NULL;
+}
+
+static void* thread_run_setup(void* data)
+{
+    gchar s[1024];
+    strcpy(s, LIBEXECDIR "/ibus-setup-unikey");
+    s[0] = system(s); // for not warning only
+    ibus_quit();
     return NULL;
 }
 

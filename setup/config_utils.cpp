@@ -153,6 +153,7 @@ void write_config(UnikeyMainSetupOptions* opt)
 
 int force_engine_to_reload_config()
 {
-    return system("ibus-daemon --replace --daemonize");
+    //return system("ibus-daemon --replace --daemonize");
+    return 0; // ibus-setup-unikey will autoreload
 }
 
