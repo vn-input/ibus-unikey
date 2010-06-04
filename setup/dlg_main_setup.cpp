@@ -50,6 +50,10 @@ GtkWidget* unikey_main_setup_dialog_new()
     g_object_set_data(G_OBJECT(dlg),
                       "check_processwatbegin",
                       gtk_builder_get_object(builder, "check_processwatbegin"));
+    g_object_set_data(G_OBJECT(dlg),
+                      "check_mousecapture",
+                      gtk_builder_get_object(builder, "check_mousecapture"));
+
     // END save object pointer
 
     g_object_unref(builder);
@@ -97,6 +101,10 @@ void unikey_main_setup_set_values(const GtkDialog* dlg, const UnikeyMainSetupOpt
     wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_processwatbegin"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wid), opt->processwatbegin);
 
+// set mousecapture?
+    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_mousecapture"));
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wid), opt->mousecapture);
+
 // set macro file name data
     g_object_set_data(G_OBJECT(dlg), "macrofile", opt->macrofile);
 }
@@ -136,6 +144,10 @@ void unikey_main_setup_get_values(const GtkDialog* dlg, UnikeyMainSetupOptions *
 // get processwatbegin?
     wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_processwatbegin"));
     opt->processwatbegin = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(wid));
+
+// get mousecapture?
+    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_mousecapture"));
+    opt->mousecapture = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(wid));
 }
 
 void macro_enable_toggle_cb(GtkToggleButton* btn, gpointer user_data)

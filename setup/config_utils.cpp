@@ -24,6 +24,7 @@ void set_default_config(UnikeyMainSetupOptions* opt)
     opt->enableMacro = UNIKEY_OPT_MACROENABLED;
 
     opt->processwatbegin = UNIKEY_OPT_PROCESSWATBEGIN;
+    opt->mousecapture = UNIKEY_OPT_MOUSECAPTURE;
 
     opt->macrofile = get_macro_file();
 }
@@ -123,6 +124,15 @@ void read_config(UnikeyMainSetupOptions* opt)
     }
     // END get ProcessWAtBegin
 
+    // get MouseCapture
+    v = gconf_engine_get(e, GCONF_PREFIX UNIKEY_OPTION_MOUSECAPTURE, NULL);
+    if (v!=NULL)
+    {
+        opt->mousecapture = gconf_value_get_bool(v);
+        gconf_value_free(v);
+    }
+    // END get MouseCapture
+
     gconf_engine_unref(e);
 }
 
@@ -147,6 +157,8 @@ void write_config(UnikeyMainSetupOptions* opt)
                           opt->enableMacro, NULL);
     gconf_engine_set_bool(e, GCONF_PREFIX UNIKEY_OPTION_PROCESSWATBEGIN,
                           opt->processwatbegin, NULL);
+    gconf_engine_set_bool(e, GCONF_PREFIX UNIKEY_OPTION_MOUSECAPTURE,
+                          opt->mousecapture, NULL);
 
     gconf_engine_unref(e);
 }

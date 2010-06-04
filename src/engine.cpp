@@ -144,7 +144,7 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     unikey->ukopt.spellCheckEnabled     = UNIKEY_OPT_SPELLCHECKENABLED;
     unikey->ukopt.autoNonVnRestore      = UNIKEY_OPT_AUTONONVNRESTORE;
     unikey->process_w_at_begin          = UNIKEY_OPT_PROCESSWATBEGIN;
-    unikey->mouse_capture               = UNIKEY_OPT_MOUSE_CAPTURE;
+    unikey->mouse_capture               = UNIKEY_OPT_MOUSECAPTURE;
 
 // read config value
     // read Input Method
@@ -1195,7 +1195,7 @@ static void* thread_mouse_capture(void* data)
 static void* thread_run_setup(void* data)
 {
     gchar s[1024];
-    strcpy(s, LIBEXECDIR "/ibus-setup-unikey");
+    strcpy(s, LIBEXECDIR "/ibus-setup-unikey --engine");
     s[0] = system(s); // for not warning only
     ibus_quit();
     return NULL;

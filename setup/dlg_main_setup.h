@@ -11,6 +11,7 @@ typedef struct
     gboolean freeMarking;
     gboolean enableMacro;
     gboolean processwatbegin;
+    gboolean mousecapture;
 
     gchar* macrofile;
 } UnikeyMainSetupOptions;
