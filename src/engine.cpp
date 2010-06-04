@@ -764,8 +764,8 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
     ibus_prop_list_append(unikey->menu_opt, prop);
 
     // --create and add MouseCapture property
-    label = ibus_text_new_from_static_string(_("Mouse capture"));
-    tooltip = ibus_text_new_from_static_string(_("Auto commit word when mouse move or click"));
+    label = ibus_text_new_from_static_string(_("Capture mouse event"));
+    tooltip = ibus_text_new_from_static_string(_("Auto send PreEdit string to Application when mouse move or click"));
     prop = ibus_property_new("MouseCapture",
                              PROP_TYPE_TOGGLE,
                              label,
