@@ -150,10 +150,11 @@
                         <property name="spacing">4</property>
                         <child>
                           <object class="GtkCheckButton" id="check_spellcheck">
-                            <property name="label" translatable="yes">Enable spell check</property>
+                            <property name="label" translatable="yes">Enable _spell check</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
+                            <property name="use_underline">True</property>
                             <property name="draw_indicator">True</property>
                           </object>
                           <packing>
@@ -162,10 +163,11 @@
                         </child>
                         <child>
                           <object class="GtkCheckButton" id="check_autorestorenonvn">
-                            <property name="label" translatable="yes">Auto restore keys with invalid words</property>
+                            <property name="label" translatable="yes">Auto _restore keys with invalid words</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
+                            <property name="use_underline">True</property>
                             <property name="draw_indicator">True</property>
                           </object>
                           <packing>
@@ -174,10 +176,11 @@
                         </child>
                         <child>
                           <object class="GtkCheckButton" id="check_modernstyle">
-                            <property name="label" translatable="yes">Use o&#xE0;, u&#xFD; (instead of &#xF2;a, &#xFA;y)</property>
+                            <property name="label" translatable="yes">Use o&#xE0;, _u&#xFD; (instead of &#xF2;a, &#xFA;y)</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
+                            <property name="use_underline">True</property>
                             <property name="draw_indicator">True</property>
                           </object>
                           <packing>
@@ -186,10 +189,11 @@
                         </child>
                         <child>
                           <object class="GtkCheckButton" id="check_freemarking">
-                            <property name="label" translatable="yes">Allow type with more freedom</property>
+                            <property name="label" translatable="yes">Allow type with more _freedom</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
+                            <property name="use_underline">True</property>
                             <property name="draw_indicator">True</property>
                           </object>
                           <packing>
@@ -242,6 +246,19 @@
                           </object>
                           <packing>
                             <property name="position">5</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkCheckButton" id="check_mousecapture">
+                            <property name="label" translatable="yes">_Mouse capture</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="use_underline">True</property>
+                            <property name="draw_indicator">True</property>
+                          </object>
+                          <packing>
+                            <property name="position">6</property>
                           </packing>
                         </child>
                       </object>
