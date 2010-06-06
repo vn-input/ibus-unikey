@@ -2,6 +2,7 @@
 #define __ENGINE_PRIVATE_H__
 
 #include <string>
+#include <X11/Xlib.h>
 #include <ibus.h>
 #include "unikey.h"
 #include "vnconv.h"
@@ -30,6 +31,7 @@ struct _IBusUnikeyEngine
     pthread_t th_mcap;
     pthread_mutex_t mutex_mcap;
     gboolean mcap_running;
+    Display* dpy;
 
     std::basic_string<gchar> *preeditstr;
 };

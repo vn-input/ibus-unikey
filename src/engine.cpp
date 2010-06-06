@@ -302,6 +302,8 @@ static void ibus_unikey_engine_reset(IBusEngine* engine)
         ibus_engine_hide_preedit_text(engine);
         ibus_unikey_engine_commit_string(engine, unikey->preeditstr->c_str());
         unikey->preeditstr->clear();
+        XWarpPointer(unikey->dpy, None, None, 0, 0, 0, 0, 0, 0);
+        XFlush(unikey->dpy);
     }
 
     parent_class->reset(engine);
@@ -879,7 +881,7 @@ static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const g
     text = ibus_text_new_from_static_string(string);
 
     // underline text
-    if (!unikey->mouse_capture)
+    //if (!unikey->mouse_capture)
     {
         ibus_text_append_attribute(text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, -1);
     }
@@ -1163,7 +1165,8 @@ static void* thread_mouse_capture(void* data)
     IBusUnikeyEngine* unikey;
 
     unikey = (IBusUnikeyEngine*)data;
-    dpy = XOpenDisplay(NULL);
+    unikey->dpy = XOpenDisplay(NULL);
+    dpy = unikey->dpy;
     w = XDefaultRootWindow(dpy);
 
     pthread_mutex_init(&unikey->mutex_mcap, NULL);
