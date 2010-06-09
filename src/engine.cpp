@@ -64,6 +64,11 @@ static unsigned char WordAutoCommit[] =
 static IBusEngineClass* parent_class = NULL;
 static IBusConfig*      config       = NULL;
 
+static pthread_t th_mcap;
+static pthread_mutex_t mutex_mcap;
+static Display* dpy;
+static IBusUnikeyEngine* unikey; // current (focus) unikey engine
+
 GType ibus_unikey_engine_get_type(void)
 {
     static GType type = 0;
@@ -95,10 +100,16 @@ void ibus_unikey_init(IBusBus* bus)
 {
     UnikeySetup();
     config = ibus_bus_get_config(bus);
+
+    pthread_mutex_init(&mutex_mcap, NULL);
+    pthread_mutex_trylock(&mutex_mcap);
+    pthread_create(&th_mcap, NULL, &thread_mouse_capture, NULL);
+    pthread_detach(th_mcap);
 }
 
 void ibus_unikey_exit()
 {
+    pthread_mutex_unlock(&mutex_mcap); // unlock mutex, so thread can exit
     UnikeyCleanup();
 }
 
@@ -130,8 +141,6 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     guint i;
 
     unikey->preeditstr = new std::string();
-    pthread_create(&unikey->th_mcap, NULL, &thread_mouse_capture, unikey);
-    pthread_detach(unikey->th_mcap);
 
 //set default options
     unikey->im = Unikey_IM[0];
@@ -266,15 +275,12 @@ static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey)
     delete unikey->preeditstr;
     g_object_unref(unikey->prop_list);
 
-    unikey->mcap_running = FALSE;
-    pthread_mutex_unlock(&unikey->mutex_mcap); // unlock mutex, so thread can exit
-
     IBUS_OBJECT_CLASS(parent_class)->destroy((IBusObject*)unikey);
 }
 
 static void ibus_unikey_engine_focus_in(IBusEngine* engine)
 {
-    IBusUnikeyEngine* unikey = (IBusUnikeyEngine*)engine;
+    unikey = (IBusUnikeyEngine*)engine;
 
     UnikeySetInputMethod(unikey->im);
     UnikeySetOutputCharset(unikey->oc);
@@ -294,7 +300,7 @@ static void ibus_unikey_engine_focus_out(IBusEngine* engine)
 
 static void ibus_unikey_engine_reset(IBusEngine* engine)
 {
-    IBusUnikeyEngine *unikey = (IBusUnikeyEngine*)engine;
+    unikey = (IBusUnikeyEngine*)engine;
 
     UnikeyResetBuf();
     if (unikey->preeditstr->length() > 0)
@@ -302,8 +308,8 @@ static void ibus_unikey_engine_reset(IBusEngine* engine)
         ibus_engine_hide_preedit_text(engine);
         ibus_unikey_engine_commit_string(engine, unikey->preeditstr->c_str());
         unikey->preeditstr->clear();
-        XWarpPointer(unikey->dpy, None, None, 0, 0, 0, 0, 0, 0);
-        XFlush(unikey->dpy);
+        XWarpPointer(dpy, None, None, 0, 0, 0, 0, 0, 0); // emulate a mouse move
+        XFlush(dpy);
     }
 
     parent_class->reset(engine);
@@ -323,7 +329,6 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                                                  const gchar* prop_name,
                                                  guint prop_state)
 {
-    IBusUnikeyEngine* unikey;
     IBusProperty* prop;
     IBusText* label;
     GValue v = {0};
@@ -873,7 +878,6 @@ static void ibus_unikey_engine_commit_string(IBusEngine *engine, const gchar *st
 
 static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const gchar *string, gboolean visible)
 {
-    IBusUnikeyEngine *unikey;
     IBusText *text;
 
     unikey = (IBusUnikeyEngine*)engine;
@@ -892,13 +896,12 @@ static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const g
     if (unikey->mouse_capture)
     {
         // unlock capture thread (start capture)
-        pthread_mutex_unlock(&unikey->mutex_mcap);
+        pthread_mutex_unlock(&mutex_mcap);
     }
 }
 
 static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars)
 {
-    IBusUnikeyEngine* unikey;
     int i, k;
     guchar c;
 
@@ -924,7 +927,6 @@ static gboolean ibus_unikey_engine_process_key_event(IBusEngine* engine,
                                                      guint keycode,
                                                      guint modifiers)
 {
-    static IBusUnikeyEngine* unikey;
     static gboolean tmp;
 
     unikey = (IBusUnikeyEngine*)engine;
@@ -949,10 +951,6 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
                                                              guint keycode,
                                                              guint modifiers)
 {
-    static IBusUnikeyEngine* unikey;
-
-    unikey = (IBusUnikeyEngine*)engine;
-
     if (modifiers & IBUS_RELEASE_MASK)
     {
         return false;
@@ -1160,35 +1158,21 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
 static void* thread_mouse_capture(void* data)
 {
     XEvent event;
-    Display* dpy;
     Window w;
-    IBusUnikeyEngine* unikey;
 
-    unikey = (IBusUnikeyEngine*)data;
-    unikey->dpy = XOpenDisplay(NULL);
-    dpy = unikey->dpy;
+    dpy = XOpenDisplay(NULL);
     w = XDefaultRootWindow(dpy);
-
-    pthread_mutex_init(&unikey->mutex_mcap, NULL);
-    pthread_mutex_trylock(&unikey->mutex_mcap);
-    unikey->mcap_running = TRUE;
 
     while (1)
     {
-        pthread_mutex_lock(&unikey->mutex_mcap);
-        if (!unikey->mcap_running)
-            break;
+        pthread_mutex_lock(&mutex_mcap);
         XGrabPointer(dpy, w, 0, ButtonPressMask | PointerMotionMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
         XPeekEvent(dpy, &event);
-        pthread_mutex_trylock(&unikey->mutex_mcap); // set mutex to lock status, so process will wait until next unlock
+        pthread_mutex_trylock(&mutex_mcap); // set mutex to lock status, so process will wait until next unlock
         XUngrabPointer(dpy, CurrentTime);
         XSync(dpy, TRUE);
-        if (!unikey->mcap_running)
-            break;
-        else
-            ibus_unikey_engine_reset((IBusEngine*)unikey);
+        ibus_unikey_engine_reset((IBusEngine*)unikey);
     }
-    pthread_mutex_destroy(&unikey->mutex_mcap);
 
     XCloseDisplay(dpy);
 

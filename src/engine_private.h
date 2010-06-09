@@ -23,17 +23,13 @@ struct _IBusUnikeyEngine
     UkInputMethod im; // input method
     unsigned int  oc; // output charset
     UnikeyOptions ukopt;
-    gboolean auto_commit;
-    gboolean last_key_with_shift;
     gboolean process_w_at_begin;
     gboolean mouse_capture;
 
-    pthread_t th_mcap;
-    pthread_mutex_t mutex_mcap;
-    gboolean mcap_running;
-    Display* dpy;
+    gboolean auto_commit;
+    gboolean last_key_with_shift;
 
-    std::basic_string<gchar> *preeditstr;
+    std::string* preeditstr;
 };
 
 struct _IBusUnikeyEngineClass
