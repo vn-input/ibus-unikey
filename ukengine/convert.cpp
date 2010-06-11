@@ -181,7 +181,7 @@ DllExport int VnFileConvert(int inCharset, int outCharset, const char *inFile, c
 #if !defined(_WIN32)
 			char cmd[256];
 			sprintf(cmd, "mv %s %s", tmpName, outFile);
-			system(cmd);
+			cmd[sizeof(cmd)-1] = system(cmd);
 #else
 			if (rename(tmpName, outFile) != 0) {
 				remove(tmpName);

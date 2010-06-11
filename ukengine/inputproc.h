@@ -116,7 +116,7 @@ DllInterface extern UkKeyMapping VIQRMethodMapping[];
 DllInterface extern UkKeyMapping MsViMethodMapping[];
 
 extern VnLexiName IsoVnLexiMap[];
-inline VnLexiName IsoToVnLexi(int keyCode)
+inline VnLexiName IsoToVnLexi(unsigned int keyCode)
 {
     return (keyCode >= 256)? vnl_nonVnChar : IsoVnLexiMap[keyCode];
 }
