@@ -24,7 +24,9 @@
   </object>
   <object class="GtkDialog" id="dlg_main_setup">
     <property name="border_width">5</property>
-    <property name="window_position">center</property>
+    <property name="title" translatable="yes">IBus-Unikey Setup</property>
+    <property name="resizable">False</property>
+    <property name="window_position">center-on-parent</property>
     <property name="type_hint">normal</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox3">
