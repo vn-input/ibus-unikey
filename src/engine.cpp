@@ -794,8 +794,8 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
     ibus_prop_list_append(unikey->menu_opt, prop);
 
     // --create and add Launch Setup GUI property
-    label = ibus_text_new_from_static_string(_("Launch Unikey Setup"));
-    tooltip = ibus_text_new_from_static_string("");
+    label = ibus_text_new_from_static_string(_("Run Setup..."));
+    tooltip = ibus_text_new_from_static_string(_("Run setup utility for IBus-Unikey"));
     prop = ibus_property_new("RunSetupGUI",
                              PROP_TYPE_NORMAL,
                              label,

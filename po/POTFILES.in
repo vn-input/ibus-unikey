@@ -4,4 +4,3 @@ src/utils.cpp
 setup/setup-main.glade
 setup/setup-macro.glade
 setup/dlg_macro_table.cpp
-
