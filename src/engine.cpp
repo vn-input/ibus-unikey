@@ -68,6 +68,7 @@ static pthread_t th_mcap;
 static pthread_mutex_t mutex_mcap;
 static Display* dpy;
 static IBusUnikeyEngine* unikey; // current (focus) unikey engine
+static gboolean mcap_running;
 
 GType ibus_unikey_engine_get_type(void)
 {
@@ -101,6 +102,7 @@ void ibus_unikey_init(IBusBus* bus)
     UnikeySetup();
     config = ibus_bus_get_config(bus);
 
+    mcap_running = TRUE;
     pthread_mutex_init(&mutex_mcap, NULL);
     pthread_mutex_trylock(&mutex_mcap);
     pthread_create(&th_mcap, NULL, &thread_mouse_capture, NULL);
@@ -109,6 +111,7 @@ void ibus_unikey_init(IBusBus* bus)
 
 void ibus_unikey_exit()
 {
+    mcap_running = FALSE;
     pthread_mutex_unlock(&mutex_mcap); // unlock mutex, so thread can exit
     UnikeyCleanup();
 }
@@ -1163,7 +1166,7 @@ static void* thread_mouse_capture(void* data)
     dpy = XOpenDisplay(NULL);
     w = XDefaultRootWindow(dpy);
 
-    while (1)
+    while (mcap_running)
     {
         pthread_mutex_lock(&mutex_mcap);
         XGrabPointer(dpy, w, 0, ButtonPressMask | PointerMotionMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
