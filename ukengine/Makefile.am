@@ -1,6 +1,6 @@
 INCLUDES = -Wall
 
-EXTRA_DIST                  = diff README COPYING
+EXTRA_DIST                  = README COPYING
 
 noinst_LTLIBRARIES     = libunikey-ibus.la
 
