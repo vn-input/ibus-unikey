@@ -17,7 +17,7 @@ EXTRA_DIST = $(glade_DATA)
 libexec_PROGRAMS = ibus-setup-unikey
 
 ibus_setup_unikey_SOURCES = \
-    unikey_setup.cpp \
+    setup.cpp \
     dlg_main_setup.cpp \
     dlg_macro_table.cpp \
     config_utils.cpp
