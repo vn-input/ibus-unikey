@@ -34,7 +34,6 @@ struct UkSharedMem {
     //states
     int initialized;
     int vietKey;
-    int iconShown;
 
     UnikeyOptions options;
     UkInputProcessor input;
@@ -42,14 +41,8 @@ struct UkSharedMem {
     int usrKeyMap[256];
     int charsetId;
 
-#if defined(WIN32)
-    UnikeySysInfo sysInfo;
-#endif
     CMacroTable macStore;
 };
-
-#define CTRL_SHIFT_SW 0
-#define ALT_Z_SW 1
 
 #define MAX_UK_ENGINE 128
 
@@ -98,7 +91,6 @@ public:
     int processMapChar(UkKeyEvent & ev);
     int processTelexW(UkKeyEvent & ev);
     int processEscChar(UkKeyEvent & ev);
-    bool lastWordIsNonVn();
 
 protected:
     static bool m_classInit;
@@ -160,6 +152,7 @@ protected:
     int processWordEnd(UkKeyEvent & ev);
     void synchKeyStrokeBuffer();
     bool lastWordHasVnMark();
+    bool lastWordIsNonVn();
 };
 
 void SetupUnikeyEngine();

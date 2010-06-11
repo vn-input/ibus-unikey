@@ -111,7 +111,6 @@ extern "C" {
   void UnikeySetSingleMode();
 
   bool UnikeyAtWordBeginning();
-  bool UnikeyLastWordIsNonVn();
 #if defined(__cplusplus)
 }
 #endif

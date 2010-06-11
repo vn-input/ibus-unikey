@@ -202,7 +202,3 @@ bool UnikeyAtWordBeginning()
     return MyKbEngine.atWordBeginning();
 }
 
-bool UnikeyLastWordIsNonVn()
-{
-    return MyKbEngine.lastWordIsNonVn();
-}
