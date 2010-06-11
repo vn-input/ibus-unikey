@@ -1,7 +1,7 @@
 m4_define([package_name], [ibus-unikey])
 m4_define([ibus_unikey_released], [0])
 m4_define([ibus_unikey_major_version], [0])
-m4_define([ibus_unikey_minor_version], [4])
+m4_define([ibus_unikey_minor_version], [5])
 m4_define([ibus_unikey_micro_version], [0])
 
 m4_define([ibus_unikey_version],
@@ -27,7 +27,6 @@ AC_PROG_CXX
 AC_ISC_POSIX
 AC_HEADER_STDC
 AM_PROG_LIBTOOL
-
 
 AM_PATH_PYTHON([2.5])
 
