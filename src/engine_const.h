@@ -9,7 +9,7 @@
 #define UNIKEY_OPT_AUTONONVNRESTORE     TRUE
 
 #define UNIKEY_OPT_PROCESSWATBEGIN      TRUE
-#define UNIKEY_OPT_MOUSECAPTURE         FALSE
+#define UNIKEY_OPT_MOUSECAPTURE         TRUE
 
 #define UNIKEY_MACRO_FILE               ".ibus/unikey/macro"
 
