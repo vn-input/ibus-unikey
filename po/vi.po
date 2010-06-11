@@ -2,13 +2,13 @@
 # Bản dịch Việt ngữ cho gói tin ibus-unikey.
 # Copyright (C) 2009 Free Software Foundation, Inc.
 # This file is distributed under the same license as the ibus-unikey package.
-# Le Quoc Tuan <mr.lequoctuan@gmail.com>, 2009.
+# Lê Quốc Tuấn <mr.lequoctuan@gmail.com>, 2009.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: ibus-unikey 0.3.0\n"
+"Project-Id-Version: ibus-unikey 0.5\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/ibus-unikey\n"
-"POT-Creation-Date: 2010-06-11 16:01+0700\n"
+"POT-Creation-Date: 2010-06-11 17:18+0700\n"
 "PO-Revision-Date: 2010-06-11 15:45+0700\n"
 "Last-Translator: Lê Quốc Tuấn <mr.lequoctuan@gmail.com>\n"
 "Language-Team: Vietnamese\n"
@@ -17,19 +17,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/engine.cpp:677
+#: src/engine.cpp:680
 msgid "Enable spell check"
 msgstr "Bật kiểm tra chính tả"
 
-#: src/engine.cpp:678
+#: src/engine.cpp:681
 msgid "If enable, you can decrease mistake when typing"
 msgstr "Nếu bật, bạn có thể giảm lỗi chính tả khi gõ"
 
-#: src/engine.cpp:693
+#: src/engine.cpp:696
 msgid "Auto restore keys with invalid words"
 msgstr "Tự động trả phím khi gõ từ không hợp lệ"
 
-#: src/engine.cpp:694
+#: src/engine.cpp:697
 msgid ""
 "When typing a word not in Vietnamese,\n"
 "it will auto restore keystroke into original"
@@ -37,51 +37,51 @@ msgstr ""
 "Khi gõ một từ không có trong tiếng Việt,\n"
 "tự động trả về từ gốc"
 
-#: src/engine.cpp:709
+#: src/engine.cpp:712
 msgid "Use oà, uý (instead of òa, úy)"
 msgstr "Dùng oà, uý (thay vì òa, úy)"
 
-#: src/engine.cpp:726
+#: src/engine.cpp:729
 msgid "Allow type with more freedom"
 msgstr "Cho phép bỏ dấu tự do"
 
-#: src/engine.cpp:742
+#: src/engine.cpp:745
 msgid "Enable Macro"
 msgstr "Bật gõ tắt"
 
-#: src/engine.cpp:758
+#: src/engine.cpp:761
 msgid "Process W at word begin"
 msgstr "Xử lý phím W ở đầu từ"
 
-#: src/engine.cpp:774
+#: src/engine.cpp:777
 msgid "Capture mouse event"
 msgstr "Bắt sự kiện chuột"
 
-#: src/engine.cpp:775
+#: src/engine.cpp:778
 msgid "Auto send PreEdit string to Application when mouse move or click"
 msgstr "Tự động gửi chuỗi PreEdit đến ứng dụng khi chuột di chuyển hoặc click"
 
-#: src/engine.cpp:797
+#: src/engine.cpp:800
 msgid "Run Setup..."
 msgstr "Chạy trình cài đặt..."
 
-#: src/engine.cpp:798
+#: src/engine.cpp:801
 msgid "Run setup utility for IBus-Unikey"
 msgstr "Chạy tiện ích cài đặt cho IBus-Unikey"
 
-#: src/engine.cpp:821
+#: src/engine.cpp:824
 msgid "Choose input method"
 msgstr "Chọn kiểu gõ"
 
-#: src/engine.cpp:841
+#: src/engine.cpp:844
 msgid "Choose output charset"
 msgstr "Chọn bảng mã"
 
-#: src/engine.cpp:855
+#: src/engine.cpp:858
 msgid "Options"
 msgstr "Tùy chọn"
 
-#: src/engine.cpp:856
+#: src/engine.cpp:859
 msgid "Options for Unikey"
 msgstr "Tùy chọn cho Unikey"
 

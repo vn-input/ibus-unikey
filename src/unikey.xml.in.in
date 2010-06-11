@@ -5,7 +5,7 @@
 	<description>Unikey Component</description>
 	<exec>${libexecdir}/ibus-engine-unikey --ibus</exec>
 	<version>@VERSION@</version>
-	<author>Le Quoc Tuan &lt;mr.lequoctuan@gmail.com&gt;</author>
+	<author>Lê Quốc Tuấn &lt;mr.lequoctuan@gmail.com&gt;</author>
 	<license>GPL</license>
 	<homepage>http://code.google.com/p/ibus-unikey</homepage>
 	<textdomain>ibus-unikey</textdomain>
