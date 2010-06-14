@@ -3,7 +3,7 @@ Version:    @PACKAGE_VERSION@
 Release:    1%{?dist}
 Summary:    Vietnamese input method for Ibus Use Unikey engine
 Vendor:     Ubuntu-VN
-License:    GPLv2+
+License:    GPLv3+
 Group:      Localization
 URL:        http://code.google.com/p/ibus-unikey/
 Source:     http://ibus-unikey.googlecode.com/files/%{name}-%{version}.tar.gz
