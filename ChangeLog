@@ -1,6 +1,19 @@
+2010-06-14  Lê Quốc Tuấn <mr.lequoctuan@gmail.com>
+
+    * Release 0.5
+    - Add capture mouse event
+    - New icon
+    - Fix bugs
+
+2010-03-24  Lê Quốc Tuấn <mr.lequoctuan@gmail.com>
+
+    * Release 0.4
+    - Compatible with ibus 1.3
+    - Fix bugs
+
 2009-10-06  Le Quoc Tuan <mr.lequoctuan@gmail.com>
 
-	* Release 0.3
-	- Compatibility with ibus 1.2
-	- Add some change from 0.2
+    * Release 0.3
+    - Compatible with ibus 1.2
+    - Add some change from 0.2
 
