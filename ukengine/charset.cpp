@@ -62,9 +62,8 @@ int VnInternalCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & b
 int VnInternalCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
   outLen = sizeof(StdVnChar);
-  UKWORD Word = (UKWORD)stdChar;
-  os.putW(Word);
-  return os.putW(*(&Word+1));
+  os.putW((UKWORD)stdChar);
+  return os.putW((UKWORD)(stdChar>>(sizeof(UKWORD)*8)));
 }
 
 //-------------------------------------------
