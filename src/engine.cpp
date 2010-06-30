@@ -249,12 +249,9 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
 // end read config value
 
     // load macro
-    if (unikey->ukopt.macroEnabled == 1)
-    {
-        gchar* fn = get_macro_file();
-        UnikeyLoadMacroTable(fn);
-        g_free(fn);
-    }
+    gchar* fn = get_macro_file();
+    UnikeyLoadMacroTable(fn);
+    g_free(fn);
 
     ibus_unikey_engine_create_property_list(unikey);
 }
