@@ -14,7 +14,7 @@
 #include "unikey.h"
 #include "vnconv.h"
 
-#if !IBUS_CHECK_VERSION(1,2,99) // ibus version 1.2.99 below have problem with PROP_TYPE_NORMAL, use RADIO instead
+#if !IBUS_CHECK_VERSION(1,2,99) // ibus below version 1.2.99 have problem with PROP_TYPE_NORMAL, use RADIO instead
 #define PROP_TYPE_NORMAL PROP_TYPE_RADIO
 #endif
 
@@ -451,81 +451,6 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         } // end update state
     } // end spellcheck active
 
-    // AutoNonVnRestore active
-    else if (strncmp(prop_name, "AutoNonVnRestore", strlen("AutoNonVnRestore")) == 0)
-    {
-        unikey->ukopt.autoNonVnRestore = !unikey->ukopt.autoNonVnRestore;
-
-        g_value_init(&v, G_TYPE_BOOLEAN);
-        g_value_set_boolean(&v, unikey->ukopt.autoNonVnRestore);
-        ibus_config_set_value(config, "engine/Unikey/Options", "AutoNonVnRestore", &v);
-
-        // update state of state
-        for (j = 0; j < unikey->menu_opt->properties->len ; j++)
-        {
-            prop = ibus_prop_list_get(unikey->menu_opt, j);
-            if (prop == NULL)
-                return;
-
-            else if (strcmp(prop->key, "AutoNonVnRestore") == 0)
-            {
-                prop->state = (unikey->ukopt.autoNonVnRestore == 1)?
-                    PROP_STATE_CHECKED:PROP_STATE_UNCHECKED;
-                break;
-            }
-        } // end update state
-    } // end AutoNonVnRestore active
-
-    // ModernStyle active
-    else if (strncmp(prop_name, "ModernStyle", strlen("ModernStyle")) == 0)
-    {
-        unikey->ukopt.modernStyle = !unikey->ukopt.modernStyle;
-
-        g_value_init(&v, G_TYPE_BOOLEAN);
-        g_value_set_boolean(&v, unikey->ukopt.modernStyle);
-        ibus_config_set_value(config, "engine/Unikey/Options", "ModernStyle", &v);
-
-        // update state of state
-        for (j = 0; j < unikey->menu_opt->properties->len ; j++)
-        {
-            prop = ibus_prop_list_get(unikey->menu_opt, j);
-            if (prop == NULL)
-                return;
-
-            else if (strcmp(prop->key, "ModernStyle") == 0)
-            {
-                prop->state = (unikey->ukopt.modernStyle == 1)?
-                    PROP_STATE_CHECKED:PROP_STATE_UNCHECKED;
-                break;
-            }
-        } // end update state
-    } // end ModernStyle active
-
-    // FreeMarking active
-    else if (strncmp(prop_name, "FreeMarking", strlen("FreeMarking")) == 0)
-    {
-        unikey->ukopt.freeMarking = !unikey->ukopt.freeMarking;
-
-        g_value_init(&v, G_TYPE_BOOLEAN);
-        g_value_set_boolean(&v, unikey->ukopt.freeMarking);
-        ibus_config_set_value(config, "engine/Unikey/Options", "FreeMarking", &v);
-
-        // update state of state
-        for (j = 0; j < unikey->menu_opt->properties->len ; j++)
-        {
-            prop = ibus_prop_list_get(unikey->menu_opt, j);
-            if (prop == NULL)
-                return;
-
-            else if (strcmp(prop->key, "FreeMarking") == 0)
-            {
-                prop->state = (unikey->ukopt.freeMarking == 1)?
-                    PROP_STATE_CHECKED:PROP_STATE_UNCHECKED;
-                break;
-            }
-        } // end update state
-    } // end FreeMarking active
-
     // MacroEnabled active
     else if (strncmp(prop_name, "MacroEnabled", strlen("MacroEnabled")) == 0)
     {
@@ -550,31 +475,6 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
             }
         } // end update state
     } // end MacroEnabled active
-
-    // ProcessWAtBegin active
-    else if (strncmp(prop_name, "ProcessWAtBegin", strlen("ProcessWAtBegin")) == 0)
-    {
-        unikey->process_w_at_begin = !unikey->process_w_at_begin;
-
-        g_value_init(&v, G_TYPE_BOOLEAN);
-        g_value_set_boolean(&v, unikey->process_w_at_begin);
-        ibus_config_set_value(config, "engine/Unikey/Options", "ProcessWAtBegin", &v);
-
-        // update state of state
-        for (j = 0; j < unikey->menu_opt->properties->len ; j++)
-        {
-            prop = ibus_prop_list_get(unikey->menu_opt, j);
-            if (prop == NULL)
-                return;
-
-            else if (strcmp(prop->key, "ProcessWAtBegin") == 0)
-            {
-                prop->state = (unikey->process_w_at_begin == 1)?
-                    PROP_STATE_CHECKED:PROP_STATE_UNCHECKED;
-                break;
-            }
-        } // end update state
-    } // end ProcessWAtBegin active
 
     // MouseCapture active
     else if (strncmp(prop_name, "MouseCapture", strlen("MouseCapture")) == 0)
@@ -689,55 +589,6 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
 
     ibus_prop_list_append(unikey->menu_opt, prop);
 
-    // --create and add autononvnrestore property
-    label = ibus_text_new_from_static_string(_("Auto restore keys with invalid words"));
-    tooltip = ibus_text_new_from_static_string(_("When typing a word not in Vietnamese,\nit will auto restore keystroke into original"));
-    prop = ibus_property_new("AutoNonVnRestore",
-                             PROP_TYPE_TOGGLE,
-                             label,
-                             "",
-                             tooltip,
-                             TRUE,
-                             TRUE,
-                             (unikey->ukopt.autoNonVnRestore==1)?
-                             PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
-                             NULL);
-
-    ibus_prop_list_append(unikey->menu_opt, prop);
-
-    // --create and add modernstyle property
-    label = ibus_text_new_from_static_string(_("Use oà, uý (instead of òa, úy)"));
-    tooltip = ibus_text_new_from_static_string("");
-    prop = ibus_property_new("ModernStyle",
-                             PROP_TYPE_TOGGLE,
-                             label,
-                             "",
-                             tooltip,
-                             TRUE,
-                             TRUE,
-                             (unikey->ukopt.modernStyle==1)?
-                             PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
-                             NULL);
-
-    ibus_prop_list_append(unikey->menu_opt, prop);
-
-
-    // --create and add freemarking property
-    label = ibus_text_new_from_static_string(_("Allow type with more freedom"));
-    tooltip = ibus_text_new_from_static_string("");
-    prop = ibus_property_new("FreeMarking",
-                             PROP_TYPE_TOGGLE,
-                             label,
-                             "",
-                             tooltip,
-                             TRUE,
-                             TRUE,
-                             (unikey->ukopt.freeMarking==1)?
-                             PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
-                             NULL);
-
-    ibus_prop_list_append(unikey->menu_opt, prop);
-
     // --create and add macroEnabled property
     label = ibus_text_new_from_static_string(_("Enable Macro"));
     tooltip = ibus_text_new_from_static_string("");
@@ -749,22 +600,6 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                              TRUE,
                              TRUE,
                              (unikey->ukopt.macroEnabled==1)?
-                             PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
-                             NULL);
-
-    ibus_prop_list_append(unikey->menu_opt, prop);
-
-    // --create and add ProcessWAtBegin property
-    label = ibus_text_new_from_static_string(_("Process W at word begin"));
-    tooltip = ibus_text_new_from_static_string("");
-    prop = ibus_property_new("ProcessWAtBegin",
-                             PROP_TYPE_TOGGLE,
-                             label,
-                             "",
-                             tooltip,
-                             TRUE,
-                             TRUE,
-                             (unikey->process_w_at_begin==1)?
                              PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
                              NULL);
 
