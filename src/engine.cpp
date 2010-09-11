@@ -3,7 +3,7 @@
 #endif
 #include <libintl.h>
 
-#include <stdlib.h>
+#include <wait.h>
 #include <string.h>
 #include <X11/Xlib.h>
 #include <ibus.h>
@@ -1016,10 +1016,12 @@ static void* thread_mouse_capture(void* data)
 
 static void* thread_run_setup(void* data)
 {
-    gchar s[1024];
-    strcpy(s, LIBEXECDIR "/ibus-setup-unikey --engine");
-    s[0] = system(s); // for not warning only
-    ibus_quit();
+    int stat;
+    
+    popen(LIBEXECDIR "/ibus-setup-unikey --engine", "r");
+    wait(&stat);
+    if (stat == 0)
+        ibus_quit();
     return NULL;
 }
 
