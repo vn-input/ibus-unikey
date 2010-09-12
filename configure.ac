@@ -2,7 +2,7 @@ m4_define([package_name], [ibus-unikey])
 m4_define([ibus_unikey_released], [0])
 m4_define([ibus_unikey_major_version], [0])
 m4_define([ibus_unikey_minor_version], [5])
-m4_define([ibus_unikey_micro_version], [0])
+m4_define([ibus_unikey_micro_version], [1])
 
 m4_define([ibus_unikey_version],
     ibus_unikey_major_version.ibus_unikey_minor_version)
