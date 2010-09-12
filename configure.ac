@@ -5,7 +5,7 @@ m4_define([ibus_unikey_minor_version], [5])
 m4_define([ibus_unikey_micro_version], [1])
 
 m4_define([ibus_unikey_version],
-    ibus_unikey_major_version.ibus_unikey_minor_version)
+    ibus_unikey_major_version.ibus_unikey_minor_version.ibus_unikey_micro_version)
 
 AC_INIT([package_name], [ibus_unikey_version], [http://code.google.com/p/ibus-unikey], [package_name])
 AM_INIT_AUTOMAKE([1.10])
