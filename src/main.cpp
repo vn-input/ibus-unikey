@@ -48,8 +48,6 @@ static void start_component(void)
     bus = ibus_bus_new();
     g_signal_connect(bus, "disconnected", G_CALLBACK(ibus_disconnected_cb), NULL);
 
-    ibus_unikey_init(bus);
-
     component = ibus_unikey_get_component();
 
     factory = ibus_factory_new(ibus_bus_get_connection(bus));
@@ -68,6 +66,7 @@ static void start_component(void)
 
     g_object_unref(component);
 
+    ibus_unikey_init(bus);
     ibus_main();
     ibus_unikey_exit();
 }
