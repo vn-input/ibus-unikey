@@ -29,7 +29,7 @@ IBusComponent* ibus_unikey_get_component()
     component = ibus_component_new("org.freedesktop.IBus.Unikey",
                                    "Unikey",
                                    PACKAGE_VERSION,
-                                   "GPLv2",
+                                   "GPLv3",
                                    "Lê Quốc Tuấn <mr.lequoctuan@gmail.com>",
                                    PACKAGE_BUGREPORT,
                                    "",
@@ -41,7 +41,7 @@ IBusComponent* ibus_unikey_get_component()
         "Unikey",
         IU_DESC,
         "vi",
-        "GPLv2",
+        "GPLv3",
         "Lê Quốc Tuấn <mr.lequoctuan@gmail.com>",
         PKGDATADIR"/icons/ibus-unikey.png",
         "us"
