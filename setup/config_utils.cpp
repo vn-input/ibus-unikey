@@ -17,14 +17,14 @@ void set_default_config(UnikeyMainSetupOptions* opt)
     opt->input_method = 0;
     opt->output_charset = 0;
 
-    opt->enableSpellcheck = UNIKEY_OPT_SPELLCHECKENABLED;
-    opt->autoRestoreNonVn = UNIKEY_OPT_AUTONONVNRESTORE;
-    opt->modernStyle = UNIKEY_OPT_MODERNSTYLE;
-    opt->freeMarking = UNIKEY_OPT_FREEMARKING;
-    opt->enableMacro = UNIKEY_OPT_MACROENABLED;
+    opt->enableSpellcheck = UNIKEY_DEFAULT_OPT_SPELLCHECKENABLED;
+    opt->autoRestoreNonVn = UNIKEY_DEFAULT_OPT_AUTONONVNRESTORE;
+    opt->modernStyle = UNIKEY_DEFAULT_OPT_MODERNSTYLE;
+    opt->freeMarking = UNIKEY_DEFAULT_OPT_FREEMARKING;
+    opt->enableMacro = UNIKEY_DEFAULT_OPT_MACROENABLED;
 
-    opt->processwatbegin = UNIKEY_OPT_PROCESSWATBEGIN;
-    opt->mousecapture = UNIKEY_OPT_MOUSECAPTURE;
+    opt->processwatbegin = UNIKEY_DEFAULT_OPT_PROCESSWATBEGIN;
+    opt->mousecapture = UNIKEY_DEFAULT_OPT_MOUSECAPTURE;
 
     opt->macrofile = get_macro_file();
 }

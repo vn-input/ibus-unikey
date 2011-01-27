@@ -148,15 +148,15 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
 //set default options
     unikey->im = Unikey_IM[0];
     unikey->oc = Unikey_OC[0];
-    unikey->ukopt.freeMarking           = UNIKEY_OPT_FREEMARKING;
-    unikey->ukopt.modernStyle           = UNIKEY_OPT_MODERNSTYLE;
-    unikey->ukopt.macroEnabled          = UNIKEY_OPT_MACROENABLED;
+    unikey->ukopt.freeMarking           = UNIKEY_DEFAULT_OPT_FREEMARKING;
+    unikey->ukopt.modernStyle           = UNIKEY_DEFAULT_OPT_MODERNSTYLE;
+    unikey->ukopt.macroEnabled          = UNIKEY_DEFAULT_OPT_MACROENABLED;
     unikey->ukopt.useUnicodeClipboard   = 0; // not use
     unikey->ukopt.alwaysMacro           = 0; // not use
-    unikey->ukopt.spellCheckEnabled     = UNIKEY_OPT_SPELLCHECKENABLED;
-    unikey->ukopt.autoNonVnRestore      = UNIKEY_OPT_AUTONONVNRESTORE;
-    unikey->process_w_at_begin          = UNIKEY_OPT_PROCESSWATBEGIN;
-    unikey->mouse_capture               = UNIKEY_OPT_MOUSECAPTURE;
+    unikey->ukopt.spellCheckEnabled     = UNIKEY_DEFAULT_OPT_SPELLCHECKENABLED;
+    unikey->ukopt.autoNonVnRestore      = UNIKEY_DEFAULT_OPT_AUTONONVNRESTORE;
+    unikey->process_w_at_begin          = UNIKEY_DEFAULT_OPT_PROCESSWATBEGIN;
+    unikey->mouse_capture               = UNIKEY_DEFAULT_OPT_MOUSECAPTURE;
 
 // read config value
     // read Input Method
@@ -435,7 +435,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         g_value_set_boolean(&v, unikey->ukopt.spellCheckEnabled);
         ibus_config_set_value(config, "engine/Unikey/Options", "SpellCheckEnabled", &v);
 
-        // update state of state
+        // update state
         for (j = 0; j < unikey->menu_opt->properties->len ; j++)
         {
             prop = ibus_prop_list_get(unikey->menu_opt, j);
@@ -460,7 +460,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         g_value_set_boolean(&v, unikey->ukopt.macroEnabled);
         ibus_config_set_value(config, "engine/Unikey/Options", "MacroEnabled", &v);
 
-        // update state of state
+        // update state
         for (j = 0; j < unikey->menu_opt->properties->len ; j++)
         {
             prop = ibus_prop_list_get(unikey->menu_opt, j);
@@ -485,7 +485,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         g_value_set_boolean(&v, unikey->mouse_capture);
         ibus_config_set_value(config, "engine/Unikey/Options", "MouseCapture", &v);
 
-        // update state of state
+        // update state
         for (j = 0; j < unikey->menu_opt->properties->len ; j++)
         {
             prop = ibus_prop_list_get(unikey->menu_opt, j);
