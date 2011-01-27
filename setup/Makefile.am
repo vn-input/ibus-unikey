@@ -1,14 +1,14 @@
 INCLUDES = \
-	-I$(top_srcdir)/ukengine \
-	-I$(top_srcdir)/src \
-	-DPKGDATADIR=\"$(pkgdatadir)\" \
-	-DGLADE_DATA_DIR=\"$(pkgdatadir)/setup\" \
-	-DLOCALEDIR=\"$(localedir)\" \
+    -I$(top_srcdir)/ukengine \
+    -I$(top_srcdir)/src \
+    -DPKGDATADIR=\"$(pkgdatadir)\" \
+    -DGLADE_DATA_DIR=\"$(pkgdatadir)/setup\" \
+    -DLOCALEDIR=\"$(localedir)\" \
     -Wall
 
 glade_DATA = \
-    setup-main.glade \
-    setup-macro.glade
+    setup-main.ui \
+    setup-macro.ui
 
 gladedir = $(pkgdatadir)/setup
 
@@ -34,9 +34,9 @@ ibus_setup_unikey_CXXFLAGS = \
     @GCONF_CFLAGS@
 
 ibus_setup_unikey_LDFLAGS = \
-	@IBUS_LIBS@ \
+    @IBUS_LIBS@ \
     @GTK_LIBS@ \
     @GCONF_LIBS@ \
-	$(top_builddir)/ukengine/libunikey-ibus.la
+    $(top_builddir)/ukengine/libunikey-ibus.la
 
 

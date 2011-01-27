@@ -1,6 +1,5 @@
-# List of source files which contain translatable strings.
 src/engine.cpp
 src/utils.cpp
-setup/setup-main.glade
-setup/setup-macro.glade
 setup/dlg_macro_table.cpp
+[type: gettext/glade]setup/setup-main.ui
+[type: gettext/glade]setup/setup-macro.ui

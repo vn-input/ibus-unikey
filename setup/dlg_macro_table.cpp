@@ -33,7 +33,7 @@ GtkWidget* unikey_macro_dialog_new()
 {
     GtkBuilder* builder = gtk_builder_new();
 
-    gtk_builder_add_from_file(builder, GLADE_DATA_DIR "/setup-macro.glade", NULL);
+    gtk_builder_add_from_file(builder, GLADE_DATA_DIR "/setup-macro.ui", NULL);
 
     GtkWidget* dialog = GTK_WIDGET(gtk_builder_get_object(builder, "dlg_macro_table"));
 
