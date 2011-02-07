@@ -147,15 +147,13 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
 //set default options
     unikey->im = Unikey_IM[0];
     unikey->oc = Unikey_OC[0];
-    unikey->ukopt.freeMarking           = UNIKEY_DEFAULT_OPT_FREEMARKING;
-    unikey->ukopt.modernStyle           = UNIKEY_DEFAULT_OPT_MODERNSTYLE;
-    unikey->ukopt.macroEnabled          = UNIKEY_DEFAULT_OPT_MACROENABLED;
-    unikey->ukopt.useUnicodeClipboard   = 0; // not use
-    unikey->ukopt.alwaysMacro           = 0; // not use
-    unikey->ukopt.spellCheckEnabled     = UNIKEY_DEFAULT_OPT_SPELLCHECKENABLED;
-    unikey->ukopt.autoNonVnRestore      = UNIKEY_DEFAULT_OPT_AUTONONVNRESTORE;
-    unikey->process_w_at_begin          = UNIKEY_DEFAULT_OPT_PROCESSWATBEGIN;
-    unikey->mouse_capture               = UNIKEY_DEFAULT_OPT_MOUSECAPTURE;
+    unikey->ukopt.spellCheckEnabled     = DEFAULT_CONF_SPELLCHECK;
+    unikey->ukopt.autoNonVnRestore      = DEFAULT_CONF_AUTONONVNRESTORE;
+    unikey->ukopt.modernStyle           = DEFAULT_CONF_MODERNSTYLE;
+    unikey->ukopt.freeMarking           = DEFAULT_CONF_FREEMARKING;
+    unikey->ukopt.macroEnabled          = DEFAULT_CONF_MACROENABLED;
+    unikey->process_w_at_begin          = DEFAULT_CONF_PROCESSWATBEGIN;
+    unikey->mouse_capture               = DEFAULT_CONF_MOUSECAPTURE;
 
 // read config value
     // read Input Method
