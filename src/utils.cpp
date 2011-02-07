@@ -34,20 +34,17 @@ IBusComponent* ibus_unikey_get_component()
                                    PACKAGE_BUGREPORT,
                                    "",
                                    PACKAGE_NAME);
-
-    engine = ibus_engine_desc_new
-    (
-        "Unikey",
-        "Unikey",
-        IU_DESC,
-        "vi",
-        "GPLv3",
-        "Lê Quốc Tuấn <mr.lequoctuan@gmail.com>",
-        PKGDATADIR"/icons/ibus-unikey.png",
-        "us"
-    );
     
-    engine->rank = 99;
+    engine = ibus_engine_desc_new_varargs ("name",        "Unikey",
+                                           "longname",    "Unikey",
+                                           "description", IU_DESC,
+                                           "language",    "vi",
+                                           "license",     "GPLv3",
+                                           "author",      "Lê Quốc Tuấn <mr.lequoctuan@gmail.com>",
+                                           "icon",        PKGDATADIR"/icons/ibus-unikey.png",
+                                           "layout",      "us",
+                                           "rank",        99,
+                                           NULL);
 
     ibus_component_add_engine(component, engine);
 
