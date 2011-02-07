@@ -16,15 +16,13 @@ void set_default_config(UnikeyMainSetupOptions* opt)
 {
     opt->input_method = 0;
     opt->output_charset = 0;
-
-    opt->enableSpellcheck = UNIKEY_DEFAULT_OPT_SPELLCHECKENABLED;
-    opt->autoRestoreNonVn = UNIKEY_DEFAULT_OPT_AUTONONVNRESTORE;
-    opt->modernStyle = UNIKEY_DEFAULT_OPT_MODERNSTYLE;
-    opt->freeMarking = UNIKEY_DEFAULT_OPT_FREEMARKING;
-    opt->enableMacro = UNIKEY_DEFAULT_OPT_MACROENABLED;
-
-    opt->processwatbegin = UNIKEY_DEFAULT_OPT_PROCESSWATBEGIN;
-    opt->mousecapture = UNIKEY_DEFAULT_OPT_MOUSECAPTURE;
+    opt->enableSpellcheck   = DEFAULT_CONF_SPELLCHECK;
+    opt->autoRestoreNonVn   = DEFAULT_CONF_AUTONONVNRESTORE;
+    opt->modernStyle        = DEFAULT_CONF_MODERNSTYLE;
+    opt->freeMarking        = DEFAULT_CONF_FREEMARKING;
+    opt->enableMacro        = DEFAULT_CONF_MACROENABLED;
+    opt->processwatbegin    = DEFAULT_CONF_PROCESSWATBEGIN;
+    opt->mousecapture       = DEFAULT_CONF_MOUSECAPTURE;
 
     opt->macrofile = get_macro_file();
 }
@@ -39,7 +37,7 @@ void read_config(UnikeyMainSetupOptions* opt)
     e = gconf_engine_get_default();
 
     // get Input method
-    s = gconf_engine_get_string(e, GCONF_PREFIX UNIKEY_INPUTMETHOD, NULL);
+    s = gconf_engine_get_string(e, GCONF_PREFIX CONFIG_INPUTMETHOD, NULL);
     if (s != NULL)
     {
         for (i = 0; i < NUM_INPUTMETHOD; i++)
@@ -52,10 +50,9 @@ void read_config(UnikeyMainSetupOptions* opt)
         }
     }
     g_free(s);
-    // END get Input method
 
     // get Output charset
-    s = gconf_engine_get_string(e, GCONF_PREFIX UNIKEY_OUTPUTCHARSET, NULL);
+    s = gconf_engine_get_string(e, GCONF_PREFIX CONFIG_OUTPUTCHARSET, NULL);
     if (s != NULL)
     {
         for (i = 0; i < NUM_OUTPUTCHARSET; i++)
@@ -68,70 +65,62 @@ void read_config(UnikeyMainSetupOptions* opt)
         }
     }
     g_free(s);
-    // END get Output charset
 
     // get Spellcheck
-    v = gconf_engine_get(e, GCONF_PREFIX UNIKEY_OPTION_SPELLCHECK, NULL);
+    v = gconf_engine_get(e, GCONF_PREFIX CONFIG_SPELLCHECK, NULL);
     if (v!=NULL)
     {
         opt->enableSpellcheck = gconf_value_get_bool(v);
         gconf_value_free(v);
     }
-    // END get Spellcheck
 
     // get autoRestoreNonVn
-    v = gconf_engine_get(e, GCONF_PREFIX UNIKEY_OPTION_AUTONONVNRESTORE, NULL);
+    v = gconf_engine_get(e, GCONF_PREFIX CONFIG_AUTORESTORENONVN, NULL);
     if (v!=NULL)
     {
         opt->autoRestoreNonVn = gconf_value_get_bool(v);
         gconf_value_free(v);
     }
-    // END get autoRestoreNonVn
 
     // get modernStyle
-    v = gconf_engine_get(e, GCONF_PREFIX UNIKEY_OPTION_MODERNSTYLE, NULL);
+    v = gconf_engine_get(e, GCONF_PREFIX CONFIG_MODERNSTYLE, NULL);
     if (v!=NULL)
     {
         opt->modernStyle = gconf_value_get_bool(v);
         gconf_value_free(v);
     }
-    // END get modernStyle
 
     // get freeMarking
-    v = gconf_engine_get(e, GCONF_PREFIX UNIKEY_OPTION_FREEMARKING, NULL);
+    v = gconf_engine_get(e, GCONF_PREFIX CONFIG_FREEMARKING, NULL);
     if (v!=NULL)
     {
         opt->freeMarking = gconf_value_get_bool(v);
         gconf_value_free(v);
     }
-    // END get freeMarking
 
     // get enableMacro
-    v = gconf_engine_get(e, GCONF_PREFIX UNIKEY_OPTION_MACROENABLED, NULL);
+    v = gconf_engine_get(e, GCONF_PREFIX CONFIG_MACROENABLED, NULL);
     if (v!=NULL)
     {
         opt->enableMacro = gconf_value_get_bool(v);
         gconf_value_free(v);
     }
-    // END get enableMacro
 
     // get ProcessWAtBegin
-    v = gconf_engine_get(e, GCONF_PREFIX UNIKEY_OPTION_PROCESSWATBEGIN, NULL);
+    v = gconf_engine_get(e, GCONF_PREFIX CONFIG_PROCESSWATBEGIN, NULL);
     if (v!=NULL)
     {
         opt->processwatbegin = gconf_value_get_bool(v);
         gconf_value_free(v);
     }
-    // END get ProcessWAtBegin
 
     // get MouseCapture
-    v = gconf_engine_get(e, GCONF_PREFIX UNIKEY_OPTION_MOUSECAPTURE, NULL);
+    v = gconf_engine_get(e, GCONF_PREFIX CONFIG_MOUSECAPTURE, NULL);
     if (v!=NULL)
     {
         opt->mousecapture = gconf_value_get_bool(v);
         gconf_value_free(v);
     }
-    // END get MouseCapture
 
     gconf_engine_unref(e);
 }
@@ -141,23 +130,23 @@ void write_config(UnikeyMainSetupOptions* opt)
     GConfEngine* e;
     e = gconf_engine_get_default();
 
-    gconf_engine_set_string(e, GCONF_PREFIX UNIKEY_INPUTMETHOD,
+    gconf_engine_set_string(e, GCONF_PREFIX CONFIG_INPUTMETHOD,
                             Unikey_IMNames[opt->input_method], NULL);
-    gconf_engine_set_string(e, GCONF_PREFIX UNIKEY_OUTPUTCHARSET,
+    gconf_engine_set_string(e, GCONF_PREFIX CONFIG_OUTPUTCHARSET,
                             Unikey_OCNames[opt->output_charset], NULL);
-    gconf_engine_set_bool(e, GCONF_PREFIX UNIKEY_OPTION_SPELLCHECK,
+    gconf_engine_set_bool(e, GCONF_PREFIX CONFIG_SPELLCHECK,
                           opt->enableSpellcheck, NULL);
-    gconf_engine_set_bool(e, GCONF_PREFIX UNIKEY_OPTION_AUTONONVNRESTORE,
+    gconf_engine_set_bool(e, GCONF_PREFIX CONFIG_AUTORESTORENONVN,
                           opt->autoRestoreNonVn, NULL);
-    gconf_engine_set_bool(e, GCONF_PREFIX UNIKEY_OPTION_MODERNSTYLE,
+    gconf_engine_set_bool(e, GCONF_PREFIX CONFIG_MODERNSTYLE,
                           opt->modernStyle, NULL);
-    gconf_engine_set_bool(e, GCONF_PREFIX UNIKEY_OPTION_FREEMARKING,
+    gconf_engine_set_bool(e, GCONF_PREFIX CONFIG_FREEMARKING,
                           opt->freeMarking, NULL);
-    gconf_engine_set_bool(e, GCONF_PREFIX UNIKEY_OPTION_MACROENABLED,
+    gconf_engine_set_bool(e, GCONF_PREFIX CONFIG_MACROENABLED,
                           opt->enableMacro, NULL);
-    gconf_engine_set_bool(e, GCONF_PREFIX UNIKEY_OPTION_PROCESSWATBEGIN,
+    gconf_engine_set_bool(e, GCONF_PREFIX CONFIG_PROCESSWATBEGIN,
                           opt->processwatbegin, NULL);
-    gconf_engine_set_bool(e, GCONF_PREFIX UNIKEY_OPTION_MOUSECAPTURE,
+    gconf_engine_set_bool(e, GCONF_PREFIX CONFIG_MOUSECAPTURE,
                           opt->mousecapture, NULL);
 
     gconf_engine_unref(e);

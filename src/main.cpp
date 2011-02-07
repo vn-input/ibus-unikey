@@ -30,8 +30,7 @@ static const GOptionEntry entries[] =
     { NULL },
 };
 
-static void
-ibus_disconnected_cb(IBusBus* bus, gpointer  user_data)
+static void ibus_disconnected_cb(IBusBus* bus, gpointer user_data)
 {
     ibus_quit();
 }

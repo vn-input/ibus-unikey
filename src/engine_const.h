@@ -1,10 +1,10 @@
 #ifndef __ENGINE_CONST_H__
 #define __ENGINE_CONST_H__
 
-
 #define UNIKEY_MACRO_FILE        ".ibus/unikey/macro"
 
 #define CONFIG_SECTION           "engine/Unikey"
+#define GCONF_PREFIX             "/desktop/ibus/"CONFIG_SECTION"/"
 
 #define CONFIG_INPUTMETHOD       "input_method"
 #define CONFIG_OUTPUTCHARSET     "output_charset"
@@ -24,17 +24,6 @@
 #define DEFAULT_CONF_MACROENABLED       FALSE
 #define DEFAULT_CONF_PROCESSWATBEGIN    TRUE
 #define DEFAULT_CONF_MOUSECAPTURE       TRUE
-
-#define GCONF_PREFIX                    "/desktop/ibus/engine/Unikey/"
-#define UNIKEY_INPUTMETHOD              "InputMethod"
-#define UNIKEY_OUTPUTCHARSET            "OutputCharset"
-#define UNIKEY_OPTION_SPELLCHECK        "Options/SpellCheckEnabled"
-#define UNIKEY_OPTION_AUTONONVNRESTORE  "Options/AutoNonVnRestore"
-#define UNIKEY_OPTION_MODERNSTYLE       "Options/ModernStyle"
-#define UNIKEY_OPTION_FREEMARKING       "Options/FreeMarking"
-#define UNIKEY_OPTION_MACROENABLED      "Options/MacroEnabled"
-#define UNIKEY_OPTION_PROCESSWATBEGIN   "Options/ProcessWAtBegin"
-#define UNIKEY_OPTION_MOUSECAPTURE      "Options/MouseCapture"
 
 #endif
 
