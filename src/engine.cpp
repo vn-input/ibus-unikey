@@ -298,8 +298,8 @@ static void ibus_unikey_engine_reset(IBusEngine* engine)
         ibus_engine_hide_preedit_text(engine);
         ibus_unikey_engine_commit_string(engine, unikey->preeditstr->c_str());
         unikey->preeditstr->clear();
-        XWarpPointer(dpy, None, None, 0, 0, 0, 0, 0, 0); // emulate a mouse move
-        XFlush(dpy);
+        //XWarpPointer(dpy, None, None, 0, 0, 0, 0, 0, 0); // emulate a mouse move
+        //XFlush(dpy);
     }
 
     parent_class->reset(engine);
