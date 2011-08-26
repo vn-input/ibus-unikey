@@ -50,7 +50,7 @@ int main(int argc, char** argv)
     gtk_window_set_default_icon_from_file(PKGDATADIR"/icons/ibus-unikey.png", NULL);
 
     GtkWidget* main_dlg = unikey_main_setup_dialog_new(); // create main dlg
-    gtk_signal_connect(GTK_OBJECT(main_dlg), "destroy", gtk_main_quit, NULL); // connect with signal
+    g_signal_connect(main_dlg, "destroy", gtk_main_quit, NULL); // connect with signal
 
     UnikeyMainSetupOptions opt; // create option
     set_default_config(&opt); // create default option
