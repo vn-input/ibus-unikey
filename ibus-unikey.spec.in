@@ -1,12 +1,12 @@
-Name:       @PACKAGE_NAME@
-Version:    @PACKAGE_VERSION@
-Release:    1%{?dist}
-Summary:    Vietnamese input method for Ibus Use Unikey engine
-Vendor:     Ubuntu-VN
-License:    GPLv3+
-Group:      Localization
-URL:        http://code.google.com/p/ibus-unikey/
-Source:     http://ibus-unikey.googlecode.com/files/%{name}-%{version}.tar.gz
+Name:           @PACKAGE_NAME@
+Version:        @PACKAGE_VERSION@
+Release:        1%{?dist}
+Summary:        Vietnamese input method for Ibus Use Unikey engine
+
+Group:          User Interface/X
+License:        GPLv3
+URL:            http://code.google.com/p/ibus-unikey/
+Source:         http://ibus-unikey.googlecode.com/files/%{name}-%{version}.tar.gz
 
 %description
 IBus is an Intelligent Input Bus.
@@ -15,33 +15,35 @@ It provides full featured and user friendly input method user interface.
 It also may help developers to develop input method easily.
 Ibus-Unikey is a Vietnamese input method for Ibus Use Unikey engine to process keyevent
 
-BuildRequires: ibus-devel >= 1.2
-BuildRequires: gtk2-devel
-BuildRequires: GConf2-devel
-
-Requires: ibus
+BuildRequires:  gettext
+BuildRequires:  ibus-devel
+BuildRequires:  gtk2-devel
+BuildRequires:  GConf2-devel
+Requires:       ibus
 
 %prep
 %setup -q
 
 %build
-%configure --prefix=%{_prefix}
-make
+%configure
+make %{?_smp_mflags}
+
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make DESTDIR=$RPM_BUILD_ROOT install
-find $RPM_BUILD_ROOT -name *.la -exec rm '{}' +
+make install DESTDIR=$RPM_BUILD_ROOT
+%find_lang %{name}
+
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post -p /sbin/ldconfig
 
-%postun -p /sbin/ldconfig
-
-%files
-%defattr(-,root,root)
-%doc AUTHORS ChangeLog COPYING INSTALL NEWS README
-%{_prefix}/*
+%files -f %{name}.lang
+%defattr(-,root,root,-)
+%doc README AUTHORS COPYING ChangeLog
+%{_datadir}/%{name}/
+%{_datadir}/ibus/component/unikey.xml
+%{_libexecdir}/ibus-engine-unikey
+%{_libexecdir}/ibus-setup-unikey
 
