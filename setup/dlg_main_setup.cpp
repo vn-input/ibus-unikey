@@ -14,7 +14,7 @@ GtkWidget* unikey_main_setup_dialog_new()
 {
     GtkBuilder* builder = gtk_builder_new();
 
-    gtk_builder_add_from_file(builder, GLADE_DATA_DIR "/setup-main.ui", NULL);
+    gtk_builder_add_from_file(builder, UI_DATA_DIR "/setup-main.ui", NULL);
 
     GtkDialog* dlg = GTK_DIALOG(gtk_builder_get_object(builder, "dlg_main_setup"));
 

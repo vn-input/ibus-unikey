@@ -2,17 +2,17 @@ INCLUDES = \
     -I$(top_srcdir)/ukengine \
     -I$(top_srcdir)/src \
     -DPKGDATADIR=\"$(pkgdatadir)\" \
-    -DGLADE_DATA_DIR=\"$(pkgdatadir)/setup\" \
+    -DUI_DATA_DIR=\"$(pkgdatadir)/setup\" \
     -DLOCALEDIR=\"$(localedir)\" \
     -Wall
 
-glade_DATA = \
+ui_DATA = \
     setup-main.ui \
     setup-macro.ui
 
-gladedir = $(pkgdatadir)/setup
+uidir = $(pkgdatadir)/setup
 
-EXTRA_DIST = $(glade_DATA)
+EXTRA_DIST = $(ui_DATA)
 
 libexec_PROGRAMS = ibus-setup-unikey
 
