@@ -3,9 +3,8 @@
 
 #include "engine_const.h"
 
-void set_default_config(UnikeyMainSetupOptions* opt);
-void read_config(UnikeyMainSetupOptions* opt);
-void write_config(UnikeyMainSetupOptions* opt);
+void read_config(void* data, UnikeyMainSetupOptions* opt);
+void write_config(void* data, UnikeyMainSetupOptions* opt);
 int force_engine_to_reload_config();
 
 #endif

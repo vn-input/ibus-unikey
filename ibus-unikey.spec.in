@@ -18,7 +18,6 @@ Ibus-Unikey is a Vietnamese input method for Ibus Use Unikey engine to process k
 BuildRequires:  gettext
 BuildRequires:  ibus-devel
 BuildRequires:  gtk2-devel
-BuildRequires:  GConf2-devel
 Requires:       ibus
 
 %prep

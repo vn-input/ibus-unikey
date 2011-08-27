@@ -30,13 +30,11 @@ noinst_HEADERS = \
 
 ibus_setup_unikey_CXXFLAGS = \
     @IBUS_CFLAGS@ \
-    @GTK_CFLAGS@ \
-    @GCONF_CFLAGS@
+    @GTK_CFLAGS@
 
 ibus_setup_unikey_LDFLAGS = \
     @IBUS_LIBS@ \
     @GTK_LIBS@ \
-    @GCONF_LIBS@ \
     $(top_builddir)/ukengine/libunikey-ibus.la
 
 

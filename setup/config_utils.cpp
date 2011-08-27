@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-#include <gconf/gconf.h>
+#include <ibus.h>
 
 #include "dlg_main_setup.h"
 #include "engine_const.h"
@@ -12,7 +12,7 @@ const unsigned int NUM_OUTPUTCHARSET = sizeof(Unikey_OCNames)/sizeof(Unikey_OCNa
 
 #define get_macro_file() (g_build_filename(g_getenv("HOME"), UNIKEY_MACRO_FILE, NULL))
 
-void set_default_config(UnikeyMainSetupOptions* opt)
+static void set_default_config(UnikeyMainSetupOptions* opt)
 {
     opt->input_method = 0;
     opt->output_charset = 0;
@@ -27,129 +27,117 @@ void set_default_config(UnikeyMainSetupOptions* opt)
     opt->macrofile = get_macro_file();
 }
 
-void read_config(UnikeyMainSetupOptions* opt)
+void read_config(void *data, UnikeyMainSetupOptions* opt)
 {
-    GConfEngine* e;
-    gchar* s;
-    GConfValue* v;
+    IBusConfig* config = (IBusConfig*)data;
+    GVariant* value = {0};
+    gchar* str;
     guint i;
 
-    e = gconf_engine_get_default();
+    set_default_config(opt);
 
     // get Input method
-    s = gconf_engine_get_string(e, GCONF_PREFIX CONFIG_INPUTMETHOD, NULL);
-    if (s != NULL)
-    {
+    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_INPUTMETHOD)))
+    {   
+        str = (gchar *) g_variant_get_string(value, NULL);
         for (i = 0; i < NUM_INPUTMETHOD; i++)
-        {
-            if (strcasecmp(s, Unikey_IMNames[i]) == 0)
-            {
-                opt->input_method = i;
+        {   
+            if (strcasecmp(str, Unikey_IMNames[i]) == 0)
+            {   
+                opt->input_method = i; 
                 break;
             }
         }
+        g_variant_unref(value);
     }
-    g_free(s);
 
     // get Output charset
-    s = gconf_engine_get_string(e, GCONF_PREFIX CONFIG_OUTPUTCHARSET, NULL);
-    if (s != NULL)
-    {
+    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_OUTPUTCHARSET)))
+    {  
+        str = (gchar *) g_variant_get_string(value, NULL);
         for (i = 0; i < NUM_OUTPUTCHARSET; i++)
-        {
-            if (strcasecmp(s, Unikey_OCNames[i]) == 0)
-            {
+        {  
+            if (strcasecmp(str, Unikey_OCNames[i]) == 0)
+            {  
                 opt->output_charset = i;
                 break;
             }
         }
+        g_variant_unref(value);
     }
-    g_free(s);
 
     // get Spellcheck
-    v = gconf_engine_get(e, GCONF_PREFIX CONFIG_SPELLCHECK, NULL);
-    if (v!=NULL)
-    {
-        opt->enableSpellcheck = gconf_value_get_bool(v);
-        gconf_value_free(v);
+    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_SPELLCHECK)))
+    {   
+        opt->enableSpellcheck = g_variant_get_boolean(value);
+        g_variant_unref(value);
     }
 
     // get autoRestoreNonVn
-    v = gconf_engine_get(e, GCONF_PREFIX CONFIG_AUTORESTORENONVN, NULL);
-    if (v!=NULL)
-    {
-        opt->autoRestoreNonVn = gconf_value_get_bool(v);
-        gconf_value_free(v);
+    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_AUTORESTORENONVN)))
+    {   
+        opt->autoRestoreNonVn = g_variant_get_boolean(value);
+        g_variant_unref(value);
     }
 
     // get modernStyle
-    v = gconf_engine_get(e, GCONF_PREFIX CONFIG_MODERNSTYLE, NULL);
-    if (v!=NULL)
-    {
-        opt->modernStyle = gconf_value_get_bool(v);
-        gconf_value_free(v);
+    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_MODERNSTYLE)))
+    {   
+        opt->modernStyle = g_variant_get_boolean(value);
+        g_variant_unref(value);
     }
 
     // get freeMarking
-    v = gconf_engine_get(e, GCONF_PREFIX CONFIG_FREEMARKING, NULL);
-    if (v!=NULL)
-    {
-        opt->freeMarking = gconf_value_get_bool(v);
-        gconf_value_free(v);
+    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_FREEMARKING)))
+    {   
+        opt->freeMarking = g_variant_get_boolean(value);
+        g_variant_unref(value);
     }
 
     // get enableMacro
-    v = gconf_engine_get(e, GCONF_PREFIX CONFIG_MACROENABLED, NULL);
-    if (v!=NULL)
-    {
-        opt->enableMacro = gconf_value_get_bool(v);
-        gconf_value_free(v);
+    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_MACROENABLED)))
+    {   
+        opt->enableMacro = g_variant_get_boolean(value);
+        g_variant_unref(value);
     }
 
     // get ProcessWAtBegin
-    v = gconf_engine_get(e, GCONF_PREFIX CONFIG_PROCESSWATBEGIN, NULL);
-    if (v!=NULL)
-    {
-        opt->processwatbegin = gconf_value_get_bool(v);
-        gconf_value_free(v);
+    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_PROCESSWATBEGIN)))
+    {   
+        opt->processwatbegin = g_variant_get_boolean(value);
+        g_variant_unref(value);
     }
 
     // get MouseCapture
-    v = gconf_engine_get(e, GCONF_PREFIX CONFIG_MOUSECAPTURE, NULL);
-    if (v!=NULL)
-    {
-        opt->mousecapture = gconf_value_get_bool(v);
-        gconf_value_free(v);
+    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_MOUSECAPTURE)))
+    {   
+        opt->mousecapture = g_variant_get_boolean(value);
+        g_variant_unref(value);
     }
-
-    gconf_engine_unref(e);
 }
 
-void write_config(UnikeyMainSetupOptions* opt)
+void write_config(void* data, UnikeyMainSetupOptions* opt)
 {
-    GConfEngine* e;
-    e = gconf_engine_get_default();
+    IBusConfig* config = (IBusConfig*)data;
 
-    gconf_engine_set_string(e, GCONF_PREFIX CONFIG_INPUTMETHOD,
-                            Unikey_IMNames[opt->input_method], NULL);
-    gconf_engine_set_string(e, GCONF_PREFIX CONFIG_OUTPUTCHARSET,
-                            Unikey_OCNames[opt->output_charset], NULL);
-    gconf_engine_set_bool(e, GCONF_PREFIX CONFIG_SPELLCHECK,
-                          opt->enableSpellcheck, NULL);
-    gconf_engine_set_bool(e, GCONF_PREFIX CONFIG_AUTORESTORENONVN,
-                          opt->autoRestoreNonVn, NULL);
-    gconf_engine_set_bool(e, GCONF_PREFIX CONFIG_MODERNSTYLE,
-                          opt->modernStyle, NULL);
-    gconf_engine_set_bool(e, GCONF_PREFIX CONFIG_FREEMARKING,
-                          opt->freeMarking, NULL);
-    gconf_engine_set_bool(e, GCONF_PREFIX CONFIG_MACROENABLED,
-                          opt->enableMacro, NULL);
-    gconf_engine_set_bool(e, GCONF_PREFIX CONFIG_PROCESSWATBEGIN,
-                          opt->processwatbegin, NULL);
-    gconf_engine_set_bool(e, GCONF_PREFIX CONFIG_MOUSECAPTURE,
-                          opt->mousecapture, NULL);
-
-    gconf_engine_unref(e);
+    ibus_config_set_value(config, CONFIG_SECTION, CONFIG_INPUTMETHOD,
+                          g_variant_new_string(Unikey_IMNames[opt->input_method]));
+    ibus_config_set_value(config, CONFIG_SECTION, CONFIG_OUTPUTCHARSET,
+                          g_variant_new_string(Unikey_OCNames[opt->output_charset]));
+    ibus_config_set_value(config, CONFIG_SECTION, CONFIG_SPELLCHECK,
+                          g_variant_new_boolean(opt->enableSpellcheck));
+    ibus_config_set_value(config, CONFIG_SECTION, CONFIG_AUTORESTORENONVN,
+                          g_variant_new_boolean(opt->autoRestoreNonVn));
+    ibus_config_set_value(config, CONFIG_SECTION, CONFIG_MODERNSTYLE,
+                          g_variant_new_boolean(opt->modernStyle));
+    ibus_config_set_value(config, CONFIG_SECTION, CONFIG_FREEMARKING,
+                          g_variant_new_boolean(opt->freeMarking));
+    ibus_config_set_value(config, CONFIG_SECTION, CONFIG_MACROENABLED,
+                          g_variant_new_boolean(opt->enableMacro));
+    ibus_config_set_value(config, CONFIG_SECTION, CONFIG_PROCESSWATBEGIN,
+                          g_variant_new_boolean(opt->processwatbegin));
+    ibus_config_set_value(config, CONFIG_SECTION, CONFIG_MOUSECAPTURE,
+                          g_variant_new_boolean(opt->mousecapture));
 }
 
 int force_engine_to_reload_config()

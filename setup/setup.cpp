@@ -5,6 +5,8 @@
 #include <libintl.h>
 #include <locale.h>
 #include <gtk/gtk.h>
+#include <ibus.h>
+#include <stdlib.h>
 
 #include "dlg_main_setup.h"
 #include "config_utils.h"
@@ -21,6 +23,11 @@ static const GOptionEntry entries[] =
     { NULL },
 };
 
+static void ibus_disconnected_cb(IBusBus* bus, gpointer user_data)
+{   
+    exit(2);
+}
+
 int main(int argc, char** argv)
 {
     setlocale(LC_ALL, "");
@@ -29,6 +36,7 @@ int main(int argc, char** argv)
 
     GError* error = NULL;
     GOptionContext* context;
+    IBusConfig* config;
 
     context = g_option_context_new("- ibus unikey setup component");
     g_option_context_add_main_entries(context, entries, "ibus-unikey");
@@ -52,10 +60,14 @@ int main(int argc, char** argv)
     GtkWidget* main_dlg = unikey_main_setup_dialog_new(); // create main dlg
     g_signal_connect(main_dlg, "destroy", gtk_main_quit, NULL); // connect with signal
 
-    UnikeyMainSetupOptions opt; // create option
-    set_default_config(&opt); // create default option
+    ibus_init();
+    IBusBus* bus = ibus_bus_new();
+    g_signal_connect(bus, "disconnected", G_CALLBACK(ibus_disconnected_cb), NULL);
+    config = ibus_bus_get_config(bus);
 
-    read_config(&opt); // read config
+    UnikeyMainSetupOptions opt; // create option
+
+    read_config(config, &opt); // read config
 
     unikey_main_setup_set_values(GTK_DIALOG(main_dlg), &opt); // set config for dialog
 
@@ -64,7 +76,7 @@ int main(int argc, char** argv)
     if (ret == GTK_RESPONSE_OK) // if pressed OK
     {
         unikey_main_setup_get_values(GTK_DIALOG(main_dlg), &opt); // get config from dialog
-        write_config(&opt);
+        write_config(config, &opt);
         if (!engine)
             force_engine_to_reload_config();
         return 0;

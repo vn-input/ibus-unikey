@@ -4,7 +4,6 @@
 #define UNIKEY_MACRO_FILE        ".ibus/unikey/macro"
 
 #define CONFIG_SECTION           "engine/Unikey"
-#define GCONF_PREFIX             "/desktop/ibus/"CONFIG_SECTION"/"
 
 #define CONFIG_INPUTMETHOD       "input_method"
 #define CONFIG_OUTPUTCHARSET     "output_charset"

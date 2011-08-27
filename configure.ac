@@ -50,11 +50,6 @@ PKG_CHECK_MODULES(GTK, [
 ])
 AC_SUBST(GTK)
 
-PKG_CHECK_MODULES(GCONF, [
-    gconf-2.0
-])
-AC_SUBST(GCONF)
-
 # OUTPUT files
 AC_CONFIG_FILES( po/Makefile.in
     Makefile
