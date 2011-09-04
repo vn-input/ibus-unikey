@@ -641,7 +641,9 @@ int UkEngine::processHookWithUO(UkKeyEvent & ev)
     bool hookRemoved = false;
     bool removeWithUndo = true;
     bool toneRemoved = false;
-
+    
+    (void)toneRemoved; // fix warning
+    
     VnLexiName *v;
 
     if (!m_pCtrl->options.freeMarking && m_buffer[m_current].vOffset != 0)
