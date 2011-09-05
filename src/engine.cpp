@@ -138,8 +138,8 @@ static void ibus_unikey_engine_class_init(IBusUnikeyEngineClass* klass)
 
 static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
 {
-    GVariant *value = {0};
     gchar* str;
+    gboolean b;
     guint i;
 
     unikey->preeditstr = new std::string();
@@ -157,9 +157,8 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
 
 // read config value
     // read Input Method
-    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_INPUTMETHOD)))
+    if (ibus_unikey_config_get_string(config, CONFIG_SECTION, CONFIG_INPUTMETHOD, &str))
     {
-        str = (gchar *) g_variant_get_string(value, NULL);
         for (i = 0; i < NUM_INPUTMETHOD; i++)
         {
             if (strcasecmp(str, Unikey_IMNames[i]) == 0)
@@ -168,13 +167,11 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
                 break;
             }
         }
-        g_variant_unref(value);
     } // end read Input Method
 
     // read Output Charset
-    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_OUTPUTCHARSET)))
+    if (ibus_unikey_config_get_string(config, CONFIG_SECTION, CONFIG_OUTPUTCHARSET, &str))
     {
-        str = (gchar *) g_variant_get_string(value, NULL);
         for (i = 0; i < NUM_OUTPUTCHARSET; i++)
         {
             if (strcasecmp(str, Unikey_OCNames[i]) == 0)
@@ -183,58 +180,36 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
                 break;
             }
         }
-        g_variant_unref(value);
     } // end read Output Charset
 
     // read Unikey Option
     // freemarking
-    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_FREEMARKING)))
-    {
-        unikey->ukopt.freeMarking = g_variant_get_boolean(value);
-        g_variant_unref(value);
-    }
+    if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_FREEMARKING, &b))
+        unikey->ukopt.freeMarking = b;
 
     // modernstyle
-    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_MODERNSTYLE)))
-    {
-        unikey->ukopt.modernStyle = g_variant_get_boolean(value);
-        g_variant_unref(value);
-    }
+    if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_MODERNSTYLE, &b))
+        unikey->ukopt.modernStyle = b;
 
     // macroEnabled
-    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_MACROENABLED)))
-    {
-        unikey->ukopt.macroEnabled = g_variant_get_boolean(value);
-        g_variant_unref(value);
-    }
+    if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_MACROENABLED, &b))
+        unikey->ukopt.macroEnabled = b;
 
     // spellCheckEnabled
-    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_SPELLCHECK)))
-    {
-        unikey->ukopt.spellCheckEnabled = g_variant_get_boolean(value);
-        g_variant_unref(value);
-    }
+    if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_SPELLCHECK, &b))
+        unikey->ukopt.spellCheckEnabled = b;
 
     // autoNonVnRestore
-    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_AUTORESTORENONVN)))
-    {
-        unikey->ukopt.autoNonVnRestore = g_variant_get_boolean(value);
-        g_variant_unref(value);
-    }
+    if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_AUTORESTORENONVN, &b))
+        unikey->ukopt.autoNonVnRestore = b;
 
     // ProcessWAtBegin
-    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_PROCESSWATBEGIN)))
-    {
-        unikey->process_w_at_begin = g_variant_get_boolean(value);
-        g_variant_unref(value);
-    }
+    if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_PROCESSWATBEGIN, &b))
+        unikey->process_w_at_begin = b;
 
     // MouseCapture
-    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_MOUSECAPTURE)))
-    {
-        unikey->mouse_capture = g_variant_get_boolean(value);
-        g_variant_unref(value);
-    }
+    if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_MOUSECAPTURE, &b))
+        unikey->mouse_capture = b;
     // end read Unikey Option
 // end read config value
 
@@ -335,10 +310,10 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
             {
                 unikey->im = Unikey_IM[i];
 
-                ibus_config_set_value(config,
-                                      CONFIG_SECTION, 
-                                      CONFIG_INPUTMETHOD,
-                                      g_variant_new_string(Unikey_IMNames[i]));
+                ibus_unikey_config_set_string(config,
+                                            CONFIG_SECTION, 
+                                            CONFIG_INPUTMETHOD,
+                                            Unikey_IMNames[i]);
 
                 // update label
                 for (j=0; j<unikey->prop_list->properties->len; j++)
@@ -381,10 +356,10 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
             {
                 unikey->oc = Unikey_OC[i];
 
-                ibus_config_set_value(config,
-                                      CONFIG_SECTION, 
-                                      CONFIG_OUTPUTCHARSET,
-                                      g_variant_new_string(Unikey_OCNames[i]));
+                ibus_unikey_config_set_string(config,
+                                            CONFIG_SECTION, 
+                                            CONFIG_OUTPUTCHARSET,
+                                            Unikey_OCNames[i]);
 
                 // update label
                 for (j=0; j<unikey->prop_list->properties->len; j++)
@@ -421,10 +396,10 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
     else if (strcmp(prop_name, CONFIG_SPELLCHECK) == 0)
     {
         unikey->ukopt.spellCheckEnabled = !unikey->ukopt.spellCheckEnabled;
-        ibus_config_set_value(config,
-                              CONFIG_SECTION, 
-                              CONFIG_SPELLCHECK,
-                              g_variant_new_boolean(unikey->ukopt.spellCheckEnabled));
+        ibus_unikey_config_set_boolean(config,
+                                    CONFIG_SECTION, 
+                                    CONFIG_SPELLCHECK,
+                                    unikey->ukopt.spellCheckEnabled);
 
         // update state
         for (j = 0; j < unikey->menu_opt->properties->len ; j++)
@@ -446,10 +421,10 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
     else if (strcmp(prop_name, CONFIG_MACROENABLED) == 0)
     {
         unikey->ukopt.macroEnabled = !unikey->ukopt.macroEnabled;
-        ibus_config_set_value(config,
-                              CONFIG_SECTION, 
-                              CONFIG_MACROENABLED,
-                              g_variant_new_boolean(unikey->ukopt.macroEnabled));
+        ibus_unikey_config_set_boolean(config,
+                                    CONFIG_SECTION, 
+                                    CONFIG_MACROENABLED,
+                                    unikey->ukopt.macroEnabled);
 
         // update state
         for (j = 0; j < unikey->menu_opt->properties->len ; j++)
@@ -472,10 +447,10 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
     {
         unikey->mouse_capture = !unikey->mouse_capture;
 
-        ibus_config_set_value(config,
-                              CONFIG_SECTION, 
-                              CONFIG_MOUSECAPTURE,
-                              g_variant_new_boolean(unikey->mouse_capture));
+        ibus_unikey_config_set_boolean(config,
+                                    CONFIG_SECTION, 
+                                    CONFIG_MOUSECAPTURE,
+                                    unikey->mouse_capture);
 
         // update state
         for (j = 0; j < unikey->menu_opt->properties->len ; j++)

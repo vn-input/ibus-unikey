@@ -2,6 +2,7 @@
 #include <string.h>
 #include <ibus.h>
 
+#include "utils.h"
 #include "dlg_main_setup.h"
 #include "engine_const.h"
 
@@ -30,16 +31,15 @@ static void set_default_config(UnikeyMainSetupOptions* opt)
 void read_config(void *data, UnikeyMainSetupOptions* opt)
 {
     IBusConfig* config = (IBusConfig*)data;
-    GVariant* value = {0};
     gchar* str;
+    gboolean b;
     guint i;
 
     set_default_config(opt);
 
     // get Input method
-    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_INPUTMETHOD)))
+    if (ibus_unikey_config_get_string(config, CONFIG_SECTION, CONFIG_INPUTMETHOD, &str))
     {   
-        str = (gchar *) g_variant_get_string(value, NULL);
         for (i = 0; i < NUM_INPUTMETHOD; i++)
         {   
             if (strcasecmp(str, Unikey_IMNames[i]) == 0)
@@ -48,13 +48,11 @@ void read_config(void *data, UnikeyMainSetupOptions* opt)
                 break;
             }
         }
-        g_variant_unref(value);
     }
 
     // get Output charset
-    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_OUTPUTCHARSET)))
+    if (ibus_unikey_config_get_string(config, CONFIG_SECTION, CONFIG_OUTPUTCHARSET, &str))
     {  
-        str = (gchar *) g_variant_get_string(value, NULL);
         for (i = 0; i < NUM_OUTPUTCHARSET; i++)
         {  
             if (strcasecmp(str, Unikey_OCNames[i]) == 0)
@@ -63,81 +61,59 @@ void read_config(void *data, UnikeyMainSetupOptions* opt)
                 break;
             }
         }
-        g_variant_unref(value);
     }
 
     // get Spellcheck
-    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_SPELLCHECK)))
-    {   
-        opt->enableSpellcheck = g_variant_get_boolean(value);
-        g_variant_unref(value);
-    }
+    if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_SPELLCHECK, &b))
+        opt->enableSpellcheck = b;
 
     // get autoRestoreNonVn
-    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_AUTORESTORENONVN)))
-    {   
-        opt->autoRestoreNonVn = g_variant_get_boolean(value);
-        g_variant_unref(value);
-    }
+    if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_AUTORESTORENONVN, &b))
+        opt->autoRestoreNonVn = b;
 
     // get modernStyle
-    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_MODERNSTYLE)))
-    {   
-        opt->modernStyle = g_variant_get_boolean(value);
-        g_variant_unref(value);
-    }
+    if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_MODERNSTYLE, &b))
+        opt->modernStyle = b;
 
     // get freeMarking
-    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_FREEMARKING)))
-    {   
-        opt->freeMarking = g_variant_get_boolean(value);
-        g_variant_unref(value);
-    }
+    if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_FREEMARKING, &b))
+        opt->freeMarking = b;
 
     // get enableMacro
-    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_MACROENABLED)))
-    {   
-        opt->enableMacro = g_variant_get_boolean(value);
-        g_variant_unref(value);
-    }
+    if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_MACROENABLED, &b))
+        opt->enableMacro = b;
 
     // get ProcessWAtBegin
-    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_PROCESSWATBEGIN)))
-    {   
-        opt->processwatbegin = g_variant_get_boolean(value);
-        g_variant_unref(value);
-    }
+    if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_PROCESSWATBEGIN, &b))
+        opt->processwatbegin = b;
 
     // get MouseCapture
-    if ((value = ibus_config_get_value(config, CONFIG_SECTION, CONFIG_MOUSECAPTURE)))
-    {   
-        opt->mousecapture = g_variant_get_boolean(value);
-        g_variant_unref(value);
-    }
+    if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_MOUSECAPTURE, &b))
+        opt->mousecapture = b;
 }
 
 void write_config(void* data, UnikeyMainSetupOptions* opt)
 {
     IBusConfig* config = (IBusConfig*)data;
 
-    ibus_config_set_value(config, CONFIG_SECTION, CONFIG_INPUTMETHOD,
-                          g_variant_new_string(Unikey_IMNames[opt->input_method]));
-    ibus_config_set_value(config, CONFIG_SECTION, CONFIG_OUTPUTCHARSET,
-                          g_variant_new_string(Unikey_OCNames[opt->output_charset]));
-    ibus_config_set_value(config, CONFIG_SECTION, CONFIG_SPELLCHECK,
-                          g_variant_new_boolean(opt->enableSpellcheck));
-    ibus_config_set_value(config, CONFIG_SECTION, CONFIG_AUTORESTORENONVN,
-                          g_variant_new_boolean(opt->autoRestoreNonVn));
-    ibus_config_set_value(config, CONFIG_SECTION, CONFIG_MODERNSTYLE,
-                          g_variant_new_boolean(opt->modernStyle));
-    ibus_config_set_value(config, CONFIG_SECTION, CONFIG_FREEMARKING,
-                          g_variant_new_boolean(opt->freeMarking));
-    ibus_config_set_value(config, CONFIG_SECTION, CONFIG_MACROENABLED,
-                          g_variant_new_boolean(opt->enableMacro));
-    ibus_config_set_value(config, CONFIG_SECTION, CONFIG_PROCESSWATBEGIN,
-                          g_variant_new_boolean(opt->processwatbegin));
-    ibus_config_set_value(config, CONFIG_SECTION, CONFIG_MOUSECAPTURE,
-                          g_variant_new_boolean(opt->mousecapture));
+    ibus_unikey_config_set_string(config, CONFIG_SECTION, CONFIG_INPUTMETHOD,
+                                    Unikey_IMNames[opt->input_method]);
+    ibus_unikey_config_set_string(config, CONFIG_SECTION, CONFIG_OUTPUTCHARSET,
+                                    Unikey_OCNames[opt->output_charset]);
+    ibus_unikey_config_set_boolean(config, CONFIG_SECTION, CONFIG_SPELLCHECK,
+                                    opt->enableSpellcheck);
+    ibus_unikey_config_set_boolean(config, CONFIG_SECTION, CONFIG_AUTORESTORENONVN,
+                                    opt->autoRestoreNonVn);
+    ibus_unikey_config_set_boolean(config, CONFIG_SECTION, CONFIG_MODERNSTYLE,
+                                    opt->modernStyle);
+    ibus_unikey_config_set_boolean(config, CONFIG_SECTION, CONFIG_FREEMARKING,
+                                    opt->freeMarking);
+    ibus_unikey_config_set_boolean(config, CONFIG_SECTION, CONFIG_MACROENABLED,
+                                    opt->enableMacro);
+    ibus_unikey_config_set_boolean(config, CONFIG_SECTION, CONFIG_PROCESSWATBEGIN,
+                                    opt->processwatbegin);
+    ibus_unikey_config_set_boolean(config, CONFIG_SECTION, CONFIG_MOUSECAPTURE,
+                                    opt->mousecapture);
 }
 
 int force_engine_to_reload_config()
