@@ -29,4 +29,3 @@ libunikey_ibus_la_SOURCES = \
 	vnconv.h \
 	vnlexi.h
 
-

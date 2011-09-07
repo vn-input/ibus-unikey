@@ -1,11 +1,5 @@
 m4_define([package_name], [ibus-unikey])
-m4_define([ibus_unikey_released], [0])
-m4_define([ibus_unikey_major_version], [0])
-m4_define([ibus_unikey_minor_version], [5])
-m4_define([ibus_unikey_micro_version], [1])
-
-m4_define([ibus_unikey_version],
-    ibus_unikey_major_version.ibus_unikey_minor_version.ibus_unikey_micro_version)
+m4_define([ibus_unikey_version], [0.6.0])
 
 AC_INIT([package_name], [ibus_unikey_version], [http://code.google.com/p/ibus-unikey], [package_name])
 AM_INIT_AUTOMAKE([1.10])
@@ -15,12 +9,10 @@ AC_GNU_SOURCE
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
-# define PACKAGE_VERSION_* variables
 AS_VERSION
 AS_NANO
 AM_SANITY_CHECK
 AM_MAINTAINER_MODE
-AM_DISABLE_STATIC
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CXX
@@ -30,14 +22,25 @@ AM_PROG_LIBTOOL
 
 GETTEXT_PACKAGE="$PACKAGE_NAME"
 AC_SUBST(GETTEXT_PACKAGE)
-AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Define to the read-only architecture-independent data directory.])
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE",[Gettext package])
 
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.17])
 IT_PROG_INTLTOOL
 
+
+AC_ARG_WITH(gtk-version,
+    AS_HELP_STRING([--with-gtk-version[=VERSION]],
+                   [Choose GTK version to build with. VERSION=2 or 3 [default=2]]),
+    gtk_version=$with_gtk_version
+)
+AS_IF([test "x$gtk_version" == "x3" || test "x$gtk_version" == "xgtk-3" || test "x$gtk_version" == "xgtk3"],
+    gtk_version="gtk+-3.0",
+    gtk_version="gtk+-2.0 >= 2.12"
+)
+
 PKG_CHECK_MODULES(IBUS, [
-    ibus-1.0 >= 1.3.9
+    ibus-1.0 >= 1.2.99
 ])
 
 PKG_CHECK_MODULES(X11, [
@@ -45,9 +48,9 @@ PKG_CHECK_MODULES(X11, [
 ])
 AC_SUBST(X11)
 
-PKG_CHECK_MODULES(GTK, [
-    gtk+-2.0 >= 2.12
-])
+PKG_CHECK_MODULES(GTK,
+    $gtk_version
+)
 AC_SUBST(GTK)
 
 # OUTPUT files
