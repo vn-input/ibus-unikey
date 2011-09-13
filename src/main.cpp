@@ -117,7 +117,7 @@ int main(gint argc, gchar** argv)
     else if (version)
     {
         g_print(PACKAGE_STRING " (engine component)"
-            "\n  Copyright (C) 2009, 2010 Ubuntu-VN <http://www.ubuntu-vn.org>"
+            "\n  Copyright (C) 2009 - 2011 Ubuntu-VN <http://www.ubuntu-vn.org>"
             "\n  Author: Lê Quốc Tuấn <mr.lequoctuan@gmail.com>"
             "\n  Homepage: <http://ibus-unikey.googlecode.com>"
             "\n  License: GNU GPL3"

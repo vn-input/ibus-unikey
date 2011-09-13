@@ -1,16 +1,16 @@
-INCLUDES = \
-    -I$(top_srcdir)/ukengine \
-    -I$(top_srcdir)/src \
-    -DPKGDATADIR=\"$(pkgdatadir)\" \
-    -DUI_DATA_DIR=\"$(pkgdatadir)/setup\" \
-    -DLOCALEDIR=\"$(localedir)\" \
-    -Wall
-
 ui_DATA = \
     setup-main.ui \
     setup-macro.ui
 
-uidir = $(pkgdatadir)/setup
+uidir = $(pkgdatadir)/ui
+
+INCLUDES = \
+    -I$(top_srcdir)/ukengine \
+    -I$(top_srcdir)/src \
+    -DPKGDATADIR=\"$(pkgdatadir)\" \
+    -DUI_DATA_DIR=\"$(uidir)\" \
+    -DLOCALEDIR=\"$(localedir)\" \
+    -Wall
 
 EXTRA_DIST = $(ui_DATA)
 

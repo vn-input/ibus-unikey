@@ -67,3 +67,10 @@ AC_CONFIG_FILES( po/Makefile.in
 
 AC_OUTPUT
 
+AC_MSG_RESULT([
+Build options:
+    Version         $VERSION
+    Install prefix  $prefix
+    GTK Version     $gtk_version
+])
+
