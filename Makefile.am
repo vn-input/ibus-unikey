@@ -16,6 +16,9 @@ DISTCLEANFILES = \
 	po/stamp-it \
 	$(NULL)
 
+dist-hook:
+	cd po && $(MAKE) $(AM_MAKEFLAGS) update-po
+
 rpm: dist @PACKAGE_NAME@.spec
 	rpmbuild -bb \
 			--define "_sourcedir `pwd`" \
