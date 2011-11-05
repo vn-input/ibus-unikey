@@ -2,6 +2,7 @@
 #include "config.h"
 #endif
 #include <libintl.h>
+#include <stdlib.h>
 
 #include <wait.h>
 #include <string.h>
@@ -104,7 +105,7 @@ void ibus_unikey_init(IBusBus* bus)
 
     mcap_running = TRUE;
     pthread_mutex_init(&mutex_mcap, NULL);
-    pthread_mutex_trylock(&mutex_mcap);
+    pthread_mutex_trylock(&mutex_mcap); // lock mutex after init so mouse capture not start
     pthread_create(&th_mcap, NULL, &thread_mouse_capture, NULL);
     pthread_detach(th_mcap);
 }
@@ -687,14 +688,12 @@ static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const g
     text = ibus_text_new_from_static_string(string);
 
     // underline text
-    //if (!unikey->mouse_capture)
-    {
-        ibus_text_append_attribute(text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, -1);
-    }
+    ibus_text_append_attribute(text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, -1);
 
     // update and display text
     ibus_engine_update_preedit_text(engine, text, ibus_text_get_length(text), visible);
 
+    // every time have preedit text -> unlock mutex -> start capture mouse
     if (unikey->mouse_capture)
     {
         // unlock capture thread (start capture)
@@ -960,20 +959,40 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
 static void* thread_mouse_capture(void* data)
 {
     XEvent event;
-    Window w;
+    int x_old, y_old, x_root_old, y_root_old;
+    uint mask;
+    Window w, w_root_return, w_child_return;
 
     dpy = XOpenDisplay(NULL);
     w = XDefaultRootWindow(dpy);
 
+    XQueryPointer(dpy, w, &w_root_return, &w_child_return, &x_root_old, &y_root_old, &x_old, &y_old, &mask);
     while (mcap_running)
     {
         pthread_mutex_lock(&mutex_mcap);
+        if (!mcap_running)
+            return NULL;
         XGrabPointer(dpy, w, 0, ButtonPressMask | PointerMotionMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
         XPeekEvent(dpy, &event);
-        pthread_mutex_trylock(&mutex_mcap); // set mutex to lock status, so process will wait until next unlock
+        pthread_mutex_trylock(&mutex_mcap); // set mutex to lock status, so this thread will wait until next unlock (by update preedit string)
         XUngrabPointer(dpy, CurrentTime);
         XSync(dpy, TRUE);
-        ibus_unikey_engine_reset((IBusEngine*)unikey);
+
+        if (event.type == MotionNotify) // mouse move
+        {
+            if ((abs(event.xmotion.x_root - x_root_old) >= CAPTURE_MOUSE_MOVE_DELTA) ||
+                (abs(event.xmotion.y_root - y_root_old) >= CAPTURE_MOUSE_MOVE_DELTA)) // mouse move at least CAPTURE_MOUSE_MOVE_DELTA
+            {
+                ibus_unikey_engine_reset((IBusEngine*)unikey);
+
+                x_root_old = event.xmotion.x_root;
+                y_root_old = event.xmotion.y_root;
+            }
+            else // if don't reset -> unlock mutex so mouse continue to be grab
+                pthread_mutex_unlock(&mutex_mcap);
+        }
+        else
+            ibus_unikey_engine_reset((IBusEngine*)unikey);
     }
 
     XCloseDisplay(dpy);

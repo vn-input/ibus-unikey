@@ -7,6 +7,8 @@ SUBDIRS = \
 	po \
 	$(NULL)
 
+MAKEFLAGS = --no-print-directory
+
 ACLOCAL_AMFLAGS = -I m4
 
 EXTRA_DIST = \
