@@ -322,7 +322,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                     prop = ibus_prop_list_get(unikey->prop_list, j);
                     if (prop==NULL)
                         return;
-                    else if (strcmp(prop->key, CONFIG_INPUTMETHOD) == 0)
+                    else if (strcmp(ibus_property_get_key(prop), CONFIG_INPUTMETHOD) == 0)
                     {
                         label = ibus_text_new_from_static_string(Unikey_IMNames[i]);
                         ibus_property_set_label(prop, label);
@@ -336,10 +336,10 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                     prop = ibus_prop_list_get(unikey->menu_im, j);
                     if (prop==NULL)
                         return;
-                    else if (strcmp(prop->key, prop_name)==0)
-                        prop->state = PROP_STATE_CHECKED;
+                    else if (strcmp(ibus_property_get_key(prop), prop_name)==0)
+                        ibus_property_set_state(prop, PROP_STATE_CHECKED);
                     else
-                        prop->state = PROP_STATE_UNCHECKED;
+                        ibus_property_set_state(prop, PROP_STATE_UNCHECKED);
                 } // end update property state
 
                 break;
@@ -368,7 +368,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                     prop = ibus_prop_list_get(unikey->prop_list, j);
                     if (prop==NULL)
                         return;
-                    else if (strcmp(prop->key, CONFIG_OUTPUTCHARSET)==0)
+                    else if (strcmp(ibus_property_get_key(prop), CONFIG_OUTPUTCHARSET)==0)
                     {
                         label = ibus_text_new_from_static_string(Unikey_OCNames[i]);
                         ibus_property_set_label(prop, label);
@@ -382,10 +382,10 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                     prop = ibus_prop_list_get(unikey->menu_oc, j);
                     if (prop==NULL)
                         return;
-                    else if (strcmp(prop->key, prop_name) == 0)
-                        prop->state = PROP_STATE_CHECKED;
+                    else if (strcmp(ibus_property_get_key(prop), prop_name) == 0)
+                        ibus_property_set_state(prop, PROP_STATE_CHECKED);
                     else
-                        prop->state = PROP_STATE_UNCHECKED;
+                        ibus_property_set_state(prop, PROP_STATE_UNCHECKED);
                 } // end update property state
 
                 break;
@@ -409,10 +409,10 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
             if (prop == NULL)
                 return;
 
-            else if (strcmp(prop->key, CONFIG_SPELLCHECK) == 0)
+            else if (strcmp(ibus_property_get_key(prop), CONFIG_SPELLCHECK) == 0)
             {
-                prop->state = (unikey->ukopt.spellCheckEnabled == 1)?
-                    PROP_STATE_CHECKED:PROP_STATE_UNCHECKED;
+                ibus_property_set_state(prop, (unikey->ukopt.spellCheckEnabled == 1)?
+                    PROP_STATE_CHECKED:PROP_STATE_UNCHECKED);
                 break;
             }
         } // end update state
@@ -434,10 +434,10 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
             if (prop == NULL)
                 return;
 
-            else if (strcmp(prop->key, CONFIG_MACROENABLED) == 0)
+            else if (strcmp(ibus_property_get_key(prop), CONFIG_MACROENABLED) == 0)
             {
-                prop->state = (unikey->ukopt.macroEnabled == 1)?
-                    PROP_STATE_CHECKED:PROP_STATE_UNCHECKED;
+                ibus_property_set_state(prop, (unikey->ukopt.macroEnabled == 1)?
+                    PROP_STATE_CHECKED:PROP_STATE_UNCHECKED);
                 break;
             }
         } // end update state
@@ -460,10 +460,10 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
             if (prop == NULL)
                 return;
 
-            else if (strcmp(prop->key, CONFIG_MOUSECAPTURE) == 0)
+            else if (strcmp(ibus_property_get_key(prop), CONFIG_MOUSECAPTURE) == 0)
             {
-                prop->state = (unikey->mouse_capture == 1)?
-                    PROP_STATE_CHECKED:PROP_STATE_UNCHECKED;
+                ibus_property_set_state(prop, (unikey->mouse_capture == 1)?
+                    PROP_STATE_CHECKED:PROP_STATE_UNCHECKED);
                 break;
             }
         } // end update state
