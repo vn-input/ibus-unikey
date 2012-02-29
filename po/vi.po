@@ -6,10 +6,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: ibus-unikey 0.5\n"
+"Project-Id-Version: ibus-unikey 0.6.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-09-24 19:53+0700\n"
-"PO-Revision-Date: 2011-09-24 20:03+0700\n"
+"POT-Creation-Date: 2012-02-29 11:02+0700\n"
+"PO-Revision-Date: 2012-02-29 10:15+0700\n"
 "Last-Translator: Lê Quốc Tuấn <mr.lequoctuan@gmail.com>\n"
 "Language-Team: Vietnamese\n"
 "Language: \n"
@@ -17,56 +17,59 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Poedit-Language: Vietnamese\n"
+"X-Poedit-Country: VIET NAM\n"
+"X-Poedit-SourceCharset: utf-8\n"
 
 #. END create output charset menu
 #. create option menu (for configure unikey)
 #. add option property
 #. --create and add spellcheck property
-#: ../src/engine.cpp:544
+#: ../src/engine.cpp:545
 msgid "Enable spell check"
 msgstr "Bật kiểm tra chính tả"
 
-#: ../src/engine.cpp:545
+#: ../src/engine.cpp:546
 msgid "If enable, you can decrease mistake when typing"
 msgstr "Nếu bật, bạn có thể giảm lỗi chính tả khi gõ"
 
 #. --create and add macroEnabled property
-#: ../src/engine.cpp:560
+#: ../src/engine.cpp:561
 msgid "Enable Macro"
 msgstr "Bật gõ tắt"
 
 #. --create and add MouseCapture property
-#: ../src/engine.cpp:576
+#: ../src/engine.cpp:577
 msgid "Capture mouse event"
 msgstr "Bắt sự kiện chuột"
 
-#: ../src/engine.cpp:577
+#: ../src/engine.cpp:578
 msgid "Auto send PreEdit string to Application when mouse move or click"
 msgstr "Tự động gửi chuỗi PreEdit đến ứng dụng khi chuột di chuyển hoặc click"
 
 #. --create and add Launch Setup GUI property
-#: ../src/engine.cpp:599
+#: ../src/engine.cpp:600
 msgid "Full setup..."
 msgstr "Cài đặt đầy đủ..."
 
-#: ../src/engine.cpp:600
+#: ../src/engine.cpp:601
 msgid "Full setup utility for IBus-Unikey"
 msgstr "Tiện ích cài đặt đầy đủ cho IBus-Unikey"
 
-#: ../src/engine.cpp:623
+#: ../src/engine.cpp:624
 msgid "Choose input method"
 msgstr "Chọn kiểu gõ"
 
-#: ../src/engine.cpp:643
+#: ../src/engine.cpp:644
 msgid "Choose output charset"
 msgstr "Chọn bảng mã"
 
 #. -- add option menu
-#: ../src/engine.cpp:657
+#: ../src/engine.cpp:658
 msgid "Options"
 msgstr "Tùy chọn"
 
-#: ../src/engine.cpp:658
+#: ../src/engine.cpp:659
 msgid "Options for Unikey"
 msgstr "Tùy chọn cho Unikey"
 
@@ -75,16 +78,20 @@ msgid ""
 "Vietnamese Input Method Engine for IBus using Unikey Engine\n"
 "Usage:\n"
 "  - Choose input method, output charset, options in language bar.\n"
-"  - There are 4 input methods: Telex, Vni, STelex (simple telex) and STelex2 (which same as STelex, the difference is it use w as ư).\n"
-"  - And 7 output charsets: Unicode (UTF-8), TCVN3, VNI Win, VIQR, CString, NCR Decimal and NCR Hex.\n"
+"  - There are 4 input methods: Telex, Vni, STelex (simple telex) and STelex2 "
+"(which same as STelex, the difference is it use w as ư).\n"
+"  - And 7 output charsets: Unicode (UTF-8), TCVN3, VNI Win, VIQR, CString, "
+"NCR Decimal and NCR Hex.\n"
 "  - Use <Shift>+<Space> or <Shift>+<Shift> to restore keystrokes.\n"
 "  - Use <Control> to commit a word."
 msgstr ""
 "Bộ gõ tiếng Việt cho IBus dùng Unikey Engine\n"
 "Sử dụng:\n"
 " - Chọn kiểu gõ, bảng mã, tùy chọn trên thanh ngôn ngữ.\n"
-" - Có 4 kiểu gõ: Telex, Vni, STelex (telex đơn giản) và STelex2 (giống như STelex, chỉ khác là nó dùng w như ư).\n"
-" - Và 7 bảng mã: Unicode (UTF-8), TCVN3, VNI Win, VIQR, CString, NCR Decimal và NCR Hex.\n"
+" - Có 4 kiểu gõ: Telex, Vni, STelex (telex đơn giản) và STelex2 (giống như "
+"STelex, chỉ khác là nó dùng w như ư).\n"
+" - Và 7 bảng mã: Unicode (UTF-8), TCVN3, VNI Win, VIQR, CString, NCR Decimal "
+"và NCR Hex.\n"
 " - Dùng <Shift>+<Space> hoặc <Shift>+<Shift> để khôi phục phím.\n"
 " - Dùng <Control> để xác nhận từ (kết thúc từ)."
 
@@ -101,126 +108,125 @@ msgid "Choose file to export"
 msgstr "Chọn tập tin để xuất"
 
 #: ../setup/setup-main.ui.h:1
-msgid "<b>Input/Output</b>"
-msgstr "<b>Nhập/Xuất</b>"
-
-#: ../setup/setup-main.ui.h:2
-msgid "<b>Options</b>"
-msgstr "<b>Tùy chọn</b>"
-
-#: ../setup/setup-main.ui.h:3
-msgid "Allow type with more _freedom"
-msgstr "Cho phép bỏ dấu _tự do"
-
-#: ../setup/setup-main.ui.h:4
-msgid "Auto _restore keys with invalid words"
-msgstr "Tự động _trả phím khi gõ từ không hợp lệ"
-
-#: ../setup/setup-main.ui.h:5
-msgid "BK HCM 2"
-msgstr "BK HCM 2"
-
-#: ../setup/setup-main.ui.h:6
-msgid "CString"
-msgstr "CString"
-
-#: ../setup/setup-main.ui.h:7
-msgid "Capture _mouse event"
-msgstr "Bắt sự _kiện chuột"
-
-#: ../setup/setup-main.ui.h:8
-msgid "Enable _macro"
-msgstr "Bật gõ tắt"
-
-#: ../setup/setup-main.ui.h:9
-msgid "Enable _spell check"
-msgstr "Bật kiểm tra _chính tả"
-
-#: ../setup/setup-main.ui.h:10
-msgid "IBus-Unikey Setup"
-msgstr "Cài đặt IBus-Unikey"
-
-#: ../setup/setup-main.ui.h:11
-msgid "Input method:"
-msgstr "Kiểu gõ: "
-
-#: ../setup/setup-main.ui.h:12
-msgid "NCR Decimal"
-msgstr "NCR Decimal"
-
-#: ../setup/setup-main.ui.h:13
-msgid "NCR Hex"
-msgstr "NCR Hex"
-
-#: ../setup/setup-main.ui.h:14
-msgid "Output charset: "
-msgstr "Bảng mã: "
-
-#: ../setup/setup-main.ui.h:15
-msgid "Process _W at word begin"
-msgstr "Xử lý phím _W ở đầu từ"
-
-#: ../setup/setup-main.ui.h:16
-msgid "Simple Telex"
-msgstr "Simple Telex"
-
-#: ../setup/setup-main.ui.h:17
-msgid "Simple Telex 2"
-msgstr "Simple Telex 2"
-
-#: ../setup/setup-main.ui.h:18
-msgid "TCVN3"
-msgstr "TCVN3"
-
-#: ../setup/setup-main.ui.h:19
 msgid "Telex"
 msgstr "Telex"
 
-#: ../setup/setup-main.ui.h:20
-msgid "Unicode"
-msgstr "Unicode"
-
-#: ../setup/setup-main.ui.h:21
-msgid "Use oà, _uý (instead of òa, úy)"
-msgstr "Dùng oà, _uý (thay vì òa, úy)"
-
-#: ../setup/setup-main.ui.h:22
-msgid "VIQR"
-msgstr "VIQR"
-
-#: ../setup/setup-main.ui.h:23
-msgid "VNI Win"
-msgstr "VNI Win"
-
-#: ../setup/setup-main.ui.h:24
+#: ../setup/setup-main.ui.h:2
 msgid "Vni"
 msgstr "Vni"
 
-#: ../setup/setup-main.ui.h:25
+#: ../setup/setup-main.ui.h:3
+msgid "Simple Telex"
+msgstr "Simple Telex"
+
+#: ../setup/setup-main.ui.h:4
+msgid "Simple Telex 2"
+msgstr "Simple Telex 2"
+
+#: ../setup/setup-main.ui.h:5
+msgid "Unicode"
+msgstr "Unicode"
+
+#: ../setup/setup-main.ui.h:6
+msgid "TCVN3"
+msgstr "TCVN3"
+
+#: ../setup/setup-main.ui.h:7
+msgid "VNI Win"
+msgstr "VNI Win"
+
+#: ../setup/setup-main.ui.h:8
+msgid "VIQR"
+msgstr "VIQR"
+
+#: ../setup/setup-main.ui.h:9
+msgid "BK HCM 2"
+msgstr "BK HCM 2"
+
+#: ../setup/setup-main.ui.h:10
+msgid "CString"
+msgstr "CString"
+
+#: ../setup/setup-main.ui.h:11
+msgid "NCR Decimal"
+msgstr "NCR Decimal"
+
+#: ../setup/setup-main.ui.h:12
+msgid "NCR Hex"
+msgstr "NCR Hex"
+
+#: ../setup/setup-main.ui.h:13
+msgid "IBus-Unikey Setup"
+msgstr "Cài đặt IBus-Unikey"
+
+#: ../setup/setup-main.ui.h:14
+msgid "Input method:"
+msgstr "Kiểu gõ: "
+
+#: ../setup/setup-main.ui.h:15
+msgid "Output charset: "
+msgstr "Bảng mã: "
+
+#: ../setup/setup-main.ui.h:16
+msgid "<b>Input/Output</b>"
+msgstr "<b>Nhập/Xuất</b>"
+
+#: ../setup/setup-main.ui.h:17
+msgid "Enable _spell check"
+msgstr "Bật kiểm tra _chính tả"
+
+#: ../setup/setup-main.ui.h:18
+msgid "Auto _restore keys with invalid words"
+msgstr "Tự động _trả phím khi gõ từ không hợp lệ"
+
+#: ../setup/setup-main.ui.h:19
+msgid "Use oà, _uý (instead of òa, úy)"
+msgstr "Dùng oà, _uý (thay vì òa, úy)"
+
+#: ../setup/setup-main.ui.h:20
+msgid "Allow type with more _freedom"
+msgstr "Cho phép bỏ dấu _tự do"
+
+#: ../setup/setup-main.ui.h:21
+msgid "Enable _macro"
+msgstr "Bật gõ tắt"
+
+#: ../setup/setup-main.ui.h:22
 msgid "_Edit macro"
 msgstr "_Sửa bảng gõ tắt"
 
-#: ../setup/setup-macro.ui.h:1
-msgid "Delete _all"
-msgstr "Xóa _hết"
+#: ../setup/setup-main.ui.h:23
+msgid "Process _W at word begin"
+msgstr "Xử lý phím _W ở đầu từ"
 
-#: ../setup/setup-macro.ui.h:2
+#: ../setup/setup-main.ui.h:24
+msgid "Capture _mouse event"
+msgstr "Bắt sự _kiện chuột"
+
+#: ../setup/setup-main.ui.h:25
+msgid "<b>Options</b>"
+msgstr "<b>Tùy chọn</b>"
+
+#: ../setup/setup-macro.ui.h:1
 msgid "Macro table definition"
 msgstr "Định nghĩa bảng gõ tắt"
+
+#: ../setup/setup-macro.ui.h:2
+msgid "Word"
+msgstr "Từ"
 
 #: ../setup/setup-macro.ui.h:3
 msgid "Replace with"
 msgstr "Thay thế bởi"
 
 #: ../setup/setup-macro.ui.h:4
-msgid "Word"
-msgstr "Từ"
+msgid "Delete _all"
+msgstr "Xóa _hết"
 
 #: ../setup/setup-macro.ui.h:5
-msgid "_Export..."
-msgstr "_Xuất..."
-
-#: ../setup/setup-macro.ui.h:6
 msgid "_Import..."
 msgstr "_Nhập..."
 
+#: ../setup/setup-macro.ui.h:6
+msgid "_Export..."
+msgstr "_Xuất..."

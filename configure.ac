@@ -1,5 +1,5 @@
 m4_define([package_name], [ibus-unikey])
-m4_define([ibus_unikey_version], [0.6.0])
+m4_define([ibus_unikey_version], [0.6.1])
 
 AC_INIT([package_name], [ibus_unikey_version], [http://code.google.com/p/ibus-unikey], [package_name])
 AM_INIT_AUTOMAKE([1.10])
