@@ -2,7 +2,6 @@
 #define __ENGINE_PRIVATE_H__
 
 #include <string>
-#include <X11/Xlib.h>
 #include <ibus.h>
 #include "unikey.h"
 #include "vnconv.h"
