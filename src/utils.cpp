@@ -45,6 +45,7 @@ IBusComponent* ibus_unikey_get_component()
                                            "icon",        PKGDATADIR"/icons/ibus-unikey.png",
                                            "layout",      "us",
                                            "rank",        99,
+                                           "setup",       LIBEXECDIR "/ibus-setup-unikey",
                                            NULL);
 #else
     engine = ibus_engine_desc_new  ("Unikey",
