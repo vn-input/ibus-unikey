@@ -311,11 +311,6 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
             {
                 unikey->im = Unikey_IM[i];
 
-                ibus_unikey_config_set_string(config,
-                                            CONFIG_SECTION, 
-                                            CONFIG_INPUTMETHOD,
-                                            Unikey_IMNames[i]);
-
                 // update label
                 for (j=0; j<unikey->prop_list->properties->len; j++)
                 {
@@ -357,11 +352,6 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
             {
                 unikey->oc = Unikey_OC[i];
 
-                ibus_unikey_config_set_string(config,
-                                            CONFIG_SECTION, 
-                                            CONFIG_OUTPUTCHARSET,
-                                            Unikey_OCNames[i]);
-
                 // update label
                 for (j=0; j<unikey->prop_list->properties->len; j++)
                 {
@@ -397,10 +387,6 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
     else if (strcmp(prop_name, CONFIG_SPELLCHECK) == 0)
     {
         unikey->ukopt.spellCheckEnabled = !unikey->ukopt.spellCheckEnabled;
-        ibus_unikey_config_set_boolean(config,
-                                    CONFIG_SECTION, 
-                                    CONFIG_SPELLCHECK,
-                                    unikey->ukopt.spellCheckEnabled);
 
         // update state
         for (j = 0; j < unikey->menu_opt->properties->len ; j++)
@@ -422,10 +408,6 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
     else if (strcmp(prop_name, CONFIG_MACROENABLED) == 0)
     {
         unikey->ukopt.macroEnabled = !unikey->ukopt.macroEnabled;
-        ibus_unikey_config_set_boolean(config,
-                                    CONFIG_SECTION, 
-                                    CONFIG_MACROENABLED,
-                                    unikey->ukopt.macroEnabled);
 
         // update state
         for (j = 0; j < unikey->menu_opt->properties->len ; j++)
@@ -447,11 +429,6 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
     else if (strcmp(prop_name, CONFIG_MOUSECAPTURE) == 0)
     {
         unikey->mouse_capture = !unikey->mouse_capture;
-
-        ibus_unikey_config_set_boolean(config,
-                                    CONFIG_SECTION, 
-                                    CONFIG_MOUSECAPTURE,
-                                    unikey->mouse_capture);
 
         // update state
         for (j = 0; j < unikey->menu_opt->properties->len ; j++)
