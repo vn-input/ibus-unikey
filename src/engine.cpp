@@ -936,7 +936,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
 static void* thread_mouse_capture(void* data)
 {
     XEvent event;
-    int x_old, y_old, x_root_old, y_root_old;
+    int x_old, y_old, x_root_old, y_root_old, rt;
     uint mask;
     Window w, w_root_return, w_child_return;
 
@@ -949,9 +949,11 @@ static void* thread_mouse_capture(void* data)
         pthread_mutex_lock(&mutex_mcap);
         if (!mcap_running)
             return NULL;
-        XGrabPointer(dpy, w, 0, ButtonPressMask | PointerMotionMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
-        XPeekEvent(dpy, &event);
+        rt = XGrabPointer(dpy, w, 0, ButtonPressMask | PointerMotionMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
         pthread_mutex_trylock(&mutex_mcap); // set mutex to lock status, so this thread will wait until next unlock (by update preedit string)
+        if (rt != 0)
+            continue;
+        XPeekEvent(dpy, &event);
         XUngrabPointer(dpy, CurrentTime);
         XSync(dpy, TRUE);
 
