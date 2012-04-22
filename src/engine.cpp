@@ -8,6 +8,7 @@
 #include <string.h>
 #include <X11/Xlib.h>
 #include <ibus.h>
+#include <time.h>
 
 #include "engine_const.h"
 #include "engine_private.h"
@@ -64,6 +65,7 @@ static unsigned char WordAutoCommit[] =
 
 static IBusEngineClass* parent_class = NULL;
 static IBusConfig*      config       = NULL;
+static time_t           config_time  = 0;
 
 static pthread_t th_mcap;
 static pthread_mutex_t mutex_mcap;
@@ -103,6 +105,8 @@ void ibus_unikey_init(IBusBus* bus)
     UnikeySetup();
     config = ibus_bus_get_config(bus);
 
+    g_signal_connect(config, "value-changed", G_CALLBACK(ibus_unikey_config_value_changed), NULL);
+
     mcap_running = TRUE;
     pthread_mutex_init(&mutex_mcap, NULL);
     pthread_mutex_trylock(&mutex_mcap); // lock mutex after init so mouse capture not start
@@ -139,11 +143,17 @@ static void ibus_unikey_engine_class_init(IBusUnikeyEngineClass* klass)
 
 static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
 {
+    ibus_unikey_engine_load_config(unikey);
+
+    unikey->preeditstr = new std::string();
+    ibus_unikey_engine_create_property_list(unikey);
+}
+
+static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey)
+{
     gchar* str;
     gboolean b;
     guint i;
-
-    unikey->preeditstr = new std::string();
 
 //set default options
     unikey->im = Unikey_IM[0];
@@ -156,8 +166,6 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     unikey->process_w_at_begin          = DEFAULT_CONF_PROCESSWATBEGIN;
     unikey->mouse_capture               = DEFAULT_CONF_MOUSECAPTURE;
 
-// read config value
-    // read Input Method
     if (ibus_unikey_config_get_string(config, CONFIG_SECTION, CONFIG_INPUTMETHOD, &str))
     {
         for (i = 0; i < NUM_INPUTMETHOD; i++)
@@ -168,9 +176,8 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
                 break;
             }
         }
-    } // end read Input Method
+    }
 
-    // read Output Charset
     if (ibus_unikey_config_get_string(config, CONFIG_SECTION, CONFIG_OUTPUTCHARSET, &str))
     {
         for (i = 0; i < NUM_OUTPUTCHARSET; i++)
@@ -181,45 +188,35 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
                 break;
             }
         }
-    } // end read Output Charset
+    }
 
-    // read Unikey Option
-    // freemarking
     if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_FREEMARKING, &b))
         unikey->ukopt.freeMarking = b;
 
-    // modernstyle
     if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_MODERNSTYLE, &b))
         unikey->ukopt.modernStyle = b;
 
-    // macroEnabled
     if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_MACROENABLED, &b))
         unikey->ukopt.macroEnabled = b;
 
-    // spellCheckEnabled
     if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_SPELLCHECK, &b))
         unikey->ukopt.spellCheckEnabled = b;
 
-    // autoNonVnRestore
     if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_AUTORESTORENONVN, &b))
         unikey->ukopt.autoNonVnRestore = b;
 
-    // ProcessWAtBegin
     if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_PROCESSWATBEGIN, &b))
         unikey->process_w_at_begin = b;
 
-    // MouseCapture
     if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_MOUSECAPTURE, &b))
         unikey->mouse_capture = b;
-    // end read Unikey Option
-// end read config value
 
     // load macro
     gchar* fn = get_macro_file();
     UnikeyLoadMacroTable(fn);
     g_free(fn);
 
-    ibus_unikey_engine_create_property_list(unikey);
+    unikey->last_load_config = time(NULL);
 }
 
 static GObject* ibus_unikey_engine_constructor(GType type,
@@ -248,6 +245,12 @@ static void ibus_unikey_engine_focus_in(IBusEngine* engine)
 {
     unikey = (IBusUnikeyEngine*)engine;
 
+    if (unikey->last_load_config < config_time)
+    {
+        ibus_unikey_engine_load_config(unikey);
+        ibus_unikey_engine_create_property_list(unikey);
+    }
+
     UnikeySetInputMethod(unikey->im);
     UnikeySetOutputCharset(unikey->oc);
 
@@ -274,8 +277,6 @@ static void ibus_unikey_engine_reset(IBusEngine* engine)
         ibus_engine_hide_preedit_text(engine);
         ibus_unikey_engine_commit_string(engine, unikey->preeditstr->c_str());
         unikey->preeditstr->clear();
-        //XWarpPointer(dpy, None, None, 0, 0, 0, 0, 0, 0); // emulate a mouse move
-        //XFlush(dpy);
     }
 
     parent_class->reset(engine);
@@ -289,6 +290,18 @@ static void ibus_unikey_engine_enable(IBusEngine* engine)
 static void ibus_unikey_engine_disable(IBusEngine* engine)
 {
     parent_class->disable(engine);
+}
+
+static void ibus_unikey_config_value_changed(IBusConfig *config,
+                                             gchar      *section,
+                                             gchar      *name,
+                                             GVariant   *value,
+                                             gpointer    user_data)
+{
+    if (strcmp(section, CONFIG_SECTION) == 0)
+    {
+        config_time = time(NULL);
+    }
 }
 
 static void ibus_unikey_engine_property_activate(IBusEngine* engine,
@@ -450,13 +463,14 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
     // if Run setup
     else if (strcmp(prop_name, "RunSetupGUI") == 0)
     {
-        pthread_t pid;
-        pthread_create(&pid, NULL, &thread_run_setup, NULL);
-        pthread_detach(pid);
+        system(LIBEXECDIR "/ibus-setup-unikey &");
     } // END Run setup
 
-    ibus_unikey_engine_focus_out(engine);
-    ibus_unikey_engine_focus_in(engine);
+    ibus_unikey_engine_reset(engine);
+
+    UnikeySetInputMethod(unikey->im);
+    UnikeySetOutputCharset(unikey->oc);
+    UnikeySetOptions(&unikey->ukopt);
 }
 
 static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
@@ -466,12 +480,15 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
     gchar name[32];
     guint i;
 
-    unikey->prop_list = ibus_prop_list_new();
-    unikey->menu_im   = ibus_prop_list_new();
-    unikey->menu_oc   = ibus_prop_list_new();
-    unikey->menu_opt  = ibus_prop_list_new();
+    if (unikey->prop_list == NULL)
+    {
+        unikey->prop_list = ibus_prop_list_new();
+        unikey->menu_im   = ibus_prop_list_new();
+        unikey->menu_oc   = ibus_prop_list_new();
+        unikey->menu_opt  = ibus_prop_list_new();
 
-    g_object_ref_sink(unikey->prop_list);
+        g_object_ref_sink(unikey->prop_list);
+    }
 
 // create input method menu
     // add item
@@ -490,7 +507,8 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                                  Unikey_IM[i]==unikey->im?PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
                                  NULL);
 
-        ibus_prop_list_append(unikey->menu_im, prop);
+        if (ibus_prop_list_update_property(unikey->menu_im, prop) == false)
+            ibus_prop_list_append(unikey->menu_im, prop);
     }
 // END create input method menu
 
@@ -511,7 +529,8 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                                  Unikey_OC[i]==unikey->oc?PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
                                  NULL);
 
-        ibus_prop_list_append(unikey->menu_oc, prop);
+        if (ibus_prop_list_update_property(unikey->menu_oc, prop) == false)
+            ibus_prop_list_append(unikey->menu_oc, prop);
     }
 // END create output charset menu
 
@@ -532,7 +551,8 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                              PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
                              NULL);
 
-    ibus_prop_list_append(unikey->menu_opt, prop);
+    if (ibus_prop_list_update_property(unikey->menu_opt, prop) == false)
+        ibus_prop_list_append(unikey->menu_opt, prop);
 
     // --create and add macroEnabled property
     label = ibus_text_new_from_static_string(_("Enable Macro"));
@@ -548,7 +568,8 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                              PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
                              NULL);
 
-    ibus_prop_list_append(unikey->menu_opt, prop);
+    if (ibus_prop_list_update_property(unikey->menu_opt, prop) == false)
+        ibus_prop_list_append(unikey->menu_opt, prop);
 
     // --create and add MouseCapture property
     label = ibus_text_new_from_static_string(_("Capture mouse event"));
@@ -564,14 +585,15 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                              PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
                              NULL);
 
-    ibus_prop_list_append(unikey->menu_opt, prop);
-
+    if (ibus_prop_list_update_property(unikey->menu_opt, prop) == false)
+        ibus_prop_list_append(unikey->menu_opt, prop);
 
     // --separator
     prop = ibus_property_new("", PROP_TYPE_SEPARATOR,
                              NULL, "", NULL, TRUE, TRUE,
                              PROP_STATE_UNCHECKED, NULL);
-    ibus_prop_list_append(unikey->menu_opt, prop);
+    if (ibus_prop_list_update_property(unikey->menu_opt, prop) == false)
+        ibus_prop_list_append(unikey->menu_opt, prop);
 
     // --create and add Launch Setup GUI property
     label = ibus_text_new_from_static_string(_("Full setup..."));
@@ -586,7 +608,8 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                              PROP_STATE_UNCHECKED,
                              NULL);
 
-    ibus_prop_list_append(unikey->menu_opt, prop);
+    if (ibus_prop_list_update_property(unikey->menu_opt, prop) == false)
+        ibus_prop_list_append(unikey->menu_opt, prop);
 // END create option menu
 
 // create top menu
@@ -609,7 +632,8 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                              PROP_STATE_UNCHECKED,
                              unikey->menu_im);
 
-    ibus_prop_list_append(unikey->prop_list, prop);
+    if (ibus_prop_list_update_property(unikey->prop_list, prop) == false)
+        ibus_prop_list_append(unikey->prop_list, prop);
 
     // -- add output charset menu
     for (i = 0; i < NUM_OUTPUTCHARSET; i++)
@@ -629,7 +653,8 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                              PROP_STATE_UNCHECKED,
                              unikey->menu_oc);
 
-    ibus_prop_list_append(unikey->prop_list, prop);
+    if (ibus_prop_list_update_property(unikey->prop_list, prop) == false)
+        ibus_prop_list_append(unikey->prop_list, prop);
 
     // -- add option menu
     label = ibus_text_new_from_static_string(_("Options"));
@@ -644,7 +669,8 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
                              PROP_STATE_UNCHECKED,
                              unikey->menu_opt);
 
-    ibus_prop_list_append(unikey->prop_list, prop);
+    if (ibus_prop_list_update_property(unikey->prop_list, prop) == false)
+        ibus_prop_list_append(unikey->prop_list, prop);
 // end top menu
 }
 
@@ -659,8 +685,6 @@ static void ibus_unikey_engine_commit_string(IBusEngine *engine, const gchar *st
 static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const gchar *string, gboolean visible)
 {
     IBusText *text;
-
-    unikey = (IBusUnikeyEngine*)engine;
 
     text = ibus_text_new_from_static_string(string);
 
@@ -683,7 +707,6 @@ static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars)
     int i, k;
     guchar c;
 
-    unikey = (IBusUnikeyEngine*)engine;
     k = num_chars;
 
     for ( i = unikey->preeditstr->length()-1; i >= 0 && k > 0; i--)
@@ -976,17 +999,6 @@ static void* thread_mouse_capture(void* data)
 
     XCloseDisplay(dpy);
 
-    return NULL;
-}
-
-static void* thread_run_setup(void* data)
-{
-    int stat;
-    
-    popen(LIBEXECDIR "/ibus-setup-unikey --engine", "r");
-    wait(&stat);
-    if (stat == 0)
-        ibus_quit();
     return NULL;
 }
 

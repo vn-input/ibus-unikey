@@ -13,12 +13,10 @@
 
 #define _(string) gettext(string)
 
-static gboolean engine = FALSE;
 static gboolean version = FALSE;
 
 static const GOptionEntry entries[] =
 {
-    { "engine", 'x', 0, G_OPTION_ARG_NONE, &engine, "indicate setup run from ibus-engine-unikey", NULL },
     { "version", 'V', 0, G_OPTION_ARG_NONE, &version, "print ibus-unikey version", NULL },
     { NULL },
 };
@@ -77,8 +75,6 @@ int main(int argc, char** argv)
     {
         unikey_main_setup_get_values(GTK_DIALOG(main_dlg), &opt); // get config from dialog
         write_config(config, &opt);
-        if (!engine)
-            force_engine_to_reload_config();
         return 0;
     }
 

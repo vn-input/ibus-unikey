@@ -27,6 +27,7 @@ struct _IBusUnikeyEngine
 
     gboolean auto_commit;
     gboolean last_key_with_shift;
+    time_t last_load_config;
 
     std::string* preeditstr;
 };
@@ -55,6 +56,12 @@ static void ibus_unikey_engine_focus_out(IBusEngine* engine);
 static void ibus_unikey_engine_reset(IBusEngine* engine);
 static void ibus_unikey_engine_enable(IBusEngine* engine);
 static void ibus_unikey_engine_disable(IBusEngine* engine);
+static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey);
+static void ibus_unikey_config_value_changed(IBusConfig *config,
+                                             gchar      *section,
+                                             gchar      *name,
+                                             GVariant   *value,
+                                             gpointer    user_data);
 static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                                                  const gchar* prop_name,
                                                  guint prop_state);
@@ -70,6 +77,6 @@ static void ibus_unikey_engine_commit_string(IBusEngine *engine, const gchar *st
 static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const gchar *string, gboolean visible);
 static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars);
 static void* thread_mouse_capture(void* data);
-static void* thread_run_setup(void* data);
+
 #endif
 
