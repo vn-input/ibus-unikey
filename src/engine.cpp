@@ -8,7 +8,6 @@
 #include <string.h>
 #include <X11/Xlib.h>
 #include <ibus.h>
-#include <time.h>
 
 #include "engine_const.h"
 #include "engine_private.h"
@@ -23,28 +22,6 @@
 #define _(string) gettext(string)
 
 #define CONVERT_BUF_SIZE 1024
-
-const gchar*          Unikey_IMNames[]    = {"Telex", "Vni", "STelex", "STelex2"};
-const UkInputMethod   Unikey_IM[]         = {UkTelex, UkVni, UkSimpleTelex, UkSimpleTelex2};
-const unsigned int    NUM_INPUTMETHOD     = sizeof(Unikey_IM)/sizeof(Unikey_IM[0]);
-
-const gchar*          Unikey_OCNames[]    = {"Unicode",
-                                             "TCVN3",
-                                             "VNI Win",
-                                             "VIQR",
-                                             "BK HCM 2",
-                                             "CString",
-                                             "NCR Decimal",
-                                             "NCR Hex"};
-const unsigned int    Unikey_OC[]         = {CONV_CHARSET_XUTF8,
-                                             CONV_CHARSET_TCVN3,
-                                             CONV_CHARSET_VNIWIN,
-                                             CONV_CHARSET_VIQR,
-                                             CONV_CHARSET_BKHCM2,
-                                             CONV_CHARSET_UNI_CSTRING,
-                                             CONV_CHARSET_UNIREF,
-                                             CONV_CHARSET_UNIREF_HEX};
-const unsigned int    NUM_OUTPUTCHARSET   = sizeof(Unikey_OC)/sizeof(Unikey_OC[0]);
 
 static unsigned char WordBreakSyms[] =
 {
@@ -65,7 +42,7 @@ static unsigned char WordAutoCommit[] =
 
 static IBusEngineClass* parent_class = NULL;
 static IBusConfig*      config       = NULL;
-static time_t           config_time  = 0;
+static guint            config_time  = 0;
 
 static pthread_t th_mcap;
 static pthread_mutex_t mutex_mcap;
@@ -216,7 +193,7 @@ static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey)
     UnikeyLoadMacroTable(fn);
     g_free(fn);
 
-    unikey->last_load_config = time(NULL);
+    unikey->last_load_config = 0;
 }
 
 static GObject* ibus_unikey_engine_constructor(GType type,
@@ -300,7 +277,7 @@ static void ibus_unikey_config_value_changed(IBusConfig *config,
 {
     if (strcmp(section, CONFIG_SECTION) == 0)
     {
-        config_time = time(NULL);
+        config_time += 1;
     }
 }
 

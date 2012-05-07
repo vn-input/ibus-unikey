@@ -1,159 +1,156 @@
 #include <gtk/gtk.h>
+#include <ibus.h>
+#include <string.h>
 
 #include "dlg_macro_table.h"
 #include "dlg_main_setup.h"
+#include "engine_const.h"
+#include "utils.h"
 
-enum {COL_IM_NAME = 0};
-enum {COL_OC_NAME = 0};
+static void init_dialog_controls(GtkBuilder*);
+static void input_method_combo_box_changed_cb(GtkComboBox*, gpointer);
+static void output_charset_combo_box_changed_cb(GtkComboBox*, gpointer);
+static void update_config_toggle_cb(GtkToggleButton*, gpointer);
+static void macro_edit_button_cb(GtkButton*, gpointer);
 
-void macro_enable_toggle_cb(GtkToggleButton* btn, gpointer user_data);
-void macro_edit_button_cb(GtkButton* btn, gpointer user_data);
-
+static IBusConfig* config;
 
 GtkWidget* unikey_main_setup_dialog_new()
 {
-    GtkBuilder* builder = gtk_builder_new();
+    GtkBuilder* builder;
+    IBusBus* bus;
+    GtkDialog* dlgMain;
 
+    ibus_init();
+    bus = ibus_bus_new();
+    g_signal_connect(bus, "disconnected", G_CALLBACK(gtk_main_quit), NULL);
+    config = ibus_bus_get_config(bus);
+    
+    builder = gtk_builder_new();
     gtk_builder_add_from_file(builder, UI_DATA_DIR "/setup-main.ui", NULL);
 
-    GtkDialog* dlg = GTK_DIALOG(gtk_builder_get_object(builder, "dlg_main_setup"));
+    dlgMain = GTK_DIALOG(gtk_builder_get_object(builder, "dlg_main_setup"));
 
-    // set callback
-    GtkWidget* btn = GTK_WIDGET(gtk_builder_get_object(builder, "btn_macroedit")); // macro_edit button
-    g_signal_connect(btn, "clicked", G_CALLBACK(macro_edit_button_cb), dlg);
-
-    GtkWidget* wid = GTK_WIDGET(gtk_builder_get_object(builder, "check_macroenable")); // enable macro checkbox
-    g_signal_connect(wid, "toggled", G_CALLBACK(macro_enable_toggle_cb), btn);
-    // END set callback
-
-    // save object pointer for future use
-    g_object_set_data(G_OBJECT(dlg),
-                      "cbb_input_method",
-                      gtk_builder_get_object(builder, "cbb_input_method"));
-    g_object_set_data(G_OBJECT(dlg),
-                      "cbb_output_charset",
-                      gtk_builder_get_object(builder, "cbb_output_charset"));
-    g_object_set_data(G_OBJECT(dlg), "check_macroenable", wid);
-    g_object_set_data(G_OBJECT(dlg), "btn_macroedit", btn);
-    g_object_set_data(G_OBJECT(dlg),
-                      "check_spellcheck",
-                      gtk_builder_get_object(builder, "check_spellcheck"));
-    g_object_set_data(G_OBJECT(dlg),
-                      "check_autorestorenonvn",
-                      gtk_builder_get_object(builder, "check_autorestorenonvn"));
-    g_object_set_data(G_OBJECT(dlg),
-                      "check_modernstyle",
-                      gtk_builder_get_object(builder, "check_modernstyle"));
-    g_object_set_data(G_OBJECT(dlg),
-                      "check_freemarking",
-                      gtk_builder_get_object(builder, "check_freemarking"));
-    g_object_set_data(G_OBJECT(dlg),
-                      "check_processwatbegin",
-                      gtk_builder_get_object(builder, "check_processwatbegin"));
-    g_object_set_data(G_OBJECT(dlg),
-                      "check_mousecapture",
-                      gtk_builder_get_object(builder, "check_mousecapture"));
-
-    // END save object pointer
+    init_dialog_controls(builder);
 
     g_object_unref(builder);
 
-    return GTK_WIDGET(dlg);
+    return GTK_WIDGET(dlgMain);
 }
 
-void unikey_main_setup_set_values(const GtkDialog* dlg, const UnikeyMainSetupOptions *opt)
+void init_dialog_controls(GtkBuilder* builder)
 {
     GtkWidget* wid;
+    guint i;
+    gchar* str;
+    gboolean b;
+    GtkListStore* ls;
+    GtkTreeIter iter;
 
-// set input method
-    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "cbb_input_method"));
-    gtk_combo_box_set_active(GTK_COMBO_BOX(wid), opt->input_method);
+    // fill inputmethod
+    ls = GTK_LIST_STORE(gtk_builder_get_object(builder, "list_input_method"));
+    gtk_list_store_clear(ls);
+    for (i = 0; i < NUM_INPUTMETHOD; i++)
+    {
+        gtk_list_store_append(ls, &iter);
+        gtk_list_store_set(ls, &iter, 0, Unikey_IMNames[i], -1);
+    }
 
-// set output charset
-    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "cbb_output_charset"));
-    gtk_combo_box_set_active(GTK_COMBO_BOX(wid), opt->output_charset);
+    // fill outputcharset
+    ls = GTK_LIST_STORE(gtk_builder_get_object(builder, "list_output_charset"));
+    gtk_list_store_clear(ls);
+    for (i = 0; i < NUM_OUTPUTCHARSET; i++)
+    {
+        gtk_list_store_append(ls, &iter);
+        gtk_list_store_set(ls, &iter, 0, Unikey_OCNames[i], -1);
+    }
 
-// set spellcheck?
-    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_spellcheck"));
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wid), opt->enableSpellcheck);
+    wid = GTK_WIDGET(gtk_builder_get_object(builder, "cbb_input_method"));
+    g_signal_connect(wid, "changed", G_CALLBACK(input_method_combo_box_changed_cb), NULL);
+    i = 0;
+    if (ibus_unikey_config_get_string(config, CONFIG_SECTION, CONFIG_INPUTMETHOD, &str))
+    {   
+        for (; i < NUM_INPUTMETHOD; i++)
+        {   
+            if (strcasecmp(str, Unikey_IMNames[i]) == 0) break;
+        }   
+    }
+    gtk_combo_box_set_active(GTK_COMBO_BOX(wid), i);
 
-// set autorestorenonvn?
-    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_autorestorenonvn"));
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wid), opt->autoRestoreNonVn);
+    wid = GTK_WIDGET(gtk_builder_get_object(builder, "cbb_output_charset"));
+    g_signal_connect(wid, "changed", G_CALLBACK(output_charset_combo_box_changed_cb), NULL);
+    i = 0;
+    if (ibus_unikey_config_get_string(config, CONFIG_SECTION, CONFIG_OUTPUTCHARSET, &str))
+    {   
+        for (; i < NUM_OUTPUTCHARSET; i++)
+        {   
+            if (strcasecmp(str, Unikey_OCNames[i]) == 0) break;
+        }   
+    }
+    gtk_combo_box_set_active(GTK_COMBO_BOX(wid), i);
 
-// set modernstyle?
-    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_modernstyle"));
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wid), opt->modernStyle);
+    wid = GTK_WIDGET(gtk_builder_get_object(builder, "check_spellcheck"));
+    g_signal_connect(wid, "toggled", G_CALLBACK(update_config_toggle_cb), (void*)CONFIG_SPELLCHECK);
+    if (!ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_SPELLCHECK, &b))
+        b = DEFAULT_CONF_SPELLCHECK;
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wid), b);
 
-// set freemarking?
-    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_freemarking"));
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wid), opt->freeMarking);
+    wid = GTK_WIDGET(gtk_builder_get_object(builder, "check_autorestorenonvn"));
+    g_signal_connect(wid, "toggled", G_CALLBACK(update_config_toggle_cb), (void*)CONFIG_AUTORESTORENONVN);
+    if (!ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_AUTORESTORENONVN, &b))
+        b = DEFAULT_CONF_AUTONONVNRESTORE;
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wid), b);
 
-// set macroenable?
-    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_macroenable"));
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wid), opt->enableMacro);
+    wid = GTK_WIDGET(gtk_builder_get_object(builder, "check_modernstyle"));
+    g_signal_connect(wid, "toggled", G_CALLBACK(update_config_toggle_cb), (void*)CONFIG_MODERNSTYLE);
+    if (!ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_MODERNSTYLE, &b))
+        b = DEFAULT_CONF_MODERNSTYLE;
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wid), b);
 
-// if disable macro, disable btn_macroedit
-    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "btn_macroedit"));
-    gtk_widget_set_sensitive(wid, opt->enableMacro);
+    wid = GTK_WIDGET(gtk_builder_get_object(builder, "check_freemarking"));
+    g_signal_connect(wid, "toggled", G_CALLBACK(update_config_toggle_cb), (void*)CONFIG_FREEMARKING);
+    if (!ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_FREEMARKING, &b))
+        b = DEFAULT_CONF_FREEMARKING;
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wid), b);
 
-// set processwatbegin?
-    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_processwatbegin"));
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wid), opt->processwatbegin);
+    wid = GTK_WIDGET(gtk_builder_get_object(builder, "check_macroenable"));
+    g_signal_connect(wid, "toggled", G_CALLBACK(update_config_toggle_cb), (void*)CONFIG_MACROENABLED);
+    if (!ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_MACROENABLED, &b))
+        b = DEFAULT_CONF_MACROENABLED;
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wid), b);
 
-// set mousecapture?
-    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_mousecapture"));
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wid), opt->mousecapture);
+    wid = GTK_WIDGET(gtk_builder_get_object(builder, "check_processwatbegin"));
+    g_signal_connect(wid, "toggled", G_CALLBACK(update_config_toggle_cb), (void*)CONFIG_PROCESSWATBEGIN);
+    if (!ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_PROCESSWATBEGIN, &b))
+        b = DEFAULT_CONF_PROCESSWATBEGIN;
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wid), b);
 
-// set macro file name data
-    g_object_set_data(G_OBJECT(dlg), "macrofile", opt->macrofile);
+    wid = GTK_WIDGET(gtk_builder_get_object(builder, "check_mousecapture"));
+    g_signal_connect(wid, "toggled", G_CALLBACK(update_config_toggle_cb), (void*)CONFIG_MOUSECAPTURE);
+    if (!ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_MOUSECAPTURE, &b))
+        b = DEFAULT_CONF_MOUSECAPTURE;
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(wid), b);
+
+    wid = GTK_WIDGET(gtk_builder_get_object(builder, "btn_macroedit"));
+    g_signal_connect(wid, "clicked", G_CALLBACK(macro_edit_button_cb), gtk_builder_get_object(builder, "dlg_main_setup"));
 }
 
-void unikey_main_setup_get_values(const GtkDialog* dlg, UnikeyMainSetupOptions *opt)
+void input_method_combo_box_changed_cb(GtkComboBox* cbb, gpointer user_data)
 {
-    GtkWidget* wid;
-
-// get input method
-    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "cbb_input_method"));
-    opt->input_method = gtk_combo_box_get_active(GTK_COMBO_BOX(wid));
-
-// get output charset
-    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "cbb_output_charset"));
-    opt->output_charset = gtk_combo_box_get_active(GTK_COMBO_BOX(wid));
-
-// get spellcheck?
-    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_spellcheck"));
-    opt->enableSpellcheck = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(wid));
-
-// get autorestorenonvn?
-    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_autorestorenonvn"));
-    opt->autoRestoreNonVn = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(wid));
-
-// get modernstyle?
-    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_modernstyle"));
-    opt->modernStyle = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(wid));
-
-// get freemarking?
-    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_freemarking"));
-    opt->freeMarking = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(wid));
-
-// get macroenable?
-    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_macroenable"));
-    opt->enableMacro = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(wid));
-
-// get processwatbegin?
-    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_processwatbegin"));
-    opt->processwatbegin = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(wid));
-
-// get mousecapture?
-    wid = GTK_WIDGET(g_object_get_data(G_OBJECT(dlg), "check_mousecapture"));
-    opt->mousecapture = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(wid));
+    gint s = gtk_combo_box_get_active(cbb);
+    ibus_unikey_config_set_string(config, CONFIG_SECTION, CONFIG_INPUTMETHOD, Unikey_IMNames[s]);
 }
 
-void macro_enable_toggle_cb(GtkToggleButton* btn, gpointer user_data)
+void output_charset_combo_box_changed_cb(GtkComboBox* cbb, gpointer user_data)
+{
+    gint s = gtk_combo_box_get_active(cbb);
+    ibus_unikey_config_set_string(config, CONFIG_SECTION, CONFIG_OUTPUTCHARSET, Unikey_OCNames[s]);
+}
+
+void update_config_toggle_cb(GtkToggleButton* btn, gpointer user_data)
 {
     gboolean b = gtk_toggle_button_get_active(btn);
-    gtk_widget_set_sensitive(GTK_WIDGET(user_data), b);
+    ibus_unikey_config_set_boolean(config, CONFIG_SECTION, (gchar*)user_data, b);
 }
 
 void macro_edit_button_cb(GtkButton* btn, gpointer user_data)
@@ -164,7 +161,7 @@ void macro_edit_button_cb(GtkButton* btn, gpointer user_data)
 
     GtkWidget* dlg = unikey_macro_dialog_new();
 
-    gchar* macrofile = (gchar*)(g_object_get_data(G_OBJECT(parent_dlg), "macrofile"));
+    gchar* macrofile = get_macro_file();
 
     CMacroTable macro;
     macro.init();
@@ -187,6 +184,8 @@ void macro_edit_button_cb(GtkButton* btn, gpointer user_data)
 
         macro.writeToFile(macrofile);
     }
+
+    g_free(macrofile);
 
     gtk_widget_destroy(dlg);
 

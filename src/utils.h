@@ -4,6 +4,13 @@
 #include "ukengine.h"
 #include "engine_const.h"
 
+extern const gchar*          Unikey_IMNames[];
+extern const UkInputMethod   Unikey_IM[];
+extern const unsigned int    NUM_INPUTMETHOD;
+extern const gchar*          Unikey_OCNames[];
+extern const unsigned int    Unikey_OC[];
+extern const unsigned int    NUM_OUTPUTCHARSET;
+
 IBusComponent* ibus_unikey_get_component();
 int latinToUtf(unsigned char* dst, unsigned char* src, int inSize, int* pOutSize);
 

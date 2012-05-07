@@ -19,14 +19,11 @@ libexec_PROGRAMS = ibus-setup-unikey
 ibus_setup_unikey_SOURCES = \
     setup.cpp \
     dlg_main_setup.cpp \
-    dlg_macro_table.cpp \
-    config_utils.cpp
+    dlg_macro_table.cpp
 
 noinst_HEADERS = \
     dlg_main_setup.h \
-    dlg_macro_table.h \
-    config_utils.h
-
+    dlg_macro_table.h
 
 ibus_setup_unikey_CXXFLAGS = \
     @IBUS_CFLAGS@ \

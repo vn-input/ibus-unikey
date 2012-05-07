@@ -36,7 +36,7 @@ AC_ARG_WITH(gtk-version,
 )
 AS_IF([test "x$gtk_version" == "x3" || test "x$gtk_version" == "xgtk-3" || test "x$gtk_version" == "xgtk3"],
     gtk_version="gtk+-3.0",
-    gtk_version="gtk+-2.0 >= 2.12"
+    gtk_version="gtk+-2.0 >= 2.16"
 )
 
 PKG_CHECK_MODULES(IBUS, [
