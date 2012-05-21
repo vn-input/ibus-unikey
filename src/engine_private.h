@@ -27,7 +27,7 @@ struct _IBusUnikeyEngine
 
     gboolean auto_commit;
     gboolean last_key_with_shift;
-    time_t last_load_config;
+    guint last_load_config;
 
     std::string* preeditstr;
 };

@@ -1,6 +1,6 @@
-INCLUDES = -Wall
+AM_CXXFLAGS = -Wall -funsigned-char
 
-EXTRA_DIST                  = README COPYING
+EXTRA_DIST             = README COPYING
 
 noinst_LTLIBRARIES     = libunikey-ibus.la
 
