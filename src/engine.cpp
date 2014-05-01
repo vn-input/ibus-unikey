@@ -4,7 +4,7 @@
 #include <libintl.h>
 #include <stdlib.h>
 
-#include <wait.h>
+#include <sys/wait.h>
 #include <string.h>
 #include <X11/Xlib.h>
 #include <ibus.h>
