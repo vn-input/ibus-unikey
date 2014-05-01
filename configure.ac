@@ -34,7 +34,7 @@ AC_ARG_WITH(gtk-version,
                    [Choose GTK version to build with. VERSION=2 or 3 [default=2]]),
     gtk_version=$with_gtk_version
 )
-AS_IF([test "x$gtk_version" == "x3" || test "x$gtk_version" == "xgtk-3" || test "x$gtk_version" == "xgtk3"],
+AS_IF([test "x$gtk_version" = "x3" || test "x$gtk_version" = "xgtk-3" || test "x$gtk_version" = "xgtk3"],
     gtk_version="gtk+-3.0",
     gtk_version="gtk+-2.0 >= 2.16"
 )
