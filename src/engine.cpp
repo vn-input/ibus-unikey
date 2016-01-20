@@ -672,7 +672,8 @@ static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const g
     ibus_text_append_attribute(text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, -1);
 
     // update and display text
-    ibus_engine_update_preedit_text(engine, text, ibus_text_get_length(text), visible);
+    //ibus_engine_update_preedit_text(engine, text, ibus_text_get_length(text), visible);
+    ibus_engine_update_preedit_text_with_mode(engine, text, ibus_text_get_length(text), visible, IBUS_ENGINE_PREEDIT_COMMIT);
 
     // every time have preedit text -> unlock mutex -> start capture mouse
 //    if (unikey->mouse_capture)
