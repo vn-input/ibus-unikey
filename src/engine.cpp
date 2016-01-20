@@ -82,7 +82,7 @@ void ibus_unikey_init(IBusBus* bus)
     UnikeySetup();
     config = ibus_bus_get_config(bus);
 
-    g_signal_connect(config, "value-changed", G_CALLBACK(ibus_unikey_config_value_changed), NULL);
+    //g_signal_connect(config, "value-changed", G_CALLBACK(ibus_unikey_config_value_changed), NULL);
 
 //    mcap_running = TRUE;
 //    pthread_mutex_init(&mutex_mcap, NULL);
@@ -193,7 +193,7 @@ static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey)
     UnikeyLoadMacroTable(fn);
     g_free(fn);
 
-    unikey->last_load_config = 0;
+    //unikey->last_load_config = 0;
 }
 
 static GObject* ibus_unikey_engine_constructor(GType type,
@@ -222,11 +222,11 @@ static void ibus_unikey_engine_focus_in(IBusEngine* engine)
 {
     unikey = (IBusUnikeyEngine*)engine;
 
-    if (unikey->last_load_config < config_time)
-    {
-        ibus_unikey_engine_load_config(unikey);
-        ibus_unikey_engine_create_property_list(unikey);
-    }
+//    if (unikey->last_load_config < config_time)
+//    {
+//        ibus_unikey_engine_load_config(unikey);
+//        ibus_unikey_engine_create_property_list(unikey);
+//    }
 
     UnikeySetInputMethod(unikey->im);
     UnikeySetOutputCharset(unikey->oc);
@@ -272,22 +272,23 @@ static void ibus_unikey_engine_disable(IBusEngine* engine)
     parent_class->disable(engine);
 }
 
-static void ibus_unikey_config_value_changed(IBusConfig *config,
-                                             gchar      *section,
-                                             gchar      *name,
-                                             GVariant   *value,
-                                             gpointer    user_data)
-{
-    if (strcmp(section, CONFIG_SECTION) == 0)
-    {
-        config_time += 1;
-    }
-}
+//static void ibus_unikey_config_value_changed(IBusConfig *config,
+//                                             gchar      *section,
+//                                             gchar      *name,
+//                                             GVariant   *value,
+//                                             gpointer    user_data)
+//{
+//    if (strcmp(section, CONFIG_SECTION) == 0)
+//    {
+//        config_time += 1;
+//    }
+//}
 
 static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                                                  const gchar* prop_name,
                                                  guint prop_state)
 {
+    printf("ibus_unikey_engine_property_activate, config changed\n");
     IBusProperty* prop;
     IBusText* label;
     guint i, j;
@@ -418,26 +419,26 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         } // end update state
     } // end MacroEnabled active
 
-    // MouseCapture active
-    else if (strcmp(prop_name, CONFIG_MOUSECAPTURE) == 0)
-    {
-        unikey->mouse_capture = !unikey->mouse_capture;
-
-        // update state
-        for (j = 0; j < unikey->menu_opt->properties->len ; j++)
-        {
-            prop = ibus_prop_list_get(unikey->menu_opt, j);
-            if (prop == NULL)
-                return;
-
-            else if (strcmp(ibus_property_get_key(prop), CONFIG_MOUSECAPTURE) == 0)
-            {
-                ibus_property_set_state(prop, (unikey->mouse_capture == 1)?
-                    PROP_STATE_CHECKED:PROP_STATE_UNCHECKED);
-                break;
-            }
-        } // end update state
-    } // end MouseCapture active
+//    // MouseCapture active
+//    else if (strcmp(prop_name, CONFIG_MOUSECAPTURE) == 0)
+//    {
+//        unikey->mouse_capture = !unikey->mouse_capture;
+//
+//        // update state
+//        for (j = 0; j < unikey->menu_opt->properties->len ; j++)
+//        {
+//            prop = ibus_prop_list_get(unikey->menu_opt, j);
+//            if (prop == NULL)
+//                return;
+//
+//            else if (strcmp(ibus_property_get_key(prop), CONFIG_MOUSECAPTURE) == 0)
+//            {
+//                ibus_property_set_state(prop, (unikey->mouse_capture == 1)?
+//                    PROP_STATE_CHECKED:PROP_STATE_UNCHECKED);
+//                break;
+//            }
+//        } // end update state
+//    } // end MouseCapture active
 
 
     // if Run setup
@@ -551,22 +552,22 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
     if (ibus_prop_list_update_property(unikey->menu_opt, prop) == false)
         ibus_prop_list_append(unikey->menu_opt, prop);
 
-    // --create and add MouseCapture property
-    label = ibus_text_new_from_static_string(_("Capture mouse event"));
-    tooltip = ibus_text_new_from_static_string(_("Auto send PreEdit string to Application when mouse move or click"));
-    prop = ibus_property_new(CONFIG_MOUSECAPTURE,
-                             PROP_TYPE_TOGGLE,
-                             label,
-                             "",
-                             tooltip,
-                             TRUE,
-                             TRUE,
-                             (unikey->mouse_capture==1)?
-                             PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
-                             NULL);
-
-    if (ibus_prop_list_update_property(unikey->menu_opt, prop) == false)
-        ibus_prop_list_append(unikey->menu_opt, prop);
+//    // --create and add MouseCapture property
+//    label = ibus_text_new_from_static_string(_("Capture mouse event"));
+//    tooltip = ibus_text_new_from_static_string(_("Auto send PreEdit string to Application when mouse move or click"));
+//    prop = ibus_property_new(CONFIG_MOUSECAPTURE,
+//                             PROP_TYPE_TOGGLE,
+//                             label,
+//                             "",
+//                             tooltip,
+//                             TRUE,
+//                             TRUE,
+//                             (unikey->mouse_capture==1)?
+//                             PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
+//                             NULL);
+//
+//    if (ibus_prop_list_update_property(unikey->menu_opt, prop) == false)
+//        ibus_prop_list_append(unikey->menu_opt, prop);
 
     // --separator
     prop = ibus_property_new("", PROP_TYPE_SEPARATOR,

@@ -27,7 +27,7 @@ struct _IBusUnikeyEngine
 
     //gboolean auto_commit;
     gboolean last_key_with_shift;
-    guint last_load_config;
+    //guint last_load_config;
 
     std::string* preeditstr;
 };
@@ -57,11 +57,11 @@ static void ibus_unikey_engine_reset(IBusEngine* engine);
 static void ibus_unikey_engine_enable(IBusEngine* engine);
 static void ibus_unikey_engine_disable(IBusEngine* engine);
 static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey);
-static void ibus_unikey_config_value_changed(IBusConfig *config,
-                                             gchar      *section,
-                                             gchar      *name,
-                                             GVariant   *value,
-                                             gpointer    user_data);
+//static void ibus_unikey_config_value_changed(IBusConfig *config,
+//                                             gchar      *section,
+//                                             gchar      *name,
+//                                             GVariant   *value,
+//                                             gpointer    user_data);
 static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                                                  const gchar* prop_name,
                                                  guint prop_state);
