@@ -2,7 +2,9 @@ IBus-Unikey IME
 ---------------
 Copyright (C) 2009 - 2012 Ubuntu-VN <http://www.ubuntu-vn.org>
 Author: Lê Quốc Tuấn <mr.lequoctuan@gmail.com>
-Home: http://ibus-unikey.googlecode.com
+Contributors:
+  - Nguyen Van Bong <ankeoque@msn.com>
+Home: https://github.com/thaohien1812/ibus-unikey
 License: GNU GENERAL PUBLIC LICENSE v3
 ---------------------------------------------
 ibus-unikey is an ibus input method engine.
@@ -10,9 +12,9 @@ It use ukengine for progress key event.
 (a modified version of ukengine)
 
 For support: goto http://forum.ubuntu-vn.org/viewforum.php?f=85
+Launchpad: https://launchpad.net/~ankeoque/+archive/ubuntu/ibus-unikey-ppa
 
-To install (reload ibus-daemon to have effects):
-
-sudo apt-get install build-essential autopoint autoconf intltool libtool libibus-1.0-dev libgtk-3-dev
+To install:
+sudo apt-get install build-essential autotools-dev intltool libibus-1.0-dev libgtk-3-dev
 ./autogen.sh --prefix=/usr --with-gtk-version=3
 make && sudo make install
