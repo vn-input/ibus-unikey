@@ -6,7 +6,6 @@
 
 #include <sys/wait.h>
 #include <string.h>
-//#include <X11/Xlib.h>
 #include <ibus.h>
 
 #include "engine_const.h"
@@ -42,13 +41,8 @@ static unsigned char WordAutoCommit[] =
 
 static IBusEngineClass* parent_class = NULL;
 static IBusConfig*      config       = NULL;
-static guint            config_time  = 0;
 
-//static pthread_t th_mcap;
-//static pthread_mutex_t mutex_mcap;
-//static Display* dpy;
 static IBusUnikeyEngine* unikey; // current (focus) unikey engine
-//static gboolean mcap_running;
 
 GType ibus_unikey_engine_get_type(void)
 {
@@ -81,20 +75,10 @@ void ibus_unikey_init(IBusBus* bus)
 {
     UnikeySetup();
     config = ibus_bus_get_config(bus);
-
-    //g_signal_connect(config, "value-changed", G_CALLBACK(ibus_unikey_config_value_changed), NULL);
-
-//    mcap_running = TRUE;
-//    pthread_mutex_init(&mutex_mcap, NULL);
-//    pthread_mutex_trylock(&mutex_mcap); // lock mutex after init so mouse capture not start
-//    pthread_create(&th_mcap, NULL, &thread_mouse_capture, NULL);
-//    pthread_detach(th_mcap);
 }
 
 void ibus_unikey_exit()
 {
-//    mcap_running = FALSE;
-//    pthread_mutex_unlock(&mutex_mcap); // unlock mutex, so thread can exit
     UnikeyCleanup();
 }
 
@@ -272,18 +256,6 @@ static void ibus_unikey_engine_disable(IBusEngine* engine)
     parent_class->disable(engine);
 }
 
-//static void ibus_unikey_config_value_changed(IBusConfig *config,
-//                                             gchar      *section,
-//                                             gchar      *name,
-//                                             GVariant   *value,
-//                                             gpointer    user_data)
-//{
-//    if (strcmp(section, CONFIG_SECTION) == 0)
-//    {
-//        config_time += 1;
-//    }
-//}
-
 static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                                                  const gchar* prop_name,
                                                  guint prop_state)
@@ -418,29 +390,6 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
             }
         } // end update state
     } // end MacroEnabled active
-
-//    // MouseCapture active
-//    else if (strcmp(prop_name, CONFIG_MOUSECAPTURE) == 0)
-//    {
-//        unikey->mouse_capture = !unikey->mouse_capture;
-//
-//        // update state
-//        for (j = 0; j < unikey->menu_opt->properties->len ; j++)
-//        {
-//            prop = ibus_prop_list_get(unikey->menu_opt, j);
-//            if (prop == NULL)
-//                return;
-//
-//            else if (strcmp(ibus_property_get_key(prop), CONFIG_MOUSECAPTURE) == 0)
-//            {
-//                ibus_property_set_state(prop, (unikey->mouse_capture == 1)?
-//                    PROP_STATE_CHECKED:PROP_STATE_UNCHECKED);
-//                break;
-//            }
-//        } // end update state
-//    } // end MouseCapture active
-
-
     // if Run setup
     else if (strcmp(prop_name, "RunSetupGUI") == 0)
     {
@@ -456,6 +405,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
 
 static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
 {
+    printf("ibus_unikey_engine_create_property_list\n");
     IBusProperty* prop;
     IBusText* label,* tooltip;
     gchar name[32];
@@ -551,23 +501,6 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
 
     if (ibus_prop_list_update_property(unikey->menu_opt, prop) == false)
         ibus_prop_list_append(unikey->menu_opt, prop);
-
-//    // --create and add MouseCapture property
-//    label = ibus_text_new_from_static_string(_("Capture mouse event"));
-//    tooltip = ibus_text_new_from_static_string(_("Auto send PreEdit string to Application when mouse move or click"));
-//    prop = ibus_property_new(CONFIG_MOUSECAPTURE,
-//                             PROP_TYPE_TOGGLE,
-//                             label,
-//                             "",
-//                             tooltip,
-//                             TRUE,
-//                             TRUE,
-//                             (unikey->mouse_capture==1)?
-//                             PROP_STATE_CHECKED:PROP_STATE_UNCHECKED,
-//                             NULL);
-//
-//    if (ibus_prop_list_update_property(unikey->menu_opt, prop) == false)
-//        ibus_prop_list_append(unikey->menu_opt, prop);
 
     // --separator
     prop = ibus_property_new("", PROP_TYPE_SEPARATOR,
@@ -675,13 +608,6 @@ static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const g
     // update and display text
     //ibus_engine_update_preedit_text(engine, text, ibus_text_get_length(text), visible);
     ibus_engine_update_preedit_text_with_mode(engine, text, ibus_text_get_length(text), visible, IBUS_ENGINE_PREEDIT_COMMIT);
-
-    // every time have preedit text -> unlock mutex -> start capture mouse
-//    if (unikey->mouse_capture)
-//    {
-//        // unlock capture thread (start capture)
-//        pthread_mutex_unlock(&mutex_mcap);
-//    }
 }
 
 static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars)
@@ -824,23 +750,6 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
         UnikeySetCapsState(modifiers & IBUS_SHIFT_MASK, modifiers & IBUS_LOCK_MASK);
 
         // process keyval
-
-        // auto commit word that never need to change later in preedit string (like consonant - phu am)
-        // if macro enabled, then not auto commit. Because macro may change any word
-        //no auto commit
-//        if (unikey->ukopt.macroEnabled == 0 && (UnikeyAtWordBeginning() || unikey->auto_commit))
-//        {
-//            for (i =0; i < sizeof(WordAutoCommit); i++)
-//            {
-//                if (keyval == WordAutoCommit[i])
-//                {
-//                    UnikeyPutChar(keyval);
-//                    unikey->auto_commit = true;
-//                    return false;
-//                }
-//            }
-//        } // end auto commit
-
         if ((unikey->im == UkTelex || unikey->im == UkSimpleTelex2)
             && unikey->process_w_at_begin == false
             && UnikeyAtWordBeginning()
@@ -858,8 +767,6 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
                 return true;
             }
         }
-
-        //unikey->auto_commit = false;
 
         // shift + space, shift + shift event
         if ((unikey->last_key_with_shift == false && modifiers & IBUS_SHIFT_MASK
@@ -938,50 +845,3 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
     ibus_unikey_engine_reset(engine);
     return false;
 }
-
-//static void* thread_mouse_capture(void* data)
-//{
-//    XEvent event;
-//    int x_old, y_old, x_root_old, y_root_old, rt;
-//    uint mask;
-//    Window w, w_root_return, w_child_return;
-//
-//    dpy = XOpenDisplay(NULL);
-//    w = XDefaultRootWindow(dpy);
-//
-//    XQueryPointer(dpy, w, &w_root_return, &w_child_return, &x_root_old, &y_root_old, &x_old, &y_old, &mask);
-//    while (mcap_running)
-//    {
-//        pthread_mutex_lock(&mutex_mcap);
-//        if (!mcap_running)
-//            return NULL;
-//        rt = XGrabPointer(dpy, w, 0, ButtonPressMask | PointerMotionMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
-//        pthread_mutex_trylock(&mutex_mcap); // set mutex to lock status, so this thread will wait until next unlock (by update preedit string)
-//        if (rt != 0)
-//            continue;
-//        XPeekEvent(dpy, &event);
-//        XUngrabPointer(dpy, CurrentTime);
-//        XSync(dpy, TRUE);
-//
-//        if (event.type == MotionNotify) // mouse move
-//        {
-//            if ((abs(event.xmotion.x_root - x_root_old) >= CAPTURE_MOUSE_MOVE_DELTA) ||
-//                (abs(event.xmotion.y_root - y_root_old) >= CAPTURE_MOUSE_MOVE_DELTA)) // mouse move at least CAPTURE_MOUSE_MOVE_DELTA
-//            {
-//                ibus_unikey_engine_reset((IBusEngine*)unikey);
-//
-//                x_root_old = event.xmotion.x_root;
-//                y_root_old = event.xmotion.y_root;
-//            }
-//            else // if don't reset -> unlock mutex so mouse continue to be grab
-//                pthread_mutex_unlock(&mutex_mcap);
-//        }
-//        else
-//            ibus_unikey_engine_reset((IBusEngine*)unikey);
-//    }
-//
-//    XCloseDisplay(dpy);
-//
-//    return NULL;
-//}
-
