@@ -25,9 +25,9 @@ struct _IBusUnikeyEngine
     gboolean process_w_at_begin;
     gboolean mouse_capture;
 
-    gboolean auto_commit;
+    //gboolean auto_commit;
     gboolean last_key_with_shift;
-    guint last_load_config;
+    //guint last_load_config;
 
     std::string* preeditstr;
 };
@@ -57,11 +57,11 @@ static void ibus_unikey_engine_reset(IBusEngine* engine);
 static void ibus_unikey_engine_enable(IBusEngine* engine);
 static void ibus_unikey_engine_disable(IBusEngine* engine);
 static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey);
-static void ibus_unikey_config_value_changed(IBusConfig *config,
-                                             gchar      *section,
-                                             gchar      *name,
-                                             GVariant   *value,
-                                             gpointer    user_data);
+//static void ibus_unikey_config_value_changed(IBusConfig *config,
+//                                             gchar      *section,
+//                                             gchar      *name,
+//                                             GVariant   *value,
+//                                             gpointer    user_data);
 static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                                                  const gchar* prop_name,
                                                  guint prop_state);
@@ -76,7 +76,7 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey);
 static void ibus_unikey_engine_commit_string(IBusEngine *engine, const gchar *string);
 static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const gchar *string, gboolean visible);
 static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars);
-static void* thread_mouse_capture(void* data);
+//static void* thread_mouse_capture(void* data);
 
 #endif
 
