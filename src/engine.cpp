@@ -125,7 +125,7 @@ static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey)
     unikey->ukopt.freeMarking           = DEFAULT_CONF_FREEMARKING;
     unikey->ukopt.macroEnabled          = DEFAULT_CONF_MACROENABLED;
     unikey->process_w_at_begin          = DEFAULT_CONF_PROCESSWATBEGIN;
-    unikey->mouse_capture               = DEFAULT_CONF_MOUSECAPTURE;
+//    unikey->mouse_capture               = DEFAULT_CONF_MOUSECAPTURE;
 
     if (ibus_unikey_config_get_string(config, CONFIG_SECTION, CONFIG_INPUTMETHOD, &str))
     {
@@ -169,8 +169,8 @@ static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey)
     if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_PROCESSWATBEGIN, &b))
         unikey->process_w_at_begin = b;
 
-    if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_MOUSECAPTURE, &b))
-        unikey->mouse_capture = b;
+    // if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_MOUSECAPTURE, &b))
+    //     unikey->mouse_capture = b;
 
     // load macro
     gchar* fn = get_macro_file();

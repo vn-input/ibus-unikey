@@ -23,7 +23,7 @@ struct _IBusUnikeyEngine
     unsigned int  oc; // output charset
     UnikeyOptions ukopt;
     gboolean process_w_at_begin;
-    gboolean mouse_capture;
+    //gboolean mouse_capture;
 
     //gboolean auto_commit;
     gboolean last_key_with_shift;
