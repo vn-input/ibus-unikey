@@ -1,22 +1,27 @@
 [![Build Status](https://drone.io/github.com/thaohien1812/ibus-unikey/status.png)](https://drone.io/github.com/thaohien1812/ibus-unikey/latest)
 
-IBus-Unikey IME
----------------
-Copyright (C) 2009 - 2012 Ubuntu-VN <http://www.ubuntu-vn.org>
-Author: Lê Quốc Tuấn <mr.lequoctuan@gmail.com>
-Contributors:
-  - Nguyen Van Bong <ankeoque@msn.com>
-Home: https://github.com/thaohien1812/ibus-unikey
-License: GNU GENERAL PUBLIC LICENSE v3
----------------------------------------------
-ibus-unikey is an ibus input method engine.
-It use ukengine for progress key event.
-(a modified version of ukengine)
+#IBus-Unikey IME
 
-For support: goto http://forum.ubuntu-vn.org/viewforum.php?f=85
-Launchpad: https://launchpad.net/~ankeoque/+archive/ubuntu/ibus-unikey-ppa
+Copyright (C) 2009 - 2012 [Ubuntu-VN](http://www.ubuntu-vn.org)
 
-To install:
+####Author:
+- Lê Quốc Tuấn - mr.lequoctuan@gmail.com
+
+####Contributors:
+  - Nguyen Van Bong - ankeoque@msn.com
+  
+<b>Home:</b> https://github.com/thaohien1812/ibus-unikey
+
+<b>License:</b> GNU GENERAL PUBLIC LICENSE v3
+
+ibus-unikey is an ibus input method engine. It use ukengine for progress key event (a modified version of ukengine).
+
+* For support: goto http://forum.ubuntu-vn.org/viewforum.php?f=85
+* Launchpad: https://launchpad.net/~ankeoque/+archive/ubuntu/ibus-unikey-ppa
+
+####To Install:
+```
 sudo apt-get update && sudo apt-get install autopoint autoconf autogen autotools-dev intltool libibus-1.0-dev libgtk-3-dev
 ./autogen.sh --prefix=/usr --with-gtk-version=3
 make && sudo make install
+```
