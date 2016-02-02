@@ -13,7 +13,6 @@
 #define CONFIG_FREEMARKING       "free_marking"
 #define CONFIG_MACROENABLED      "macro_enabled"
 #define CONFIG_PROCESSWATBEGIN   "process_word_at_begin"
-//#define CONFIG_MOUSECAPTURE      "mouse_capture"
 
 // DEFAULT options
 #define DEFAULT_CONF_SPELLCHECK         TRUE
@@ -22,9 +21,6 @@
 #define DEFAULT_CONF_FREEMARKING        TRUE
 #define DEFAULT_CONF_MACROENABLED       FALSE
 #define DEFAULT_CONF_PROCESSWATBEGIN    TRUE
-//#define DEFAULT_CONF_MOUSECAPTURE       TRUE
-
-//#define CAPTURE_MOUSE_MOVE_DELTA        50
 
 #endif
 

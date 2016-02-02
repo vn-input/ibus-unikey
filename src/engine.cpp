@@ -125,7 +125,6 @@ static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey)
     unikey->ukopt.freeMarking           = DEFAULT_CONF_FREEMARKING;
     unikey->ukopt.macroEnabled          = DEFAULT_CONF_MACROENABLED;
     unikey->process_w_at_begin          = DEFAULT_CONF_PROCESSWATBEGIN;
-//    unikey->mouse_capture               = DEFAULT_CONF_MOUSECAPTURE;
 
     if (ibus_unikey_config_get_string(config, CONFIG_SECTION, CONFIG_INPUTMETHOD, &str))
     {
@@ -169,15 +168,10 @@ static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey)
     if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_PROCESSWATBEGIN, &b))
         unikey->process_w_at_begin = b;
 
-    // if (ibus_unikey_config_get_boolean(config, CONFIG_SECTION, CONFIG_MOUSECAPTURE, &b))
-    //     unikey->mouse_capture = b;
-
     // load macro
     gchar* fn = get_macro_file();
     UnikeyLoadMacroTable(fn);
     g_free(fn);
-
-    //unikey->last_load_config = 0;
 }
 
 static GObject* ibus_unikey_engine_constructor(GType type,
@@ -206,12 +200,6 @@ static void ibus_unikey_engine_focus_in(IBusEngine* engine)
 {
     unikey = (IBusUnikeyEngine*)engine;
 
-//    if (unikey->last_load_config < config_time)
-//    {
-//        ibus_unikey_engine_load_config(unikey);
-//        ibus_unikey_engine_create_property_list(unikey);
-//    }
-
     UnikeySetInputMethod(unikey->im);
     UnikeySetOutputCharset(unikey->oc);
 
@@ -222,14 +210,12 @@ static void ibus_unikey_engine_focus_in(IBusEngine* engine)
 }
 
 static void ibus_unikey_engine_clean_buffer(IBusEngine* engine) {
-    printf("ibus_unikey_engine_clean_buffer\n");
     UnikeyResetBuf();
     unikey->preeditstr->clear();
     ibus_engine_hide_preedit_text(engine);    
 }
 
 static void ibus_unikey_engine_commit(IBusEngine* engine) {
-    printf("ibus_unikey_engine_commit\n");
     unikey = (IBusUnikeyEngine*)engine;
 
     if (unikey->preeditstr->length() > 0)
@@ -254,7 +240,6 @@ static void ibus_unikey_engine_focus_out(IBusEngine* engine)
 
 static void ibus_unikey_engine_reset(IBusEngine* engine)
 {
-    printf("ibus_unikey_engine_reset\n");
     ibus_unikey_engine_commit(engine);
 
     parent_class->reset(engine);
@@ -274,7 +259,6 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                                                  const gchar* prop_name,
                                                  guint prop_state)
 {
-    printf("ibus_unikey_engine_property_activate\n");
     IBusProperty* prop;
     IBusText* label;
     guint i, j;
@@ -410,8 +394,6 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         system(LIBEXECDIR "/ibus-setup-unikey &");
     } // END Run setup
 
-    //ibus_unikey_engine_reset(engine);
-
     UnikeySetInputMethod(unikey->im);
     UnikeySetOutputCharset(unikey->oc);
     UnikeySetOptions(&unikey->ukopt);
@@ -419,7 +401,6 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
 
 static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
 {
-    printf("ibus_unikey_engine_create_property_list\n");
     IBusProperty* prop;
     IBusText* label,* tooltip;
     gchar name[32];
@@ -612,7 +593,6 @@ static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const g
     ibus_text_append_attribute(text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, -1);
 
     // update and display text
-    //ibus_engine_update_preedit_text(engine, text, ibus_text_get_length(text), visible);
     ibus_engine_update_preedit_text_with_mode(engine, text, ibus_text_get_length(text), visible, IBUS_ENGINE_PREEDIT_COMMIT);
 }
 
@@ -692,6 +672,11 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
     {
         return false;
     }
+    else if (keyval >=IBUS_KP_Multiply && keyval <=IBUS_KP_9)
+    {
+        ibus_unikey_engine_commit(engine);
+        return false;
+    }
     // capture BackSpace
     else if (keyval == IBUS_BackSpace)
     {
@@ -707,7 +692,6 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
             {
                 unikey->preeditstr->clear();
                 ibus_engine_hide_preedit_text(engine);
-                //unikey->auto_commit = true;
             }
             else
             {
@@ -731,19 +715,11 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
                     unikey->preeditstr->append((const gchar*)buf, CONVERT_BUF_SIZE - bufSize);
                 }
 
-                //unikey->auto_commit = false;
                 ibus_unikey_engine_update_preedit_string(engine, unikey->preeditstr->c_str(), true);
             }
         }
         return true;
     } // end capture BackSpace
-
-    else if (keyval >=IBUS_KP_Multiply && keyval <=IBUS_KP_9)
-    {
-        ibus_unikey_engine_commit(engine);
-        return false;
-    }
-
     // capture ascii printable char
     else if ((keyval >= IBUS_space && keyval <= IBUS_asciitilde)
             || keyval == IBUS_Shift_L || keyval == IBUS_Shift_R) // sure this have IBUS_SHIFT_MASK
@@ -770,7 +746,6 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
                 return true;
             }
         }
-
         // shift + space, shift + shift event
         if ((unikey->last_key_with_shift == false && modifiers & IBUS_SHIFT_MASK
                     && keyval == IBUS_space && !UnikeyAtWordBeginning())
@@ -779,7 +754,6 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
         {
             UnikeyRestoreKeyStrokes();
         } // end shift + space, shift + shift event
-
         else
         {
             UnikeyFilter(keyval);
@@ -845,7 +819,6 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
     } //end capture printable char
 
     // non process key
-    printf("non-process key\n");
     ibus_unikey_engine_commit(engine);
     return false;
 }
