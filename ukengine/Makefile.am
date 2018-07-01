@@ -1,4 +1,4 @@
-AM_CXXFLAGS = -Wall -funsigned-char
+AM_CXXFLAGS = -Wall -funsigned-char -Wno-invalid-source-encoding
 
 EXTRA_DIST             = README.md COPYING
 
