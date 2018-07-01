@@ -40,7 +40,7 @@ AS_IF([test "x$gtk_version" = "x3" || test "x$gtk_version" = "xgtk-3" || test "x
 )
 
 PKG_CHECK_MODULES(IBUS, [
-    ibus-1.0 >= 1.2.99
+    ibus-1.0 >= 1.5
 ])
 
 PKG_CHECK_MODULES(GTK,

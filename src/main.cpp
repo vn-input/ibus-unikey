@@ -54,11 +54,7 @@ static void start_component(void)
     for (p = engines; p != NULL; p = p->next)
     {
         IBusEngineDesc* engine = (IBusEngineDesc*)p->data;
-#if IBUS_CHECK_VERSION(1,3,99)
         ibus_factory_add_engine(factory, ibus_engine_desc_get_name(engine), IBUS_TYPE_UNIKEY_ENGINE);
-#else
-        ibus_factory_add_engine(factory, engine->name, IBUS_TYPE_UNIKEY_ENGINE);
-#endif
     }
 
     if (ibus)

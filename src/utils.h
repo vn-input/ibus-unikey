@@ -34,8 +34,4 @@ void ibus_unikey_config_set_boolean(IBusConfig* config,
                                     const gchar* name,
                                     gboolean value);
 
-#if !IBUS_CHECK_VERSION(1,3,99)
-char* ibus_property_get_key(IBusProperty *prop);
-#endif
-
 #endif
