@@ -40,7 +40,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -f %{name}.lang
 %defattr(-,root,root,-)
-%doc README AUTHORS COPYING ChangeLog
+%doc README.md AUTHORS COPYING ChangeLog
 %{_datadir}/%{name}/
 %{_datadir}/ibus/component/unikey.xml
 %{_libexecdir}/ibus-engine-unikey

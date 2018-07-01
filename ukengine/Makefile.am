@@ -1,6 +1,6 @@
 AM_CXXFLAGS = -Wall -funsigned-char
 
-EXTRA_DIST             = README COPYING
+EXTRA_DIST             = README.md COPYING
 
 noinst_LTLIBRARIES     = libunikey-ibus.la
 

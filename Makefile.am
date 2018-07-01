@@ -43,3 +43,4 @@ clean-rpm:
 clean-local: clean-rpm
 	$(RM) -r $(distdir)
 
+README: README.md
