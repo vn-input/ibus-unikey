@@ -192,6 +192,29 @@ static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey)
     IBUS_OBJECT_CLASS(parent_class)->destroy((IBusObject*)unikey);
 }
 
+static void ibus_unikey_buffer_reset(IBusEngine* engine)
+{
+    unikey = (IBusUnikeyEngine*)engine;
+
+    ibus_engine_hide_preedit_text(engine);
+    unikey->preeditstr->clear();
+    UnikeyResetBuf();
+}
+
+static void ibus_unikey_buffer_commit(IBusEngine* engine)
+{
+    unikey = (IBusUnikeyEngine*)engine;
+
+    if (unikey->preeditstr->length() > 0)
+    {
+        IBusText *text;
+        text = ibus_text_new_from_static_string(unikey->preeditstr->c_str());
+        ibus_engine_commit_text(engine, text);
+    }
+
+    ibus_unikey_buffer_reset(engine);
+}
+
 static void ibus_unikey_engine_focus_in(IBusEngine* engine)
 {
     unikey = (IBusUnikeyEngine*)engine;
@@ -213,23 +236,13 @@ static void ibus_unikey_engine_focus_in(IBusEngine* engine)
 
 static void ibus_unikey_engine_focus_out(IBusEngine* engine)
 {
-    ibus_unikey_engine_reset(engine);
-
+    ibus_unikey_buffer_reset(engine);
     parent_class->focus_out(engine);
 }
 
 static void ibus_unikey_engine_reset(IBusEngine* engine)
 {
-    unikey = (IBusUnikeyEngine*)engine;
-
-    UnikeyResetBuf();
-    if (unikey->preeditstr->length() > 0)
-    {
-        ibus_engine_hide_preedit_text(engine);
-        ibus_unikey_engine_commit_string(engine, unikey->preeditstr->c_str());
-        unikey->preeditstr->clear();
-    }
-
+    ibus_unikey_buffer_reset(engine);
     parent_class->reset(engine);
 }
 
@@ -395,7 +408,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         system(LIBEXECDIR "/ibus-setup-unikey &");
     } // END Run setup
 
-    ibus_unikey_engine_reset(engine);
+    ibus_unikey_buffer_reset(engine);
 
     UnikeySetInputMethod(unikey->im);
     UnikeySetOutputCharset(unikey->oc);
@@ -586,14 +599,6 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
 // end top menu
 }
 
-static void ibus_unikey_engine_commit_string(IBusEngine *engine, const gchar *string)
-{
-    IBusText *text;
-
-    text = ibus_text_new_from_static_string(string);
-    ibus_engine_commit_text(engine, text);
-}
-
 static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const gchar *string, gboolean visible)
 {
     IBusText *text;
@@ -604,7 +609,7 @@ static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const g
     ibus_text_append_attribute(text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, -1);
 
     // update and display text
-    ibus_engine_update_preedit_text(engine, text, ibus_text_get_length(text), visible);
+    ibus_engine_update_preedit_text_with_mode(engine, text, ibus_text_get_length(text), visible, IBUS_ENGINE_PREEDIT_COMMIT);
 }
 
 static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars)
@@ -674,7 +679,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
              || (keyval >= IBUS_KP_Home && keyval <= IBUS_KP_Delete)
         )
     {
-        ibus_unikey_engine_reset(engine);
+        ibus_unikey_buffer_commit(engine);
         return false;
     }
 
@@ -692,15 +697,13 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
 
         if (UnikeyBackspaces == 0 || unikey->preeditstr->empty())
         {
-            ibus_unikey_engine_reset(engine);
             return false;
         }
         else
         {
             if (unikey->preeditstr->length() <= (guint)UnikeyBackspaces)
             {
-                unikey->preeditstr->clear();
-                ibus_engine_hide_preedit_text(engine);
+                ibus_unikey_buffer_reset(engine);
             }
             else
             {
@@ -732,7 +735,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
 
     else if (keyval >=IBUS_KP_Multiply && keyval <=IBUS_KP_9)
     {
-        ibus_unikey_engine_reset(engine);
+        ibus_unikey_buffer_commit(engine);
         return false;
     }
 
@@ -817,7 +820,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
                 if (WordBreakSyms[i] == unikey->preeditstr->at(unikey->preeditstr->length()-1)
                     && WordBreakSyms[i] == keyval)
                 {
-                    ibus_unikey_engine_reset(engine);
+                    ibus_unikey_buffer_commit(engine);
                     return true;
                 }
             }
@@ -829,7 +832,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
     } //end capture printable char
 
     // non process key
-    ibus_unikey_engine_reset(engine);
+    ibus_unikey_buffer_commit(engine);
     return false;
 }
 

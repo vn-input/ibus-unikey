@@ -71,7 +71,6 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
 
 static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey);
 
-static void ibus_unikey_engine_commit_string(IBusEngine *engine, const gchar *string);
 static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const gchar *string, gboolean visible);
 static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars);
 
