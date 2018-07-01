@@ -12,7 +12,7 @@
 #include "vnconv.h"
 
 #include "engine_private.h"
-#include "config/unikey_config.h"
+#include "unikey_config.h"
 
 #define _(string) gettext(string)
 

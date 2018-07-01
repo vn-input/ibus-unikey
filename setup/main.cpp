@@ -6,7 +6,7 @@
 #include <locale.h>
 #include <gtk/gtk.h>
 
-#include "config/unikey_config.h"
+#include "unikey_config.h"
 
 #define _(string) gettext(string)
 
@@ -17,7 +17,7 @@ GtkTreeView* tree_macro;
 void init_gtk_builder()
 {
     GtkBuilder* builder = gtk_builder_new();
-    gtk_builder_add_from_file(builder, UI_DATA_DIR "/ibus-unikey.ui", NULL);
+    gtk_builder_add_from_file(builder, PKGDATADIR "/ui/ibus-unikey.ui", NULL);
     gtk_builder_connect_signals(builder, NULL);
 
     mwin = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));

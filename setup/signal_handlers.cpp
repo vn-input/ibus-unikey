@@ -3,7 +3,7 @@
 #include <gdk/gdkkeysyms.h>
 
 #include "mactab.h"
-#include "config/unikey_config.h"
+#include "unikey_config.h"
 
 #include "macro_utils.h"
 #include "signal_handlers.h"

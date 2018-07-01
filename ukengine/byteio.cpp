@@ -155,7 +155,7 @@ int StringBIStream::gotoBookmark()
 int StringBIStream::close()
 {
 	return 1;
-};
+}
 
 //////////////////////////////////////////////////
 // Class StringBOStream
