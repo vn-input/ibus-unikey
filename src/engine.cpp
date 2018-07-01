@@ -608,25 +608,21 @@ static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const g
     ibus_engine_update_preedit_text_with_mode(engine, text, ibus_text_get_length(text), visible, IBUS_ENGINE_PREEDIT_COMMIT);
 }
 
-static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars)
+static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int count)
 {
-    int i, k;
-    guchar c;
+    int i = unikey->preeditstr->length();
 
-    k = num_chars;
+    while (i > 0 && count > 0) {
+        unsigned char code = unikey->preeditstr->at(i-1);
 
-    for ( i = unikey->preeditstr->length()-1; i >= 0 && k > 0; i--)
-    {
-        c = unikey->preeditstr->at(i);
-
-        // count down if byte is begin byte of utf-8 char
-        if (c < (guchar)'\x80' || c >= (guchar)'\xC0')
-        {
-            k--;
+        // count down if code is the first byte of utf-8 char
+        // REF: http://en.wikipedia.org/wiki/UTF-8
+        if (code >> 6 != 2) { // ignore 10xxxxxx
+            count--;
         }
+        i--;
     }
-
-    unikey->preeditstr->erase(i+1);
+    unikey->preeditstr->erase(i);
 }
 
 static gboolean ibus_unikey_engine_process_key_event(IBusEngine* engine,
