@@ -23,7 +23,6 @@ struct _IBusUnikeyEngine
     unsigned int  oc; // output charset
     UnikeyOptions ukopt;
     gboolean process_w_at_begin;
-    gboolean mouse_capture;
 
     gboolean auto_commit;
     gboolean last_key_with_shift;
@@ -76,7 +75,6 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey);
 static void ibus_unikey_engine_commit_string(IBusEngine *engine, const gchar *string);
 static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const gchar *string, gboolean visible);
 static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars);
-static void* thread_mouse_capture(void* data);
 
 #endif
 

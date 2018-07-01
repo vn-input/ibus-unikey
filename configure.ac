@@ -43,11 +43,6 @@ PKG_CHECK_MODULES(IBUS, [
     ibus-1.0 >= 1.2.99
 ])
 
-PKG_CHECK_MODULES(X11, [
-    x11
-])
-AC_SUBST(X11)
-
 PKG_CHECK_MODULES(GTK,
     $gtk_version
 )
