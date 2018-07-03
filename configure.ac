@@ -28,6 +28,7 @@ AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.17])
 IT_PROG_INTLTOOL
 
+GLIB_GSETTINGS
 
 AC_ARG_WITH(gtk-version,
     AS_HELP_STRING([--with-gtk-version[=VERSION]],

@@ -16,21 +16,17 @@ int latinToUtf(unsigned char* dst, unsigned char* src, int inSize, int* pOutSize
 
 #define get_macro_file() (g_build_filename(g_getenv("HOME"), UNIKEY_MACRO_FILE, NULL))
 
-gboolean ibus_unikey_config_get_string(IBusConfig* config,
-                                    const gchar* section,
+gboolean ibus_unikey_config_get_string(GSettings *settings,
                                     const gchar* name,
                                     gchar** result);
-void ibus_unikey_config_set_string(IBusConfig* config,
-                                    const gchar* section,
+void ibus_unikey_config_set_string(GSettings *settings,
                                     const gchar* name,
                                     const gchar* value);
 
-gboolean ibus_unikey_config_get_boolean(IBusConfig* config,
-                                    const gchar* section,
+gboolean ibus_unikey_config_get_boolean(GSettings *settings,
                                     const gchar* name,
                                     gboolean* result);
-void ibus_unikey_config_set_boolean(IBusConfig* config,
-                                    const gchar* section,
+void ibus_unikey_config_set_boolean(GSettings *settings,
                                     const gchar* name,
                                     gboolean value);
 

@@ -107,13 +107,12 @@ int latinToUtf(unsigned char* dst, unsigned char* src, int inSize, int* pOutSize
     return (outLeft >= 0);
 }
 
-gboolean ibus_unikey_config_get_string(IBusConfig* config,
-                                    const gchar* section,
+gboolean ibus_unikey_config_get_string(GSettings *settings,
                                     const gchar* name,
                                     gchar** result)
 {
     GVariant *value = NULL;
-    value = ibus_config_get_value(config, section, name);
+    value = g_settings_get_value(settings, name);
     if (value)
     {
         *result = g_strdup((gchar*)g_variant_get_string(value, NULL));
@@ -123,21 +122,19 @@ gboolean ibus_unikey_config_get_string(IBusConfig* config,
     return false;
 }
 
-void ibus_unikey_config_set_string(IBusConfig* config,
-                                    const gchar* section,
+void ibus_unikey_config_set_string(GSettings *settings,
                                     const gchar* name,
                                     const gchar* value)
 {
-    ibus_config_set_value(config, section, name, g_variant_new_string(value));
+    g_settings_set_value(settings, name, g_variant_new_string(value));
 }
 
-gboolean ibus_unikey_config_get_boolean(IBusConfig* config,
-                                        const gchar* section,
+gboolean ibus_unikey_config_get_boolean(GSettings *settings,
                                         const gchar* name,
                                         gboolean* result)
 {
     GVariant *value = NULL;
-    value = ibus_config_get_value(config, section, name);
+    value = g_settings_get_value(settings, name);
     if (value)
     {
         *result = g_variant_get_boolean(value);
@@ -147,11 +144,10 @@ gboolean ibus_unikey_config_get_boolean(IBusConfig* config,
     return false;
 }
 
-void ibus_unikey_config_set_boolean(IBusConfig* config,
-                                    const gchar* section,
+void ibus_unikey_config_set_boolean(GSettings *settings,
                                     const gchar* name,
                                     gboolean value)
 {
-    ibus_config_set_value(config, section, name, g_variant_new_boolean(value));
+    g_settings_set_value(settings, name, g_variant_new_boolean(value));
 }
 

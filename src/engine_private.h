@@ -55,10 +55,8 @@ static void ibus_unikey_engine_reset(IBusEngine* engine);
 static void ibus_unikey_engine_enable(IBusEngine* engine);
 static void ibus_unikey_engine_disable(IBusEngine* engine);
 static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey);
-static void ibus_unikey_config_value_changed(IBusConfig *config,
-                                             gchar      *section,
+static void ibus_unikey_config_value_changed(GSettings *settings,
                                              gchar      *name,
-                                             GVariant   *value,
                                              gpointer    user_data);
 static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                                                  const gchar* prop_name,
