@@ -63,7 +63,7 @@ IBusComponent* ibus_unikey_get_component()
                                            "language",    "vi",
                                            "license",     "GPLv3",
                                            "author",      "Lê Quốc Tuấn <mr.lequoctuan@gmail.com>",
-                                           "icon",        PKGDATADIR"/icons/ibus-unikey.png",
+                                           "icon",        PKGDATADIR"/icons/ibus-unikey.svg",
                                            "layout",      "us",
                                            "rank",        99,
                                            "setup",       LIBEXECDIR "/ibus-setup-unikey",

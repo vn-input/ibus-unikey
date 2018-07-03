@@ -1,6 +1,4 @@
-icons_DATA = \
-	ibus-unikey.png \
-	$(NULL)
+icons_DATA = ibus-unikey.svg
 
 iconsdir = $(pkgdatadir)/icons
 

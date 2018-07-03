@@ -2,7 +2,7 @@ SUBDIRS = \
 	ukengine \
 	src \
     setup \
-	icons \
+	data \
 	m4 \
 	po \
 	$(NULL)

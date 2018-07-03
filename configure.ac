@@ -55,7 +55,7 @@ AC_CONFIG_FILES( po/Makefile.in
     src/unikey.xml.in
     src/Makefile
     setup/Makefile
-    icons/Makefile
+    data/Makefile
     m4/Makefile
     ibus-unikey.spec
 )

@@ -44,7 +44,7 @@ int main(int argc, char** argv)
 
     gtk_init(&argc, &argv);
 
-    gtk_window_set_default_icon_from_file(PKGDATADIR"/icons/ibus-unikey.png", NULL);
+    gtk_window_set_default_icon_from_file(PKGDATADIR "/icons/ibus-unikey.svg", NULL);
 
     GtkWidget* main_dlg = unikey_main_setup_dialog_new(); // create main dlg
     g_signal_connect(main_dlg, "destroy", gtk_main_quit, NULL); // connect with signal
