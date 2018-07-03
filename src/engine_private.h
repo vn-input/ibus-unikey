@@ -15,9 +15,6 @@ struct _IBusUnikeyEngine
 
 /* members */
     IBusPropList* prop_list;
-    IBusPropList* menu_im;
-    IBusPropList* menu_oc;
-    IBusPropList* menu_opt;
 
     UkInputMethod im; // input method
     unsigned int  oc; // output charset
