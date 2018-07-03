@@ -49,10 +49,10 @@ IBusComponent* ibus_unikey_get_component()
     IBusEngineDesc* engine;
 
     component = ibus_component_new("org.freedesktop.IBus.Unikey",
-                                   "Unikey",
+                                   "Unikey component",
                                    PACKAGE_VERSION,
                                    "GPLv3",
-                                   "Lê Quốc Tuấn <mr.lequoctuan@gmail.com>",
+                                   "Vietnamese input group",
                                    PACKAGE_BUGREPORT,
                                    "",
                                    PACKAGE_NAME);
@@ -62,9 +62,9 @@ IBusComponent* ibus_unikey_get_component()
                                            "description", IU_DESC,
                                            "language",    "vi",
                                            "license",     "GPLv3",
-                                           "author",      "Lê Quốc Tuấn <mr.lequoctuan@gmail.com>",
-                                           "icon",        PKGDATADIR"/icons/ibus-unikey.svg",
-                                           "layout",      "us",
+                                           "author",      "Vietnamese input group",
+                                           "icon",        PKGDATADIR "/icons/ibus-unikey.svg",
+                                           "layout",      "*",
                                            "rank",        99,
                                            "setup",       LIBEXECDIR "/ibus-setup-unikey",
                                            NULL);

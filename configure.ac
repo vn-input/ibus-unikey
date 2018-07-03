@@ -1,7 +1,7 @@
 m4_define([package_name], [ibus-unikey])
 m4_define([ibus_unikey_version], [0.6.1])
 
-AC_INIT([package_name], [ibus_unikey_version], [http://code.google.com/p/ibus-unikey], [package_name])
+AC_INIT([package_name], [ibus_unikey_version], [https://github.com/vn-input/ibus-unikey/issues], [package_name])
 AM_INIT_AUTOMAKE([1.10])
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 AC_GNU_SOURCE

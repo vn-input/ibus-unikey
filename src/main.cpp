@@ -19,14 +19,12 @@ static IBusFactory* factory = NULL;
 static gboolean xml     = FALSE;
 static gboolean ibus    = FALSE;
 static gboolean verbose = FALSE;
-static gboolean version = FALSE;
 
 static const GOptionEntry entries[] =
 {
     { "xml",     'x', 0, G_OPTION_ARG_NONE, &xml,     "generate xml for engines", NULL },
     { "ibus",    'i', 0, G_OPTION_ARG_NONE, &ibus,    "component is executed by ibus", NULL },
     { "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose, "verbose", NULL },
-    { "version", 'V', 0, G_OPTION_ARG_NONE, &version, "print ibus-unikey version", NULL },
     { NULL },
 };
 
@@ -107,16 +105,6 @@ int main(gint argc, gchar** argv)
     if (xml)
     {
         print_engines_xml();
-        return 0;
-    }
-    else if (version)
-    {
-        g_print(PACKAGE_STRING " (engine component)"
-            "\n  Copyright (C) 2009 - 2012 Ubuntu-VN <http://www.ubuntu-vn.org>"
-            "\n  Author: Lê Quốc Tuấn <mr.lequoctuan@gmail.com>"
-            "\n  Homepage: <http://ibus-unikey.googlecode.com>"
-            "\n  License: GNU GPL3"
-            "\n");
         return 0;
     }
 
