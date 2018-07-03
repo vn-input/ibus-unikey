@@ -283,39 +283,42 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
     // spellcheck active
     if (strcmp(prop_name, CONFIG_SPELLCHECK) == 0)
     {
-        unikey->ukopt.spellCheckEnabled = !unikey->ukopt.spellCheckEnabled;
-        prop = find_prop_from_list(unikey->prop_list, CONFIG_SPELLCHECK);
+        bool b = prop_state > 0;
+        unikey->ukopt.spellCheckEnabled = b;
+        ibus_unikey_config_set_boolean(settings, prop_name, b);
+        prop = find_prop_from_list(unikey->prop_list, prop_name);
         if (prop != NULL)
         {
             ibus_property_set_state(prop,
-                    (unikey->ukopt.spellCheckEnabled == 1)
-                    ? PROP_STATE_CHECKED:PROP_STATE_UNCHECKED);
+                    (b == 1) ? PROP_STATE_CHECKED:PROP_STATE_UNCHECKED);
         }
     }
 
     // auto restore non vn active
     else if (strcmp(prop_name, CONFIG_AUTORESTORENONVN) == 0)
     {
-        unikey->ukopt.autoNonVnRestore = !unikey->ukopt.autoNonVnRestore;
-        prop = find_prop_from_list(unikey->prop_list, CONFIG_AUTORESTORENONVN);
+        bool b = prop_state > 0;
+        unikey->ukopt.autoNonVnRestore = b;
+        ibus_unikey_config_set_boolean(settings, prop_name, b);
+        prop = find_prop_from_list(unikey->prop_list, prop_name);
         if (prop != NULL)
         {
             ibus_property_set_state(prop,
-                    (unikey->ukopt.autoNonVnRestore == 1)
-                    ? PROP_STATE_CHECKED:PROP_STATE_UNCHECKED);
+                    (b == 1) ? PROP_STATE_CHECKED:PROP_STATE_UNCHECKED);
         }
     }
 
     // MacroEnabled active
     else if (strcmp(prop_name, CONFIG_MACROENABLED) == 0)
     {
-        unikey->ukopt.macroEnabled = !unikey->ukopt.macroEnabled;
-        prop = find_prop_from_list(unikey->prop_list, CONFIG_MACROENABLED);
+        bool b = prop_state > 0;
+        unikey->ukopt.macroEnabled = b;
+        ibus_unikey_config_set_boolean(settings, prop_name, b);
+        prop = find_prop_from_list(unikey->prop_list, prop_name);
         if (prop == NULL)
         {
             ibus_property_set_state(prop,
-                    (unikey->ukopt.macroEnabled == 1)
-                    ? PROP_STATE_CHECKED:PROP_STATE_UNCHECKED);
+                    (b == 1) ? PROP_STATE_CHECKED:PROP_STATE_UNCHECKED);
         }
     }
 
