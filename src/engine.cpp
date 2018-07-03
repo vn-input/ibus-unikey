@@ -28,7 +28,6 @@ static unsigned char WordBreakSyms[] =
 
 static IBusEngineClass* parent_class = NULL;
 static GSettings*       settings     = NULL;
-static guint            config_time  = 0;
 
 static IBusUnikeyEngine* unikey; // current (focus) unikey engine
 
@@ -96,8 +95,55 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
 {
     ibus_unikey_engine_load_config(unikey);
 
+    UnikeySetInputMethod(unikey->im);
+    UnikeySetOutputCharset(unikey->oc);
+    UnikeySetOptions(&unikey->ukopt);
+
     unikey->preeditstr = new std::string();
     ibus_unikey_engine_create_property_list(unikey);
+}
+
+static IBusProperty* find_prop_from_list(IBusPropList* list, const char* key)
+{
+    for (guint i = 0; i < list->properties->len ; i++)
+    {
+        IBusProperty* prop = ibus_prop_list_get(list, i);
+        if (prop == NULL)
+            return NULL;
+        if (strcmp(ibus_property_get_key(prop), key) == 0)
+            return prop;
+    }
+    return NULL;
+}
+
+static void ibus_unikey_engine_update_property_list(IBusUnikeyEngine* unikey)
+{
+    bool b;
+    IBusProperty* prop;
+
+    b = unikey->ukopt.spellCheckEnabled;
+    prop = find_prop_from_list(unikey->prop_list, CONFIG_SPELLCHECK);
+    if (prop != NULL)
+    {
+        ibus_property_set_state(prop,
+                (b == 1) ? PROP_STATE_CHECKED:PROP_STATE_UNCHECKED);
+    }
+
+    b = unikey->ukopt.autoNonVnRestore;
+    prop = find_prop_from_list(unikey->prop_list, CONFIG_AUTORESTORENONVN);
+    if (prop != NULL)
+    {
+        ibus_property_set_state(prop,
+                (b == 1) ? PROP_STATE_CHECKED:PROP_STATE_UNCHECKED);
+    }
+
+    b = unikey->ukopt.macroEnabled;
+    prop = find_prop_from_list(unikey->prop_list, CONFIG_MACROENABLED);
+    if (prop != NULL)
+    {
+        ibus_property_set_state(prop,
+                (b == 1) ? PROP_STATE_CHECKED:PROP_STATE_UNCHECKED);
+    }
 }
 
 static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey)
@@ -162,8 +208,6 @@ static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey)
     gchar* fn = get_macro_file();
     UnikeyLoadMacroTable(fn);
     g_free(fn);
-
-    unikey->last_load_config = 0;
 }
 
 static GObject* ibus_unikey_engine_constructor(GType type,
@@ -214,17 +258,6 @@ static void ibus_unikey_buffer_commit(IBusEngine* engine)
 static void ibus_unikey_engine_focus_in(IBusEngine* engine)
 {
     unikey = (IBusUnikeyEngine*)engine;
-
-    if (unikey->last_load_config < config_time)
-    {
-        ibus_unikey_engine_load_config(unikey);
-        ibus_unikey_engine_create_property_list(unikey);
-    }
-
-    UnikeySetInputMethod(unikey->im);
-    UnikeySetOutputCharset(unikey->oc);
-
-    UnikeySetOptions(&unikey->ukopt);
     ibus_engine_register_properties(engine, unikey->prop_list);
 
     parent_class->focus_in(engine);
@@ -256,83 +289,42 @@ static void ibus_unikey_config_value_changed(GSettings *settings,
                                              gchar      *name,
                                              gpointer    user_data)
 {
-    config_time += 1;
-}
+    ibus_unikey_engine_load_config(unikey);
 
-static IBusProperty* find_prop_from_list(IBusPropList* list, const char* key)
-{
-    for (guint i = 0; i < list->properties->len ; i++)
-    {
-        IBusProperty* prop = ibus_prop_list_get(list, i);
-        if (prop == NULL)
-            return NULL;
-        if (strcmp(ibus_property_get_key(prop), key) == 0)
-            return prop;
-    }
-    return NULL;
+    UnikeySetInputMethod(unikey->im);
+    UnikeySetOutputCharset(unikey->oc);
+    UnikeySetOptions(&unikey->ukopt);
+
+    ibus_unikey_engine_update_property_list(unikey);
 }
 
 static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                                                  const gchar* prop_name,
                                                  guint prop_state)
 {
-    IBusProperty* prop;
-
     unikey = (IBusUnikeyEngine*)engine;
 
-    // spellcheck active
-    if (strcmp(prop_name, CONFIG_SPELLCHECK) == 0)
-    {
-        bool b = prop_state > 0;
-        unikey->ukopt.spellCheckEnabled = b;
-        ibus_unikey_config_set_boolean(settings, prop_name, b);
-        prop = find_prop_from_list(unikey->prop_list, prop_name);
-        if (prop != NULL)
-        {
-            ibus_property_set_state(prop,
-                    (b == 1) ? PROP_STATE_CHECKED:PROP_STATE_UNCHECKED);
-        }
-    }
-
-    // auto restore non vn active
-    else if (strcmp(prop_name, CONFIG_AUTORESTORENONVN) == 0)
-    {
-        bool b = prop_state > 0;
-        unikey->ukopt.autoNonVnRestore = b;
-        ibus_unikey_config_set_boolean(settings, prop_name, b);
-        prop = find_prop_from_list(unikey->prop_list, prop_name);
-        if (prop != NULL)
-        {
-            ibus_property_set_state(prop,
-                    (b == 1) ? PROP_STATE_CHECKED:PROP_STATE_UNCHECKED);
-        }
-    }
-
-    // MacroEnabled active
-    else if (strcmp(prop_name, CONFIG_MACROENABLED) == 0)
-    {
-        bool b = prop_state > 0;
-        unikey->ukopt.macroEnabled = b;
-        ibus_unikey_config_set_boolean(settings, prop_name, b);
-        prop = find_prop_from_list(unikey->prop_list, prop_name);
-        if (prop == NULL)
-        {
-            ibus_property_set_state(prop,
-                    (b == 1) ? PROP_STATE_CHECKED:PROP_STATE_UNCHECKED);
-        }
-    }
-
-    // if Run setup
-    else if (strcmp(prop_name, "more-settings") == 0)
+    if (strcmp(prop_name, "more-settings") == 0)
     {
         system(LIBEXECDIR "/ibus-setup-unikey &");
-    } // END Run setup
+        return;
+    }
 
-    ibus_unikey_buffer_reset(engine);
-
-    UnikeySetInputMethod(unikey->im);
-    UnikeySetOutputCharset(unikey->oc);
-    UnikeySetOptions(&unikey->ukopt);
+    if (strcmp(prop_name, CONFIG_SPELLCHECK) == 0)
+    {
+        unikey->ukopt.spellCheckEnabled = prop_state > 0;
+        ibus_unikey_config_set_boolean(settings, prop_name, prop_state > 0);
+    }
+    else if (strcmp(prop_name, CONFIG_AUTORESTORENONVN) == 0)
+    {
+        unikey->ukopt.autoNonVnRestore = prop_state > 0;
+        ibus_unikey_config_set_boolean(settings, prop_name, prop_state > 0);
+    }
+    else if (strcmp(prop_name, CONFIG_MACROENABLED) == 0)
+    {
+        unikey->ukopt.macroEnabled = prop_state > 0;
+        ibus_unikey_config_set_boolean(settings, prop_name, prop_state > 0);
+    }
 }
 
 static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
@@ -340,12 +332,10 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
     IBusProperty* prop;
     IBusText* label;
 
-    if (unikey->prop_list == NULL)
-    {
-        unikey->prop_list = ibus_prop_list_new();
-
-        g_object_ref_sink(unikey->prop_list);
-    }
+    if (unikey->prop_list != NULL)
+        return;
+    unikey->prop_list = ibus_prop_list_new();
+    g_object_ref_sink(unikey->prop_list);
 
     // spellcheck property
     label = ibus_text_new_from_static_string(_("Enable spell check"));

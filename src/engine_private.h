@@ -22,7 +22,6 @@ struct _IBusUnikeyEngine
     gboolean process_w_at_begin;
 
     gboolean last_key_with_shift;
-    guint last_load_config;
 
     std::string* preeditstr;
 };
