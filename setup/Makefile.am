@@ -33,5 +33,5 @@ ibus_setup_unikey_LDFLAGS = \
     @IBUS_LIBS@ \
     @GTK_LIBS@ \
     $(top_builddir)/ukengine/libunikey-ibus.la \
-    $(top_builddir)/src/ibus_engine_unikey-utils.o
+    $(top_builddir)/src/config/ibus_engine_unikey-unikey_config.o
 

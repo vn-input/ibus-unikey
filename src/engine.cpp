@@ -8,11 +8,11 @@
 #include <string.h>
 #include <ibus.h>
 
-#include "engine_const.h"
-#include "engine_private.h"
-#include "utils.h"
 #include "unikey.h"
 #include "vnconv.h"
+
+#include "engine_private.h"
+#include "config/unikey_config.h"
 
 #define _(string) gettext(string)
 
@@ -27,7 +27,6 @@ static unsigned char WordBreakSyms[] =
 };
 
 static IBusEngineClass* parent_class = NULL;
-static GSettings*       settings     = NULL;
 
 static IBusUnikeyEngine* unikey; // current (focus) unikey engine
 
@@ -61,9 +60,9 @@ GType ibus_unikey_engine_get_type(void)
 void ibus_unikey_init(IBusBus* bus)
 {
     UnikeySetup();
-    settings = g_settings_new(UNIKEY_GSCHEMA_ID);
+    ibus_unikey_config_init();
 
-    g_signal_connect(settings, "changed", G_CALLBACK(ibus_unikey_config_value_changed), NULL);
+    ibus_unikey_config_on_changed(ibus_unikey_config_value_changed, NULL);
 }
 
 void ibus_unikey_exit()
@@ -155,14 +154,8 @@ static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey)
 //set default options
     unikey->im = Unikey_IM[0];
     unikey->oc = Unikey_OC[0];
-    unikey->ukopt.spellCheckEnabled     = DEFAULT_CONF_SPELLCHECK;
-    unikey->ukopt.autoNonVnRestore      = DEFAULT_CONF_AUTONONVNRESTORE;
-    unikey->ukopt.modernStyle           = DEFAULT_CONF_MODERNSTYLE;
-    unikey->ukopt.freeMarking           = DEFAULT_CONF_FREEMARKING;
-    unikey->ukopt.macroEnabled          = DEFAULT_CONF_MACROENABLED;
-    unikey->process_w_at_begin          = DEFAULT_CONF_STANDALONEW;
 
-    if (ibus_unikey_config_get_string(settings, CONFIG_INPUTMETHOD, &str))
+    if (ibus_unikey_config_get_string(CONFIG_INPUTMETHOD, &str))
     {
         for (i = 0; i < NUM_INPUTMETHOD; i++)
         {
@@ -172,9 +165,10 @@ static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey)
                 break;
             }
         }
+        g_free(str);
     }
 
-    if (ibus_unikey_config_get_string(settings, CONFIG_OUTPUTCHARSET, &str))
+    if (ibus_unikey_config_get_string(CONFIG_OUTPUTCHARSET, &str))
     {
         for (i = 0; i < NUM_OUTPUTCHARSET; i++)
         {
@@ -184,24 +178,25 @@ static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey)
                 break;
             }
         }
+        g_free(str);
     }
 
-    if (ibus_unikey_config_get_boolean(settings, CONFIG_FREEMARKING, &b))
+    if (ibus_unikey_config_get_boolean(CONFIG_FREEMARKING, &b))
         unikey->ukopt.freeMarking = b;
 
-    if (ibus_unikey_config_get_boolean(settings, CONFIG_MODERNSTYLE, &b))
+    if (ibus_unikey_config_get_boolean(CONFIG_MODERNSTYLE, &b))
         unikey->ukopt.modernStyle = b;
 
-    if (ibus_unikey_config_get_boolean(settings, CONFIG_MACROENABLED, &b))
+    if (ibus_unikey_config_get_boolean(CONFIG_MACROENABLED, &b))
         unikey->ukopt.macroEnabled = b;
 
-    if (ibus_unikey_config_get_boolean(settings, CONFIG_SPELLCHECK, &b))
+    if (ibus_unikey_config_get_boolean(CONFIG_SPELLCHECK, &b))
         unikey->ukopt.spellCheckEnabled = b;
 
-    if (ibus_unikey_config_get_boolean(settings, CONFIG_AUTORESTORENONVN, &b))
+    if (ibus_unikey_config_get_boolean(CONFIG_AUTORESTORENONVN, &b))
         unikey->ukopt.autoNonVnRestore = b;
 
-    if (ibus_unikey_config_get_boolean(settings, CONFIG_STANDALONEW, &b))
+    if (ibus_unikey_config_get_boolean(CONFIG_STANDALONEW, &b))
         unikey->process_w_at_begin = b;
 
     // load macro
@@ -285,9 +280,7 @@ static void ibus_unikey_engine_disable(IBusEngine* engine)
     parent_class->disable(engine);
 }
 
-static void ibus_unikey_config_value_changed(GSettings *settings,
-                                             gchar      *name,
-                                             gpointer    user_data)
+static void ibus_unikey_config_value_changed(gchar* name, gpointer user_data)
 {
     ibus_unikey_engine_load_config(unikey);
 
@@ -313,17 +306,17 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
     if (strcmp(prop_name, CONFIG_SPELLCHECK) == 0)
     {
         unikey->ukopt.spellCheckEnabled = prop_state > 0;
-        ibus_unikey_config_set_boolean(settings, prop_name, prop_state > 0);
+        ibus_unikey_config_set_boolean(prop_name, prop_state > 0);
     }
     else if (strcmp(prop_name, CONFIG_AUTORESTORENONVN) == 0)
     {
         unikey->ukopt.autoNonVnRestore = prop_state > 0;
-        ibus_unikey_config_set_boolean(settings, prop_name, prop_state > 0);
+        ibus_unikey_config_set_boolean(prop_name, prop_state > 0);
     }
     else if (strcmp(prop_name, CONFIG_MACROENABLED) == 0)
     {
         unikey->ukopt.macroEnabled = prop_state > 0;
-        ibus_unikey_config_set_boolean(settings, prop_name, prop_state > 0);
+        ibus_unikey_config_set_boolean(prop_name, prop_state > 0);
     }
 }
 
@@ -426,6 +419,40 @@ static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int count)
     }
     unikey->preeditstr->erase(i);
 }
+
+// code from x-unikey, for convert charset that not is XUtf-8
+int latinToUtf(unsigned char* dst, unsigned char* src, int inSize, int* pOutSize)
+{
+    int i;
+    int outLeft;
+    unsigned char ch;
+
+    outLeft = *pOutSize;
+
+    for (i=0; i<inSize; i++)
+    {
+        ch = *src++;
+        if (ch < 0x80)
+        {
+            outLeft -= 1;
+            if (outLeft >= 0)
+                *dst++ = ch;
+        }
+        else
+        {
+            outLeft -= 2;
+            if (outLeft >= 0)
+            {
+                *dst++ = (0xC0 | ch >> 6);
+                *dst++ = (0x80 | (ch & 0x3F));
+            }
+        }
+    }
+
+    *pOutSize = outLeft;
+    return (outLeft >= 0);
+}
+
 
 static gboolean ibus_unikey_engine_process_key_event(IBusEngine* engine,
                                                      guint keyval,

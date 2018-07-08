@@ -8,9 +8,10 @@
 #include <stdio.h>
 
 #include <ibus.h>
-#include "utils.h"
 #include "engine.h"
 #include "unikey.h"
+
+#define _(string) gettext(string)
 
 static IBusBus* bus         = NULL;
 static IBusFactory* factory = NULL;
@@ -27,6 +28,8 @@ static const GOptionEntry entries[] =
     { "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose, "verbose", NULL },
     { NULL },
 };
+
+static IBusComponent* ibus_unikey_get_component();
 
 static void ibus_disconnected_cb(IBusBus* bus, gpointer user_data)
 {
@@ -112,3 +115,45 @@ int main(gint argc, gchar** argv)
 
     return 0;
 }
+
+#define IU_DESC _("Vietnamese Input Method Engine for IBus using Unikey Engine\n\
+Usage:\n\
+  - Choose input method, output charset, options in language bar.\n\
+  - There are 4 input methods: Telex, Vni, STelex (simple telex) \
+and STelex2 (which same as STelex, the difference is it use w as ư).\n\
+  - And 7 output charsets: Unicode (UTF-8), TCVN3, VNI Win, VIQR, CString, NCR Decimal and NCR Hex.\n\
+  - Use <Shift>+<Space> or <Shift>+<Shift> to restore keystrokes.\n\
+  - Use <Control> to commit a word.\
+")
+
+static IBusComponent* ibus_unikey_get_component()
+{
+    IBusComponent* component;
+    IBusEngineDesc* engine;
+
+    component = ibus_component_new("org.freedesktop.IBus.Unikey",
+                                   "Unikey component",
+                                   PACKAGE_VERSION,
+                                   "GPLv3",
+                                   "Vietnamese input group",
+                                   PACKAGE_BUGREPORT,
+                                   "",
+                                   PACKAGE_NAME);
+
+    engine = ibus_engine_desc_new_varargs ("name",        "Unikey",
+                                           "longname",    "Unikey",
+                                           "description", IU_DESC,
+                                           "language",    "vi",
+                                           "license",     "GPLv3",
+                                           "author",      "Vietnamese input group",
+                                           "icon",        PKGDATADIR "/icons/ibus-unikey.svg",
+                                           "layout",      "*",
+                                           "rank",        99,
+                                           "setup",       LIBEXECDIR "/ibus-setup-unikey",
+                                           NULL);
+
+    ibus_component_add_engine(component, engine);
+
+    return component;
+}
+

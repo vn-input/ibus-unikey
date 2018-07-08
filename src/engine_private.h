@@ -51,9 +51,7 @@ static void ibus_unikey_engine_reset(IBusEngine* engine);
 static void ibus_unikey_engine_enable(IBusEngine* engine);
 static void ibus_unikey_engine_disable(IBusEngine* engine);
 static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey);
-static void ibus_unikey_config_value_changed(GSettings *settings,
-                                             gchar      *name,
-                                             gpointer    user_data);
+static void ibus_unikey_config_value_changed(gchar* name, gpointer user_data);
 static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                                                  const gchar* prop_name,
                                                  guint prop_state);
@@ -67,6 +65,8 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey);
 
 static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const gchar *string, gboolean visible);
 static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars);
+
+static int latinToUtf(unsigned char* dst, unsigned char* src, int inSize, int* pOutSize);
 
 #endif
 

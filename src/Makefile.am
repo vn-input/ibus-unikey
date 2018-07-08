@@ -11,15 +11,14 @@ ibus_engine_unikey_SOURCES = \
 	main.cpp \
 	engine.cpp \
 	engine.h \
-	engine_private.h \
-	utils.cpp \
-	utils.h
+    engine_private.h \
+	config/unikey_config.cpp \
+	config/unikey_config.h
 
 noinst_HEADERS = \
     engine.h \
     engine_private.h \
-    engine_const.h \
-    utils.h
+    config/unikey_config.h
 
 ibus_engine_unikey_CXXFLAGS = @IBUS_CFLAGS@
 
