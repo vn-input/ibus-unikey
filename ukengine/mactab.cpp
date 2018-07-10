@@ -222,7 +222,7 @@ int CMacroTable::writeToFile(const char *fname)
   if (f == NULL)
     return 0;
 
-  char line[MAX_MACRO_LINE*3]; //1 VnChar may need 3 chars in UTF8
+  char line[MAX_MACRO_LINE*3+1]; //1 VnChar may need 3 chars in UTF8
   char key[MAX_MACRO_KEY_LEN*3];
   char text[MAX_MACRO_TEXT_LEN*3];
 
