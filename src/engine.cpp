@@ -149,37 +149,24 @@ static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey)
 {
     gchar* str;
     gboolean b;
-    guint i;
 
-//set default options
-    unikey->im = Unikey_IM[0];
-    unikey->oc = Unikey_OC[0];
-
+    auto im = input_method_map.at("telex").first;
     if (ibus_unikey_config_get_string(CONFIG_INPUTMETHOD, &str))
     {
-        for (i = 0; i < NUM_INPUTMETHOD; i++)
-        {
-            if (strcasecmp(str, Unikey_IMNames[i]) == 0)
-            {
-                unikey->im = Unikey_IM[i];
-                break;
-            }
-        }
+        auto p = input_method_map.at(std::string(str));
+        im = p.first;
         g_free(str);
     }
+    unikey->im = im;
 
+    auto oc = output_charset_map.at("unicode").first;
     if (ibus_unikey_config_get_string(CONFIG_OUTPUTCHARSET, &str))
     {
-        for (i = 0; i < NUM_OUTPUTCHARSET; i++)
-        {
-            if (strcasecmp(str, Unikey_OCNames[i]) == 0)
-            {
-                unikey->oc = Unikey_OC[i];
-                break;
-            }
-        }
+        auto p = output_charset_map.at(std::string(str));
+        oc = p.first;
         g_free(str);
     }
+    unikey->oc = oc;
 
     if (ibus_unikey_config_get_boolean(CONFIG_FREEMARKING, &b))
         unikey->ukopt.freeMarking = b;

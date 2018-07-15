@@ -32,22 +32,12 @@ IT_PROG_INTLTOOL
 
 GLIB_GSETTINGS
 
-AC_ARG_WITH(gtk-version,
-    AS_HELP_STRING([--with-gtk-version[=VERSION]],
-                   [Choose GTK version to build with. VERSION=2 or 3 [default=2]]),
-    gtk_version=$with_gtk_version
-)
-AS_IF([test "x$gtk_version" = "x3" || test "x$gtk_version" = "xgtk-3" || test "x$gtk_version" = "xgtk3"],
-    gtk_version="gtk+-3.0",
-    gtk_version="gtk+-2.0 >= 2.16"
-)
-
 PKG_CHECK_MODULES(IBUS, [
     ibus-1.0 >= 1.5
 ])
 
 PKG_CHECK_MODULES(GTK,
-    $gtk_version
+    gtk+-3.0
 )
 AC_SUBST(GTK)
 
@@ -69,6 +59,5 @@ AC_MSG_RESULT([
 Build options:
     Version         $VERSION
     Install prefix  $prefix
-    GTK Version     $gtk_version
 ])
 

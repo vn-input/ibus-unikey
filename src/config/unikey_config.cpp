@@ -4,28 +4,6 @@
 
 #include "unikey_config.h"
 
-const gchar*          Unikey_IMNames[]    = {"Telex", "Vni", "STelex", "STelex2"};
-const UkInputMethod   Unikey_IM[]         = {UkTelex, UkVni, UkSimpleTelex, UkSimpleTelex2};
-const unsigned int    NUM_INPUTMETHOD     = sizeof(Unikey_IM)/sizeof(Unikey_IM[0]);
-
-const gchar*          Unikey_OCNames[]    = {"Unicode",
-                                             "TCVN3",
-                                             "VNI Win",
-                                             "VIQR",
-                                             "BK HCM 2",
-                                             "CString",
-                                             "NCR Decimal",
-                                             "NCR Hex"};
-const unsigned int    Unikey_OC[]         = {CONV_CHARSET_XUTF8,
-                                             CONV_CHARSET_TCVN3,
-                                             CONV_CHARSET_VNIWIN,
-                                             CONV_CHARSET_VIQR,
-                                             CONV_CHARSET_BKHCM2,
-                                             CONV_CHARSET_UNI_CSTRING,
-                                             CONV_CHARSET_UNIREF,
-                                             CONV_CHARSET_UNIREF_HEX};
-const unsigned int    NUM_OUTPUTCHARSET   = sizeof(Unikey_OC)/sizeof(Unikey_OC[0]);
-
 static GSettings* settings;
 
 void ibus_unikey_config_init()

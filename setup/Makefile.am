@@ -1,6 +1,4 @@
-ui_DATA = \
-    setup-main.ui \
-    setup-macro.ui
+ui_DATA = ibus-unikey.ui
 
 uidir = $(pkgdatadir)/ui
 
@@ -17,20 +15,21 @@ EXTRA_DIST = $(ui_DATA)
 libexec_PROGRAMS = ibus-setup-unikey
 
 ibus_setup_unikey_SOURCES = \
-    setup.cpp \
-    dlg_main_setup.cpp \
-    dlg_macro_table.cpp
+    main.cpp \
+	signal_handlers.cpp \
+	signal_handlers.h \
+    macro_utils.cpp \
+    macro_utils.h
 
 noinst_HEADERS = \
-    dlg_main_setup.h \
-    dlg_macro_table.h
+	signal_handlers.h \
+    macro_utils.h
 
 ibus_setup_unikey_CXXFLAGS = \
-    @IBUS_CFLAGS@ \
     @GTK_CFLAGS@
 
 ibus_setup_unikey_LDFLAGS = \
-    @IBUS_LIBS@ \
+    -rdynamic \
     @GTK_LIBS@ \
     $(top_builddir)/ukengine/libunikey-ibus.la \
     $(top_builddir)/src/config/ibus_engine_unikey-unikey_config.o

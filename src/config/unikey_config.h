@@ -1,6 +1,7 @@
 #if !defined (__IBUS_UNIKEY_CONFIG_H__)
 #define __IBUS_UNIKEY_CONFIG_H__
 
+#include <map>
 #include <gio/gio.h>
 
 #include "ukengine.h"
@@ -18,12 +19,23 @@
 #define CONFIG_MACROENABLED      "macro-enabled"
 #define CONFIG_STANDALONEW       "standalone-w-as-uw"
 
-extern const gchar*          Unikey_IMNames[];
-extern const UkInputMethod   Unikey_IM[];
-extern const unsigned int    NUM_INPUTMETHOD;
-extern const gchar*          Unikey_OCNames[];
-extern const unsigned int    Unikey_OC[];
-extern const unsigned int    NUM_OUTPUTCHARSET;
+const std::map<const std::string, std::pair<UkInputMethod, const gchar*>> input_method_map {
+    { "telex",   { UkTelex,        "Extend Telex" } },
+    { "vni",     { UkVni,          "VNI" } },
+    { "stelex",  { UkSimpleTelex,  "STelex" } },
+    { "stelex2", { UkSimpleTelex2, "STelex 2" } },
+};
+
+const std::map<const std::string, std::pair<unsigned int, const gchar*>> output_charset_map {
+    { "unicode", { CONV_CHARSET_XUTF8,       "Unicode" } },
+    { "tcvn3",   { CONV_CHARSET_TCVN3,       "TCVN3" } },
+    { "vni-win", { CONV_CHARSET_VNIWIN,      "VNI Win" } },
+    { "viqr",    { CONV_CHARSET_VIQR,        "VIQR" } },
+    { "bk-hcm2", { CONV_CHARSET_BKHCM2,      "BK HCM 2" } },
+    { "cstr",    { CONV_CHARSET_UNI_CSTRING, "CString" } },
+    { "ncr-dec", { CONV_CHARSET_UNIREF,      "NCR Decimal" } },
+    { "ncr-hex", { CONV_CHARSET_UNIREF_HEX,  "NCR Hex" } },
+};
 
 #define get_macro_file() (g_build_filename(g_getenv("HOME"), UNIKEY_MACRO_FILE, NULL))
 

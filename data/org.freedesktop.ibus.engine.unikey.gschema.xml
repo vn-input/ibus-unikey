@@ -5,27 +5,27 @@
       path="/org/freedesktop/ibus/engine/unikey/">
     <key name="input-method" type="s">
       <choices>
-        <choice value='Telex'/>
-        <choice value='Vni'/>
-        <choice value='STelex'/>
-        <choice value='STelex2'/>
+        <choice value='telex'/>
+        <choice value='vni'/>
+        <choice value='stelex'/>
+        <choice value='stelex2'/>
       </choices>
-      <default>'Telex'</default>
+      <default>'telex'</default>
       <summary>Input Method</summary>
       <description></description>
     </key>
     <key name="output-charset" type="s">
       <choices>
-        <choice value='Unicode'/>
-        <choice value='TCVN3'/>
-        <choice value='VNI Win'/>
-        <choice value='VIQR'/>
-        <choice value='BK HCM 2'/>
-        <choice value='CString'/>
-        <choice value='NCR Decimal'/>
-        <choice value='NCR Hex'/>
+        <choice value='unicode'/>
+        <choice value='tcvn3'/>
+        <choice value='vni-win'/>
+        <choice value='viqr'/>
+        <choice value='bk-hcm2'/>
+        <choice value='cstr'/>
+        <choice value='ncr-dec'/>
+        <choice value='ncr-hex'/>
       </choices>
-      <default>'Unicode'</default>
+      <default>'unicode'</default>
       <summary>Output charset</summary>
       <description>Allow to choice old Vietnamese charset (hidden setting)</description>
     </key>
