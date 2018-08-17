@@ -1,0 +1,9 @@
+language: cpp
+
+before_install:
+  - sudo apt-get install -y libibus-1.0-dev libgtk-3-dev
+addons:
+  apt:
+    update: true
+
+script: mkdir build && cd build && cmake .. && make
