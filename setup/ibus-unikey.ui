@@ -450,7 +450,7 @@
                 </child>
                 <child>
                   <object class="GtkCheckButton" id="check_autorestorenonvn">
-                    <property name="label" translatable="yes">Auto _restore keys with invalid words</property>
+                    <property name="label" translatable="yes">Auto restore non Vietnamese word</property>
                     <property name="name">cfg_auto-restore-non-vn</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -508,7 +508,7 @@
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkCheckButton" id="check_macroenable">
-                        <property name="label" translatable="yes">Use _macro</property>
+                        <property name="label" translatable="yes">Enable _macro</property>
                         <property name="name">cfg_macro-enabled</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
