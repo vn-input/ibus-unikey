@@ -286,7 +286,13 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
 
     if (strcmp(prop_name, "more-settings") == 0)
     {
-        system(LIBEXECDIR "/ibus-setup-unikey &");
+        int ret = 0;
+
+        ret = system(LIBEXECDIR "/ibus-setup-unikey &");
+        if (ret == -1)
+        {
+	    g_print("Failed to open ibus-setup-unikey");
+        }
         return;
     }
 
