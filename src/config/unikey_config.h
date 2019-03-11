@@ -2,6 +2,7 @@
 #define __IBUS_UNIKEY_CONFIG_H__
 
 #include <map>
+#include <string>
 #include <gio/gio.h>
 
 #include "ukengine.h"
