@@ -1,0 +1,27 @@
+name: Check if the new PR is working well
+
+on: 
+  pull_request:
+    branchs:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cxx: [g++]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: update
+        run: sudo apt update
+      - name: prepare
+        run: while ! sudo apt install qemu; do if ! which qemu-system-x86_64; then sleep 1; else break; fi; done
+      - name: fetch base libraries
+        run: ./tests/pipeline/prepare.sh --dry-run
+      - name: build and test
+        env:
+          CXX: ${{ matrix.cxx }}
+          MEGA: ${{ secrets.MEGA }}
+        run: ./Base/Tests/Pipeline/Create.sh
