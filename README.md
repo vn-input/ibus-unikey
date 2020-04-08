@@ -1,5 +1,5 @@
 ### Hiện tại bộ gõ này không còn được hỗ trợ. Do đó, nếu bạn gặp vấn đề trong quá trình sử dụng thì có thể xem xét sử dụng một trong các tùy chọn sau:
-- [ibus-bambo](https://github.com/BambooEngine/ibus-bambo)
+- [ibus-bamboo](https://github.com/BambooEngine/ibus-bamboo)
 - [ibus-bogo](https://github.com/BoGoEngine/ibus-bogo)
 - Một trong các bản fork của ibus-unikey https://github.com/vn-input/ibus-unikey/network/members
 - Hoặc các bộ gõ khác...
