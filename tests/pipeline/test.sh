@@ -100,6 +100,10 @@ for DISTRO in $(ls -1c $ROOT/tests/pipeline/environments); do
 			for ITEM in $(ls -1c $ROOT/tests); do
 				if [ $ITEM = "pipeline" ]; then
 					continue
+				elif [ ! -d $ROOT/tests/$ITEM ]; then
+					continue
+				elif [ ! -d $ROOT/tests/$ITEM/steps ]; then
+					continue
 				fi
 				
 				export SUITE="$ROOT/tests/$ITEM"
