@@ -6,6 +6,7 @@ ROOT="$(git rev-parse --show-toplevel)"
 
 source $PIPELINE/libraries/Logcat.sh
 source $PIPELINE/libraries/Package.sh
+source $PIPELINE/libraries/Console.sh
 
 SCRIPT="$(basename "$0")"
 
@@ -82,22 +83,50 @@ for DISTRO in $(ls -1c $ROOT/tests/pipeline/environments); do
 
 	IDX=$((IDX+1))
 	AVAILABLE=0
+	BUILDER="/home/$(username)/ibus-unikey/Base/Tools/Builder/build"
 
 	for I in {0..50}; do
+		export MACHINE="$DISTRO"
+		export ADDRESS="192.168.100.2"
+
 		if ! sshpass -p "rootroot" ssh $SSHOPTs root@192.168.100.2 -tt exit 0 &> /dev/null; then
 			sleep 10
-		elif ! sshpass -p "rootroot" ssh $SSHOPTs root@192.168.100.2 -tt "echo '$(username):$(password)' | chpasswd"; then
-			error "can't change password account $(username)"
-		elif ! sshpass -p "$(password)" ssh $SSHOPTs $(username)@192.168.100.2 -tt exit 0; then
-			error "it seems $(username)'s password is set wrong"
-		elif ! is_fully_started "192.168.100.2"; then
+			continue
+		elif [ -d $ROOT/build ]; then
+			rm -fr $ROOT/build
+
+			if ! sshpass -p "rootroot" ssh $SSHOPTs root@192.168.100.2 -tt "echo '$(username):$(password)' | chpasswd" &> /dev/null; then
+				error "can't change password account $(username)"
+			elif ! sshpass -p "$(password)" ssh $SSHOPTs $(username)@192.168.100.2 -tt exit 0 &> /dev/null; then
+				error "it seems $(username)'s password is set wrong"
+			elif ! rsync_to_test_machine $ROOT --exclude={'pxeboot','vms'}; then
+				error "can't rsync $ROOT to /home/$(username)/ibus-unikey"
+			elif exec_on_test_machine_without_output "mkdir /home/$(username)/ibus-unikey/build"; then
+				if ! exec_on_test_machine "cd ~/ibus-unikey && BUILD='-DCMAKE_INSTALL_PREFIX=/usr' $BUILDER --root /home/$(username)/ibus-unikey --rebuild 0 --mode 1"; then
+					error "can't build ibus-unikey with machine $MACHINE"
+				fi
+			fi
+		fi
+
+		if ! is_fully_started "192.168.100.2"; then
 			sleep 10
 		else
 			AVAILABLE=1
+			CURRENT=$(pwd)
 
 			info "machine $DISTRO is available now, going to test our test suites"
+				
+			if exec_on_test_machine 'loginctl session-status 1 | grep Service: | grep wayland'; then
+				export DISPLAY="WAYLAND_DISPLAY=wayland-0 DISPLAY=:0"
+
+				warning "machine $MACHINE is using wayland"
+			else
+				export DISPLAY="DISPLAY=:0"
+			fi
 
 			for ITEM in $(ls -1c $ROOT/tests); do
+				cd $CURRENT
+
 				if [ $ITEM = "pipeline" ]; then
 					continue
 				elif [ ! -d $ROOT/tests/$ITEM ]; then
@@ -105,13 +134,29 @@ for DISTRO in $(ls -1c $ROOT/tests/pipeline/environments); do
 				elif [ ! -d $ROOT/tests/$ITEM/steps ]; then
 					continue
 				fi
-				
+			 	
 				export SUITE="$ROOT/tests/$ITEM"
-				export MACHINE="$DISTRO"
-				export ADDRESS="192.168.100.2"
 
 				for STEP in $(ls -1c $SUITE/steps | sort); do
-					. $SUITE/steps/$STEP
+					EXT="${STEP##*.}"
+					
+					warning """starting $STEP of suite $(basename $SUITE)"
+
+					if [ $EXT = 'sh' ]; then
+						. $SUITE/steps/$STEP
+					else
+						echo """-------------------------------------------------------------------------------
+"""
+						if ! copy_to_test_machine $SUITE/steps/$STEP; then
+							error "fail to copy $STEP to $MACHINE"
+						elif ! exec_on_test_machine "$DISPLAY ~/$STEP"; then
+							error "fail at step $STEP"
+						fi
+
+						echo "-------------------------------------------------------------------------------"
+					fi
+
+					info "Done $STEP of suite $(basename $SUITE)"
 				done
 			done
 			break

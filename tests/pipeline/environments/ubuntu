@@ -78,9 +78,9 @@ function extract() {
 }
 
 function is_fully_started() {
-	if ! sshpass -p rootroot ssh -o LogLevel=QUIET root@$1 'ps -aux | grep nautilus | grep -v grep' &> /dev/null; then
+	if ! sshpass -p rootroot ssh -o LogLevel=QUIET root@$1 'ps -aux | grep ibus-daemon | grep -v grep' &> /dev/null; then
 		return -1
-	elif ! sshpass -p ubuntu ssh -o LogLevel=QUIET ubuntu@$1 'gsettings set org.gnome.desktop.interface toolkit-accessibility true' &> /dev/null; then
+	elif ! sshpass -p ubuntu ssh -o LogLevel=QUIET ubuntu@$1 'gsettings set org.gnome.desktop.interface toolkit-accessibility true'; then
 		return -1
 	else
 		sleep 10
@@ -112,6 +112,22 @@ nameserver 8.8.4.4
 			error "can't use \`add-apt-repository universe\`"
 		elif ! sudo apt update &> /dev/null; then
 			error "can't use \`apt-get update\`"
+		elif ! sudo apt install -y git &> /dev/null; then
+			error "can't run \`apt-get install -y git\`"
+		elif ! sudo apt install -y lcov &> /dev/null; then
+			error "can't run \`apt-get install -y lcov\`"
+		elif ! sudo apt install -y build-essential &> /dev/null; then
+			error "can't run \`apt-get install -y build-essential\`"
+		elif ! sudo apt install -y build-essential &> /dev/null; then
+			error "can't run \`apt-get install -y build-essential\`"
+		elif ! sudo apt install -y libibus-1.0-dev &> /dev/null; then
+			error "can't run \`apt-get install -y libibus-1.0-dev\`"
+		elif ! sudo apt install -y libgtk-3-dev &> /dev/null; then
+			error "can't run \`apt-get install -y libgtk-3-dev\`"
+		elif ! sudo apt install -y gettext &> /dev/null; then
+			error "can't run \`apt-get install -y gettext\`"
+		elif ! sudo apt install -y cmake &> /dev/null; then
+			error "can't run \`apt-get install -y cmake\`"
 		elif ! sudo apt install -y openssh-server &> /dev/null; then
 			error "can't run \`apt-get install -y openssh-server\`"
 		elif ! sudo apt install -y python3-dogtail &> /dev/null; then

@@ -27,10 +27,6 @@ if [ $(which git) ]; then
 	ROOT="$(git rev-parse --show-toplevel)"
 	BUILDER=$ROOT/Base/Tools/Builder/build
 
-	if ! $BUILDER --root $ROOT --debug 1 --rebuild 0 --mode $MODE; then
-		exit -1
-	fi
-
 	if [[ $MODE -eq 1 ]] && [[ ${#NODE} -gt 0 ]]; then
 		FORCE=0
 		OTYPE="iso"
@@ -319,6 +315,8 @@ EOF
 		$SU chmod -R 755 $ROOT/pxeboot
 
 		info "going to test with virtual machine"
+	elif ! $BUILDER --root $ROOT --debug 1 --rebuild 0 --mode $MODE; then
+		exit -1
 	fi
 else
 	error "Please install git first"

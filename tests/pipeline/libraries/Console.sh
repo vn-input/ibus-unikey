@@ -1,6 +1,8 @@
 #!/bin/bash
 ROOT="$(git rev-parse --show-toplevel)"
 
+source $ROOT/tests/pipeline/libraries/Package.sh
+
 function copy_to_test_machine() {
 	if [[ ${#MACHINE} -gt 0 ]]; then
 		source $ROOT/tests/pipeline/environments/$MACHINE
@@ -20,8 +22,11 @@ function copy_to_test_machine() {
 		return -4
 	fi
 }
-		
-function exec_on_test_machine() {
+
+function rsync_to_test_machine() {
+	INPUT=$1
+	shift
+
 	if [[ ${#MACHINE} -gt 0 ]]; then
 		source $ROOT/tests/pipeline/environments/$MACHINE
 	else
@@ -29,13 +34,71 @@ function exec_on_test_machine() {
 	fi
 
 	if [[ ${#ADDRESS} -gt 0 ]]; then
+		if ! sshpass -p $(password) rsync $@ -a $INPUT $(username)@$ADDRESS:~/; then
+			return -2
+		fi
+	fi
+}
+
+function exec_on_test_machine() {
+	if [[ ${#MACHINE} -gt 0 ]]; then
+		source $ROOT/tests/pipeline/environments/$MACHINE
+	else
+		return -1
+	fi
+
+	while [ $# -gt 0 ]; do
+		case $1 in
+			--timeout)	TIMEOUT="$2"; shift;;
+			--add-arg)	ARGUMENTs="$ARGUMENTs $2"; shift;;
+			(--) 		shift; break;;
+			(-*)		break;;
+			(*) 		break;;
+		esac
+		shift
+	done
+
+	if [[ ${#ADDRESS} -gt 0 ]]; then
 		SSHOPTs="-o StrictHostKeyChecking=no"
 
-		if [[ $# -eq 2 ]]; then
-			if ! timeout $1 sshpass -p "$(password)" ssh $SSHOPTs "$(username)@$ADDRESS" "$2"; then
+		if [[ ${#TIMEOUT} -ne 0 ]]; then
+			if ! timeout $TIMEOUT sshpass -p "$(password)" ssh $ARGUMENTs $SSHOPTs "$(username)@$ADDRESS" "$@"; then
 				return -2
 			fi
-		elif ! sshpass -p "$(password)" ssh $SSHOPTs "$(username)@$ADDRESS" "$1"; then
+		elif ! sshpass -p "$(password)" ssh $ARGUMENTs $SSHOPTs "$(username)@$ADDRESS" "$@"; then
+			return -2
+		fi
+	else
+		return -3
+	fi
+}
+
+function exec_on_test_machine_without_output() {
+	if [[ ${#MACHINE} -gt 0 ]]; then
+		source $ROOT/tests/pipeline/environments/$MACHINE
+	else
+		return -1
+	fi
+
+	while [ $# -gt 0 ]; do
+		case $1 in
+			--timeout)	TIMEOUT="$2"; shift;;
+			--add-arg)	ARGUMENTs="$ARGUMENTs $2"; shift;;
+			(--) 		shift; break;;
+			(-*)		break;;
+			(*) 		break;;
+		esac
+		shift
+	done
+
+	if [[ ${#ADDRESS} -gt 0 ]]; then
+		SSHOPTs="-o StrictHostKeyChecking=no"
+
+		if [[ ${#TIMEOUT} -ne 0 ]]; then
+			if ! timeout $TIMEOUT sshpass -p "$(password)" ssh $ARGUMENTs $SSHOPTs "$(username)@$ADDRESS" "$@" &> /dev/null; then
+				return -2
+			fi
+		elif ! sshpass -p "$(password)" ssh $ARGUMENTs $SSHOPTs "$(username)@$ADDRESS" "$@" &> /dev/null; then
 			return -2
 		fi
 	else
@@ -64,3 +127,4 @@ function install_package_to_test_machine() {
 		return -3
 	fi
 }
+
