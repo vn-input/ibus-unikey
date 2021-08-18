@@ -157,3 +157,4 @@ static IBusComponent* ibus_unikey_get_component()
     return component;
 }
 
+//my command
