@@ -1,9 +1,23 @@
+dist: bionic
 language: cpp
+branches:
+  only:
+    - master
 
 before_install:
   - sudo apt-get install -y libibus-1.0-dev libgtk-3-dev
+  - sudo apt-get install -y qemu-kvm qemu-utils
 addons:
   apt:
     update: true
 
-script: mkdir build && cd build && cmake .. && make
+install:
+  - echo "is it suppoted kvm? $(egrep -c '(vmx|svm)' /proc/cpuinfo)"
+  - sudo lsmod | grep kvm
+  - if [ -f /dev/kvm ]; then echo "/dev/kvm exists"; else echo "/dev/kvm not exists"; fi
+
+script:
+  -  mkdir build && cd build && cmake .. && make
+  - cd ..
+  - ./tests/pipeline/prepare.sh --dry-run # @NOTE: fetch libraries to build a new pipeline
+  - ./Base/Tests/Pipeline/Create.sh # @NOTE: request create new pipeline with the current repository

@@ -1,0 +1,199 @@
+#!/bin/bash
+
+export INSTALL="apt install -y"
+
+if [[ $(ls -id / | awk '{ print $1 }') -eq 2 ]]; then
+	ROOT="$(git rev-parse --show-toplevel)"
+	BASE="$ROOT/Base"
+
+	source "$BASE/Tests/Pipeline/Libraries/Logcat.sh"
+	source "$BASE/Tests/Pipeline/Libraries/Package.sh"
+else
+	function error(){
+		if [ $# -eq 2 ]; then
+			echo "[  ERROR  ]: $1 line ${SCRIPT}:$2"
+		else
+			echo "[  ERROR  ]: $1 in ${SCRIPT}"
+		fi
+		exit -1
+	}
+fi
+
+function interface() {
+	echo "ens4"
+}
+
+function username() {
+	echo "ubuntu"
+}
+
+function password() {
+	echo "ubuntu"
+}
+
+function version() {
+	URL=$(curl -ksS https://ubuntu.com/download/desktop | grep "/download/desktop/thank-you" | awk '{ split($0,a,"href=\""); split(a[2],b,"\" onclick="); print b[1] }')
+
+	echo "$(echo $URL | awk '{ split($0,a,"version="); split(a[2],b,"&amp;"); print b[1] }')"
+}
+
+function fetch() {
+	if [ "$1" = 'iso' ]; then
+		URL=$(curl -ksS https://ubuntu.com/download/desktop | grep "/download/desktop/thank-you" | awk '{ split($0,a,"href=\""); split(a[2],b,"\" onclick="); print b[1] }')
+		VERSION=$(echo $URL | awk '{ split($0,a,"version="); split(a[2],b,"&amp;"); print b[1] }')
+		ARCH=$(echo $URL | awk '{ split($0,a,"architecture="); print a[2] }')
+
+		if [[ ${#URL} -gt 0 ]]; then
+			curl -ksSo ${2}/${3} https://releases.ubuntu.com/$VERSION/ubuntu-${VERSION}-desktop-${ARCH}.iso
+		else
+			return -1
+		fi
+	fi
+}
+
+function extract() {
+	CHECK=$6
+	OLDCD=$2/livecd
+	MIRROR=$5
+	ISQUASHFS=$2/squashfs
+	WORKSPACE=$3
+
+	if [ "$1" = 'iso' ]; then
+		info "synchronize $OLDCD to $WORKSPACE"
+
+		if [ -f $MIRROR/ubuntu.squashfs ]; then
+			if ! mv $MIRROR/ubuntu.squashfs $MIRROR/filesystem.squashfs; then
+				error "can't rename ${NAME}.squashfs"
+			fi
+		elif [[ $CHECK -eq 1 ]]; then
+			error "can't find $MIRROT/Unbuntu.squashfs as expected"
+		fi
+
+		if ! rsync --exclude=/livecd/casper/filesystem.squashfs -a $OLDCD $WORKSPACE &> /dev/null; then
+			error "can't sync $OLDCD to $WORKSPACE"
+		fi
+
+		return 0
+	fi
+}
+
+function is_fully_started() {
+	if ! sshpass -p rootroot ssh -o LogLevel=QUIET root@$1 'ps -aux | grep ibus-daemon | grep -v grep' &> /dev/null; then
+		return -1
+	elif ! sshpass -p ubuntu ssh -o LogLevel=QUIET ubuntu@$1 'gsettings set org.gnome.desktop.interface toolkit-accessibility true'; then
+		return -1
+	else
+		sleep 10
+	fi
+
+	if [ $(sshpass -p ubuntu ssh -o LogLevel=QUIET ubuntu@$1 'gsettings get org.gnome.desktop.interface toolkit-accessibility') = 'false' ]; then
+		return -1
+	fi
+}
+
+function configure() {
+	# @NOTE: this function should be run inside the rootfs when we start chroot
+
+	if [ "$1" = 'iso' ]; then
+		# @NOTE: change password root to rootroot as the default password
+		# so we can ssh to this machine and perform testing on it
+		if ! echo 'root:rootroot' | chpasswd; then
+			error "can't change root's password"
+		fi
+
+		# @NOTE: config nameserver to make nslookup, dig work
+		echo """
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+""" >> /etc/resolv.conf
+		if ! sudo add-apt-repository multiverse &> /dev/null; then
+			error "can't use \`add-apt-repository multiverse\`"
+		elif ! sudo add-apt-repository universe &> /dev/null; then
+			error "can't use \`add-apt-repository universe\`"
+		elif ! sudo apt update &> /dev/null; then
+			error "can't use \`apt-get update\`"
+		elif ! sudo apt install -y git &> /dev/null; then
+			error "can't run \`apt-get install -y git\`"
+		elif ! sudo apt install -y lcov &> /dev/null; then
+			error "can't run \`apt-get install -y lcov\`"
+		elif ! sudo apt install -y build-essential &> /dev/null; then
+			error "can't run \`apt-get install -y build-essential\`"
+		elif ! sudo apt install -y build-essential &> /dev/null; then
+			error "can't run \`apt-get install -y build-essential\`"
+		elif ! sudo apt install -y libibus-1.0-dev &> /dev/null; then
+			error "can't run \`apt-get install -y libibus-1.0-dev\`"
+		elif ! sudo apt install -y libgtk-3-dev &> /dev/null; then
+			error "can't run \`apt-get install -y libgtk-3-dev\`"
+		elif ! sudo apt install -y gettext &> /dev/null; then
+			error "can't run \`apt-get install -y gettext\`"
+		elif ! sudo apt install -y cmake &> /dev/null; then
+			error "can't run \`apt-get install -y cmake\`"
+		elif ! sudo apt install -y openssh-server &> /dev/null; then
+			error "can't run \`apt-get install -y openssh-server\`"
+		elif ! sudo apt install -y python3-dogtail &> /dev/null; then
+			error "can't run \`apt-get install -y python3-dogtail\`"
+		elif ! sudo apt install -y python3-unittest2 &> /dev/null; then
+			error "can't run \`apt-get install -y python3-unittest2\`"
+		elif ! sudo apt clean &> /dev/null; then
+			error "can't run \`apt-get clean\`"
+		elif ! sudo systemctl enable ssh &> /dev/null; then
+			error "can't run \`systemctl enable ssh \`"
+		fi
+
+		# @NOTE: allow root access
+		echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+
+		# @NOTE: create symlink /usr/bin/python3 to /usr/bin/python
+		if [ ! -e /usr/bin/python ]; then
+			ln -s /usr/bin/python3 /usr/bin/python
+		fi
+	fi
+}
+
+function finish() {
+	OSQUASHFS="$4"
+	WORKSPACE="$3"
+	LIVECD="$2"
+
+	if [ "$1" = 'iso' ]; then
+		mkdir -p $LIVECD/casper
+
+		info "generate $LIVECD/casper/filesystem.manifest and $LIVECD/casper/filesystem.manifest-desktop"
+		if [ -f $LIVECD/casper/filesystem.manifest ]; then
+			$SU chmod +w $LIVECD/casper/filesystem.manifest
+		else
+			touch $LIVECD/casper/filesystem.manifest
+		fi
+
+		if $SU chroot $WORKSPACE/squashfs dpkg-query -W --showformat='${Package} ${Version}\n' | $SU tee $LIVECD/casper/filesystem.manifest &> /dev/null; then
+			$SU cp $LIVECD/casper/filesystem.manifest $LIVECD/casper/filesystem.manifest-desktop
+		else
+			error "can't generate $LIVECD/casper/filesystem.manifest and $LIVECD/casper/filesystem.manifest-desktop"
+		fi
+
+		info "compress $LIVECD/casper/filesystem.squashfs"
+		if $SU mksquashfs $WORKSPACE/squashfs $LIVECD/casper/filesystem.squashfs; then
+			$SU bash -c "cd $LIVECD && find . -type f -exec md5sum {} +" | $SU tee $LIVECD/md5sum.txt &> /dev/null
+		else
+			error "can't fully compress filesystem.squashfs"
+		fi
+	elif [ -d $OSQUASHFS/casper ]; then
+		info "copy vmlinuz and initrd from $LIVECD/casper to $OSQUASHFS/casper"
+
+		if ! $SU rsync -zh $LIVECD/casper/vmlinuz $OSQUASHFS/casper; then
+			error "can't copy $LIVECD/casper/vmlinuz to $OSQUASHFS/casper"
+		elif ! $SU rsync -zh $LIVECD/casper/initrd $OSQUASHFS/casper; then
+			error "can't copy $LIVECD/casper/initrd to $OSQUASHFS/casper"
+		fi
+	else
+		mkdir -p $OSQUASHFS/boot
+		
+		info "copy vmlinuz and initrd from $LIVECD/casper to $OSQUASHFS/boot"
+
+		if ! $SU rsync -zh $LIVECD/casper/vmlinuz $OSQUASHFS/boot; then
+			error "can't copy $LIVECD/casper/vmlinuz to $OSQUASHFS/boot"
+		elif ! $SU rsync -zh $LIVECD/casper/initrd $OSQUASHFS/boot; then
+			error "can't copy $LIVECD/casper/initrd to $OSQUASHFS/boot"
+		fi
+	fi
+}

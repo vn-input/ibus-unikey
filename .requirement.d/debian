@@ -1,0 +1,16 @@
+gdb
+lcov
+make
+pxelinux
+syslinux-common
+cmake
+atftpd
+sshpass
+megatools
+libx11-dev
+libibus-1.0-dev
+libgtk-3-dev
+genisoimage
+squashfs-tools
+nfs-ganesha
+nfs-kernel-server
