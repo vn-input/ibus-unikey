@@ -38,9 +38,9 @@
  * Loads the specified input macro file, reports the entry count, writes it to
  * the output file, then reloads the output file and reports the count again.
  * This helps detect serialization issues during changes to CMacroTable.
- * @param argc Description of argc.
- * @param argv Description of argv.
- * @return Return value.
+ * @param argc Number of command-line arguments (should be 3).
+ * @param argv Array of argument strings: input file path followed by output file path.
+ * @return Exit status: 0 on success, non-zero on error.
  */
 
 int main(int argc, char** argv) {
