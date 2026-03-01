@@ -1598,9 +1598,16 @@ VnCharset * CVnCharsetLib::getVnCharset(int charsetIdx)
 
 //-------------------------------------------------
 /**
- * @brief VnConvSetOptions.
+ * @brief Apply a new set of global conversion options.
  *
- * @param pOptions Pointer to an options structure.
+ * The charset library maintains a single shared options structure
+ * within the global `VnCharsetLibObj` instance.  This helper copies the
+ * contents of the caller-provided @p pOptions into that global object.
+ * The caller retains ownership of the memory pointed to by @p pOptions;
+ * only the values are duplicated.
+ *
+ * @param pOptions Pointer to an options structure whose fields should be
+ *        copied into the library's active configuration.
  */
 DllExport void VnConvSetOptions(VnConvOptions *pOptions)
 {
@@ -1609,9 +1616,15 @@ DllExport void VnConvSetOptions(VnConvOptions *pOptions)
 
 //-------------------------------------------------
 /**
- * @brief VnConvGetOptions.
+ * @brief Retrieve the current global conversion options.
  *
- * @param pOptions Pointer to an options structure.
+ * The values stored in the library's internal `m_options` member are
+ * copied into the structure pointed to by @p pOptions.  This enables
+ * callers to inspect the active settings without directly accessing the
+ * internal object.
+ *
+ * @param pOptions Pointer to a caller-allocated structure that will
+ *        receive the current option values.
  */
 DllExport void VnConvGetOptions(VnConvOptions *pOptions)
 {
@@ -1620,9 +1633,15 @@ DllExport void VnConvGetOptions(VnConvOptions *pOptions)
 
 //-------------------------------------------------
 /**
- * @brief VnConvResetOptions.
+ * @brief Initialise an options structure with library defaults.
  *
- * @param pOptions Pointer to an options structure.
+ * The caller may use this function when creating a new `VnConvOptions`
+ * instance to ensure it contains the default behaviour defined by the
+ * library.  Settings such as VIQR escaping and smart-VIQR are enabled or
+ * disabled as appropriate.
+ *
+ * @param pOptions Pointer to an options structure that will be filled
+ *        with default values.  No global state is modified by this call.
  */
 DllExport void VnConvResetOptions(VnConvOptions *pOptions)
 {
@@ -1771,10 +1790,17 @@ int WinCP1258Charset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLe
 #define IS_EVEN(x) (!(x & 1))
 
 /**
- * @brief StdVnToUpper.
+ * @brief Convert a standard Vietnamese character to uppercase.
+ *
+ * The library encodes letters using a consecutive range starting at
+ * `VnStdCharOffset`.  Within the alphabetic subset (`TOTAL_ALPHA_VNCHARS`)
+ * odd/even values correspond to lowercase/uppercase pairs.  This helper
+ * returns the uppercase equivalent when passed a lowercase character;
+ * other codes are returned unchanged.
  *
  * @param ch Standard Vietnamese character code to transform.
- * @return Return value.
+ * @return Uppercase character code if conversion applied, otherwise the
+ *         original value.
  */
 StdVnChar StdVnToUpper(StdVnChar ch)
 {
@@ -1787,10 +1813,16 @@ StdVnChar StdVnToUpper(StdVnChar ch)
 
 //----------------------------------------
 /**
- * @brief StdVnToLower.
+ * @brief Convert a standard Vietnamese character to lowercase.
+ *
+ * Mirror operation of @c StdVnToUpper: uppercase characters within the
+ * alphabetic range are represented by odd/even value pairs.  If the
+ * input is uppercase the corresponding lowercase code is returned;
+ * otherwise the original character is returned unchanged.
  *
  * @param ch Standard Vietnamese character code to transform.
- * @return Return value.
+ * @return Lowercase character code if conversion applied, otherwise the
+ *         original value.
  */
 StdVnChar StdVnToLower(StdVnChar ch)
 {
@@ -1803,10 +1835,17 @@ StdVnChar StdVnToLower(StdVnChar ch)
 
 //----------------------------------------
 /**
- * @brief StdVnGetRoot.
+ * @brief Strip diacritics and obtain the root character.
  *
- * @param ch Description of ch.
- * @return Return value.
+ * Vietnamese characters with tone or other marks are stored sequentially
+ * after their base form.  This routine looks up the given code in the
+ * `StdVnRootChar` table and returns the equivalent character without any
+ * diacritical modifiers.  Codes outside the valid range are returned
+ * unchanged.
+ *
+ * @param ch Standard Vietnamese character code, potentially accented.
+ * @return Base character code without tone/diacritic, or the original
+ *         value if no mapping exists.
  */
 StdVnChar StdVnGetRoot(StdVnChar ch)
 {
