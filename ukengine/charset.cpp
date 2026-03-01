@@ -1063,8 +1063,14 @@ VIQRCharset::VIQRCharset(UKDWORD *vnChars)
 
 //---------------------------------------------------
 /**
- * @brief startInput.
+ * @brief Prepare the object for a new input stream.
  *
+ * This routine clears any transient parsing state used when converting
+ * a sequence of bytes into standard Vietnamese characters under the
+ * VIQR rules.  It should be called before processing each separate input
+ * buffer so that flags such as @c m_suspicious and @c m_gotTone do not
+ * carry over from the previous data.  If escaping is enabled the
+ * escape pattern matcher is also reset.
  */
 void VIQRCharset::startInput()
 {
