@@ -1343,8 +1343,11 @@ UTF8VIQRCharset::UTF8VIQRCharset(UnicodeUTF8Charset *pUtf, VIQRCharset *pViqr)
 
 //-----------------------------------------
 /**
- * @brief startInput.
+ * @brief Reset both underlying charsets before input.
  *
+ * This proxy simply forwards the call to its UTF-8 and VIQR members so
+ * that any state they maintain for processing streams is cleared.  Use
+ * this before feeding a new buffer to `nextInput()`.
  */
 void UTF8VIQRCharset::startInput()
 {
@@ -1354,8 +1357,10 @@ void UTF8VIQRCharset::startInput()
 
 //-----------------------------------------
 /**
- * @brief startOutput.
+ * @brief Reset both underlying charsets before output.
  *
+ * Calls `startOutput()` on the UTF-8 and VIQR objects so they can clear
+ * any internal flags before a new sequence of `putChar()` calls.
  */
 void UTF8VIQRCharset::startOutput()
 {
