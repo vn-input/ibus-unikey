@@ -65,6 +65,12 @@ static IBusEngineClass* parent_class = NULL;
 
 static IBusUnikeyEngine* unikey; // current (focus) unikey engine
 
+/**
+ * @brief Return the GType for the Unikey engine class.
+ *
+ * This implements the boilerplate required by the GObject type system.
+ * @return `GType` for IBusUnikeyEngine.
+ */
 GType ibus_unikey_engine_get_type(void)
 {
     static GType type = 0;
@@ -92,6 +98,10 @@ GType ibus_unikey_engine_get_type(void)
     return type;
 }
 
+/**
+ * @brief Perform module-level initialization when the engine is loaded.
+ * @param bus IBus bus connection passed by the caller.
+ */
 void ibus_unikey_init(IBusBus* bus)
 {
     UnikeySetup();
@@ -100,11 +110,19 @@ void ibus_unikey_init(IBusBus* bus)
     ibus_unikey_config_on_changed(ibus_unikey_config_value_changed, NULL);
 }
 
+/**
+ * @brief Clean up resources when the engine is unloaded.
+ */
 void ibus_unikey_exit()
 {
     UnikeyCleanup();
 }
 
+/**
+ * @brief Class initializer invoked by the GType system.
+ *
+ * Sets up the engine class virtual methods and property hooks.
+ */
 static void ibus_unikey_engine_class_init(IBusUnikeyEngineClass* klass)
 {
     GObjectClass* object_class         = G_OBJECT_CLASS(klass);
@@ -125,6 +143,10 @@ static void ibus_unikey_engine_class_init(IBusUnikeyEngineClass* klass)
     engine_class->property_activate = ibus_unikey_engine_property_activate;
 }
 
+/**
+ * @brief Instance initializer for new engine objects.
+ * @param unikey Newly-allocated engine instance.
+ */
 static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
 {
     ibus_unikey_engine_load_config(unikey);
@@ -137,6 +159,12 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
     ibus_unikey_engine_create_property_list(unikey);
 }
 
+/**
+ * @brief Locate a property by key within an IBusPropList.
+ * @param list Property list to search.
+ * @param key String key name to match.
+ * @return Matching IBusProperty pointer or NULL if not found.
+ */
 static IBusProperty* find_prop_from_list(IBusPropList* list, const char* key)
 {
     for (guint i = 0; i < list->properties->len ; i++)
@@ -150,6 +178,10 @@ static IBusProperty* find_prop_from_list(IBusPropList* list, const char* key)
     return NULL;
 }
 
+/**
+ * @brief Synchronize UI property objects with current engine options.
+ * @param unikey Engine instance whose properties are being updated.
+ */
 static void ibus_unikey_engine_update_property_list(IBusUnikeyEngine* unikey)
 {
     bool b;
@@ -180,6 +212,9 @@ static void ibus_unikey_engine_update_property_list(IBusUnikeyEngine* unikey)
     }
 }
 
+/**
+ * @brief Load saved configuration values into the engine instance.
+ */
 static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey)
 {
     gchar* str;
@@ -227,6 +262,9 @@ static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey)
     g_free(fn);
 }
 
+/**
+ * @brief Custom GObject constructor override for the engine.
+ */
 static GObject* ibus_unikey_engine_constructor(GType type,
                                                guint n_construct_params,
                                                GObjectConstructParam* construct_params)
@@ -241,6 +279,9 @@ static GObject* ibus_unikey_engine_constructor(GType type,
     return (GObject*)unikey;
 }
 
+/**
+ * @brief Destructor called when an engine object is freed.
+ */
 static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey)
 {
     delete unikey->preeditstr;
@@ -249,6 +290,9 @@ static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey)
     IBUS_OBJECT_CLASS(parent_class)->destroy((IBusObject*)unikey);
 }
 
+/**
+ * @brief Reset the internal preedit buffer of @p engine.
+ */
 static void ibus_unikey_buffer_reset(IBusEngine* engine)
 {
     unikey = (IBusUnikeyEngine*)engine;
@@ -258,6 +302,9 @@ static void ibus_unikey_buffer_reset(IBusEngine* engine)
     UnikeyResetBuf();
 }
 
+/**
+ * @brief Commit current preedit buffer content to IBus.
+ */
 static void ibus_unikey_buffer_commit(IBusEngine* engine)
 {
     unikey = (IBusUnikeyEngine*)engine;
@@ -272,6 +319,9 @@ static void ibus_unikey_buffer_commit(IBusEngine* engine)
     ibus_unikey_buffer_reset(engine);
 }
 
+/**
+ * @brief Handler invoked when the engine gets input focus.
+ */
 static void ibus_unikey_engine_focus_in(IBusEngine* engine)
 {
     unikey = (IBusUnikeyEngine*)engine;
@@ -280,23 +330,35 @@ static void ibus_unikey_engine_focus_in(IBusEngine* engine)
     parent_class->focus_in(engine);
 }
 
+/**
+ * @brief Handler invoked when the engine loses focus.
+ */
 static void ibus_unikey_engine_focus_out(IBusEngine* engine)
 {
     ibus_unikey_buffer_reset(engine);
     parent_class->focus_out(engine);
 }
 
+/**
+ * @brief Reset state such as preedit and input method for @p engine.
+ */
 static void ibus_unikey_engine_reset(IBusEngine* engine)
 {
     ibus_unikey_buffer_reset(engine);
     parent_class->reset(engine);
 }
 
+/**
+ * @brief Enable input processing on @p engine (called when engine activated).
+ */
 static void ibus_unikey_engine_enable(IBusEngine* engine)
 {
     parent_class->enable(engine);
 }
 
+/**
+ * @brief Disable input processing on @p engine (called when engine deactivated).
+ */
 static void ibus_unikey_engine_disable(IBusEngine* engine)
 {
     parent_class->disable(engine);
