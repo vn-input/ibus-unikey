@@ -190,6 +190,12 @@ DllInterface extern UkKeyMapping VIQRMethodMapping[];
 DllInterface extern UkKeyMapping MsViMethodMapping[];
 
 extern VnLexiName IsoVnLexiMap[];
+/**
+ * @brief Maps an ISO key code to the lexical category used by Unikey.
+ *
+ * @param keyCode Raw key code.
+ * @return Lexical classification for the key.
+ */
 inline VnLexiName IsoToVnLexi(unsigned int keyCode)
 {
     return (keyCode >= 256)? vnl_nonVnChar : IsoVnLexiMap[keyCode];

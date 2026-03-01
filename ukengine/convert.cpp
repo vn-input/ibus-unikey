@@ -177,6 +177,15 @@ DllExport int VnConvert(int inCharset, int outCharset, UKBYTE *input, UKBYTE *ou
 //     0: successful
 //     errCode: if failed
 //---------------------------------------
+/**
+ * @brief Converts an input file or stream from one charset to another.
+ *
+ * @param inCharset Source charset identifier.
+ * @param outCharset Destination charset identifier.
+ * @param inFile Input file path, or NULL to use stdin.
+ * @param outFile Output file path, or NULL to use stdout.
+ * @return 0 on success or a VNCONV error code.
+ */
 DllExport int VnFileConvert(int inCharset, int outCharset, const char *inFile, const char *outFile)
 {
 	FILE *inf = NULL;
@@ -273,6 +282,15 @@ end:
 //     0: successful
 //     errCode: if failed
 //---------------------------------------
+/**
+ * @brief Converts text between charsets using existing FILE streams.
+ *
+ * @param inCharset Source charset identifier.
+ * @param outCharset Destination charset identifier.
+ * @param inf Input stream.
+ * @param outf Output stream.
+ * @return 0 on success or a VNCONV error code.
+ */
 int vnFileStreamConvert(int inCharset, int outCharset, FILE * inf, FILE *outf)
 {
 	VnCharset *pInCharset = VnCharsetLibObj.getVnCharset(inCharset);
@@ -305,6 +323,12 @@ const char *ErrTable[VNCONV_LAST_ERROR] =
  "Not enough memory",
 };
 
+/**
+ * @brief Returns a readable message for a VNCONV error code.
+ *
+ * @param errCode Error code value.
+ * @return Constant string describing the error.
+ */
 DllExport const char * VnConvErrMsg(int errCode)
 {
 	if (errCode < 0 || errCode >= VNCONV_LAST_ERROR)

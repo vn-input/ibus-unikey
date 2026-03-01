@@ -63,11 +63,20 @@ static const GOptionEntry entries[] =
 
 static IBusComponent* ibus_unikey_get_component();
 
+/**
+ * @brief Handles IBus disconnection and exits the main loop.
+ *
+ * @param bus Disconnected IBus bus instance.
+ * @param user_data Unused callback user data.
+ */
 static void ibus_disconnected_cb(IBusBus* bus, gpointer user_data)
 {
     ibus_quit();
 }
 
+/**
+ * @brief Initializes and runs the ibus-unikey component in daemon mode.
+ */
 static void start_component(void)
 {
     GList* engines;
@@ -102,6 +111,9 @@ static void start_component(void)
     ibus_unikey_exit();
 }
 
+/**
+ * @brief Prints the engine XML definition to standard output.
+ */
 static void print_engines_xml(void)
 {
     IBusComponent* component;
@@ -119,6 +131,13 @@ static void print_engines_xml(void)
     g_string_free(output, TRUE);
 }
 
+/**
+ * @brief Program entry point for the ibus-unikey engine binary.
+ *
+ * @param argc Number of command-line arguments.
+ * @param argv Command-line argument vector.
+ * @return 0 on success, non-zero on argument parsing failure.
+ */
 int main(gint argc, gchar** argv)
 {
     GError* error = NULL;
@@ -158,6 +177,11 @@ and STelex2 (which same as STelex, the difference is it use w as ư).\n\
   - Use <Control> to commit a word.\
 ")
 
+/**
+ * @brief Creates and returns the IBus component descriptor for UniKey.
+ *
+ * @return Newly allocated IBus component object.
+ */
 static IBusComponent* ibus_unikey_get_component()
 {
     IBusComponent* component;

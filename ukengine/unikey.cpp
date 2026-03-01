@@ -73,6 +73,11 @@ int UnikeyBufChars;
 UkOutputType UnikeyOutput;
 
 //--------------------------------------------
+/**
+ * @brief Selects the active input method for the Unikey engine.
+ *
+ * @param im Input method identifier.
+ */
 void UnikeySetInputMethod(UkInputMethod im)
 {
   if (im == UkTelex || im == UkVni || im == UkSimpleTelex || im == UkSimpleTelex2) {
@@ -90,6 +95,12 @@ void UnikeySetInputMethod(UkInputMethod im)
 
 
 //--------------------------------------------
+/**
+ * @brief Updates keyboard case state used by the engine.
+ *
+ * @param shiftPressed Non-zero when Shift is currently pressed.
+ * @param CapsLockOn Non-zero when Caps Lock is enabled.
+ */
 void UnikeySetCapsState(int shiftPressed, int CapsLockOn)
 {
   //UnikeyCapsAll = (shiftPressed && !CapsLockOn) || (!shiftPressed && CapsLockOn);
@@ -98,6 +109,12 @@ void UnikeySetCapsState(int shiftPressed, int CapsLockOn)
 }
 
 //--------------------------------------------
+/**
+ * @brief Sets the output charset and resets composition state.
+ *
+ * @param charset Output charset identifier.
+ * @return Always returns 1.
+ */
 int UnikeySetOutputCharset(int charset)
 {
     pShMem->charsetId = charset;
@@ -106,6 +123,11 @@ int UnikeySetOutputCharset(int charset)
 }
 
 //--------------------------------------------
+/**
+ * @brief Applies runtime options to the shared engine state.
+ *
+ * @param pOpt Pointer to input options.
+ */
 void UnikeySetOptions(UnikeyOptions *pOpt)
 {
   pShMem->options.freeMarking = pOpt->freeMarking;
@@ -118,12 +140,22 @@ void UnikeySetOptions(UnikeyOptions *pOpt)
 }
 
 //--------------------------------------------
+/**
+ * @brief Retrieves current runtime options.
+ *
+ * @param pOpt Output options structure.
+ */
 void UnikeyGetOptions(UnikeyOptions *pOpt)
 {
   *pOpt = pShMem->options;
 }
 
 //--------------------------------------------
+/**
+ * @brief Populates an options structure with default values.
+ *
+ * @param pOpt Output options structure.
+ */
 void CreateDefaultUnikeyOptions(UnikeyOptions *pOpt)
 {
   pOpt->freeMarking = 1;
@@ -136,6 +168,12 @@ void CreateDefaultUnikeyOptions(UnikeyOptions *pOpt)
 }
 
 //--------------------------------------------
+/**
+ * @brief Reports current Shift/CapsLock status to the caller.
+ *
+ * @param pShiftPressed Output Shift state.
+ * @param pCapsLockOn Output Caps Lock state.
+ */
 void UnikeyCheckKbCase(int *pShiftPressed, int *pCapsLockOn)
 {
   *pShiftPressed = UnikeyShiftPressed;
@@ -143,6 +181,9 @@ void UnikeyCheckKbCase(int *pShiftPressed, int *pCapsLockOn)
 }
 
 //--------------------------------------------
+/**
+ * @brief Initializes shared state and the core Unikey engine.
+ */
 void UnikeySetup()
 {
     SetupUnikeyEngine();
@@ -160,12 +201,20 @@ void UnikeySetup()
 }
 
 //--------------------------------------------
+/**
+ * @brief Releases shared resources used by the Unikey engine.
+ */
 void UnikeyCleanup()
 {
   delete pShMem;
 }
 
 //--------------------------------------------
+/**
+ * @brief Feeds one key input into the engine processing pipeline.
+ *
+ * @param ch Input key code.
+ */
 void UnikeyFilter(unsigned int ch)
 {
   UnikeyBufChars = sizeof(UnikeyBuf);
@@ -173,6 +222,11 @@ void UnikeyFilter(unsigned int ch)
 }
 
 //--------------------------------------------
+/**
+ * @brief Forwards one character directly to output without composition.
+ *
+ * @param ch Character code to pass through.
+ */
 void UnikeyPutChar(unsigned int ch)
 {
   MyKbEngine.pass(ch);
@@ -181,18 +235,27 @@ void UnikeyPutChar(unsigned int ch)
 }
 
 //--------------------------------------------
+/**
+ * @brief Clears current composition buffer state.
+ */
 void UnikeyResetBuf()
 {
   MyKbEngine.reset();
 }
 
 //--------------------------------------------
+/**
+ * @brief Switches engine into single-character input mode.
+ */
 void UnikeySetSingleMode()
 {
   MyKbEngine.setSingleMode();
 }
 
 //--------------------------------------------
+/**
+ * @brief Processes a backspace action through the engine.
+ */
 void UnikeyBackspacePress()
 {
   UnikeyBufChars = sizeof(UnikeyBuf);
@@ -201,12 +264,24 @@ void UnikeyBackspacePress()
 }
 
 //--------------------------------------------
+/**
+ * @brief Loads macro definitions from a file.
+ *
+ * @param fileName Macro table file path.
+ * @return Non-zero on success, 0 on failure.
+ */
 int UnikeyLoadMacroTable(const char *fileName)
 {
   return pShMem->macStore.loadFromFile(fileName);
 }
 
 //--------------------------------------------
+/**
+ * @brief Loads a user-defined key mapping file.
+ *
+ * @param fileName User keymap file path.
+ * @return 1 if loaded successfully, otherwise 0.
+ */
 int UnikeyLoadUserKeyMap(const char *fileName)
 {
   if (UkLoadKeyMap(fileName, pShMem->usrKeyMap)) {
@@ -218,12 +293,20 @@ int UnikeyLoadUserKeyMap(const char *fileName)
 }
 
 //--------------------------------------------
+/**
+ * @brief Restores original keystrokes for current composed text.
+ */
 void UnikeyRestoreKeyStrokes()
 {
     UnikeyBufChars = sizeof(UnikeyBuf);
     MyKbEngine.restoreKeyStrokes(UnikeyBackspaces, UnikeyBuf, UnikeyBufChars, UnikeyOutput);
 }
 
+/**
+ * @brief Checks whether the engine is currently at word start.
+ *
+ * @return true when at a word boundary, otherwise false.
+ */
 bool UnikeyAtWordBeginning()
 {
     return MyKbEngine.atWordBeginning();

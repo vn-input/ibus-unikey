@@ -54,6 +54,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////
 
 //----------------------------
+/**
+ * @brief Resets pattern matching state.
+ */
 void PatternState::reset()
 {
 	m_pos = 0;
@@ -61,6 +64,11 @@ void PatternState::reset()
 }
 
 //----------------------------
+/**
+ * @brief Initializes matcher state for a pattern.
+ *
+ * @param pattern NUL-terminated pattern string.
+ */
 void PatternState::init(char *pattern)
 {
 	m_pos = 0;
@@ -80,6 +88,12 @@ void PatternState::init(char *pattern)
 //-----------------------------------------------------
 //get next input char, returns 1 if pattern is found.
 //-----------------------------------------------------
+/**
+ * @brief Feeds one character and reports whether the pattern is matched.
+ *
+ * @param ch Next input character.
+ * @return 1 if the pattern is found at this step, otherwise 0.
+ */
 int PatternState::foundAtNextChar(char ch)
 {
 	int ret = 0;
@@ -95,6 +109,12 @@ int PatternState::foundAtNextChar(char ch)
 }
 
 //-----------------------------------------------------
+/**
+ * @brief Initializes a list of pattern matchers.
+ *
+ * @param patterns Array of pattern strings.
+ * @param count Number of patterns in the array.
+ */
 void PatternList::init(char **patterns, int count)
 {
 	m_count = count;
@@ -109,6 +129,12 @@ void PatternList::init(char **patterns, int count)
 // If more than 1 pattern is found, returns any pattern
 // Returns -1 if no pattern is found
 //-----------------------------------------------------
+/**
+ * @brief Feeds one character to all patterns and reports a matched index.
+ *
+ * @param ch Next input character.
+ * @return Index of a matched pattern, or -1 if none matches.
+ */
 int PatternList::foundAtNextChar(char ch)
 {
 	int patternFound = -1;
@@ -120,6 +146,9 @@ int PatternList::foundAtNextChar(char ch)
 }
 
 //-----------------------------------------------------
+/**
+ * @brief Resets all pattern matchers in the list.
+ */
 void PatternList::reset()
 {
 	for (int i=0; i<m_count; i++)

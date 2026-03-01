@@ -126,6 +126,12 @@ int VnInternalCharset::elementSize()
 }
 
 //-------------------------------------------
+/**
+ * @brief Initializes a single-byte Vietnamese charset mapping table.
+ *
+ * @param vnChars Lookup table that maps standard Vietnamese character indices
+ *        to single-byte encoded values.
+ */
 SingleByteCharset::SingleByteCharset(unsigned char * vnChars)
 {
 	int i;
@@ -213,6 +219,12 @@ int wideCharCompare(const void *ele1, const void *ele2)
 }
 
 //-------------------------------------------
+/**
+ * @brief Initializes Unicode lookup tables for standard Vietnamese characters.
+ *
+ * @param vnChars Lookup table that maps standard Vietnamese character indices
+ *        to Unicode code points.
+ */
 UnicodeCharset::UnicodeCharset(UnicodeChar *vnChars)
 {
 	UKDWORD i;
