@@ -46,9 +46,7 @@ typedef unsigned int UKDWORD;
 class ByteStream {
  public:
 /**
- * @brief ~ByteStream.
- *
- * @return Return value.
+ * @brief Virtual base destructor for byte streams.
  */
   virtual ~ByteStream(){};
 };
@@ -60,46 +58,46 @@ public:
 /**
  * @brief getNext.
  *
- * @param b Description of b.
+ * @param b Byte read from stream.
  */
 	virtual int getNext(UKBYTE &b) = 0;
 /**
  * @brief peekNext.
  *
- * @param b Description of b.
+ * @param b Byte peeked from stream without removing it.
  */
 	virtual int peekNext(UKBYTE &b) = 0;
 /**
  * @brief unget.
  *
- * @param b Description of b.
+ * @param b Byte to push back into stream.
  */
 	virtual int unget(UKBYTE b) = 0;
 
 /**
  * @brief getNextW.
  *
- * @param w Description of w.
+ * @param w 16-bit word read from stream.
  */
 	virtual int getNextW(UKWORD &w) = 0;
 /**
  * @brief peekNextW.
  *
- * @param w Description of w.
+ * @param w 16-bit word peeked without consuming.
  */
 	virtual int peekNextW(UKWORD &w) = 0;
 
 /**
  * @brief getNextDW.
  *
- * @param dw Description of dw.
+ * @param dw 32-bit value read from stream.
  */
 	virtual int getNextDW(UKDWORD &dw) = 0;
 
 /**
- * @brief bookmark.
+ * @brief Save current stream position for later rewind.
  *
- * @return Return value.
+ * @return Non-zero on success, zero if bookmarking is unsupported.
  */
 	virtual int bookmark() //no support for bookmark by default
 	{
@@ -107,9 +105,9 @@ public:
 	}
 
 /**
- * @brief gotoBookmark.
+ * @brief Restore the stream to the last bookmarked position.
  *
- * @return Return value.
+ * @return Non-zero on success, zero if no bookmark exists.
  */
 	virtual int gotoBookmark()
 	{
@@ -135,20 +133,20 @@ public:
 /**
  * @brief putB.
  *
- * @param b Description of b.
+ * @param b Byte to write to stream.
  */
 	virtual int putB(UKBYTE b) = 0;
 /**
  * @brief putW.
  *
- * @param w Description of w.
+ * @param w 16-bit word to write to stream.
  */
 	virtual int putW(UKWORD w) = 0;
 /**
  * @brief puts.
  *
- * @param s Description of s.
- * @param size Description of size.
+ * @param s String to write.
+ * @param size Number of bytes (or -1 for NUL-terminated).
  */
 	virtual int puts(const char *s, int size = -1) = 0; // write an 8-bit string
 /**
@@ -179,39 +177,39 @@ public:
 /**
  * @brief getNext.
  *
- * @param b Description of b.
+ * @param b Byte read from stream.
  */
 	virtual int getNext(UKBYTE &b);
 /**
  * @brief peekNext.
  *
- * @param b Description of b.
+ * @param b Byte peeked from stream without removing it.
  */
 	virtual int peekNext(UKBYTE &b);
 /**
  * @brief unget.
  *
- * @param b Description of b.
+ * @param b Byte to push back into stream.
  */
 	virtual int unget(UKBYTE b);
 
 /**
  * @brief getNextW.
  *
- * @param w Description of w.
+ * @param w 16-bit word read from stream.
  */
 	virtual int getNextW(UKWORD &w);
 /**
  * @brief peekNextW.
  *
- * @param w Description of w.
+ * @param w 16-bit word peeked without consuming.
  */
 	virtual int peekNextW(UKWORD &w);
 
 /**
  * @brief getNextDW.
  *
- * @param dw Description of dw.
+ * @param dw 32-bit value read from stream.
  */
 	virtual int getNextDW(UKDWORD &dw);
 
@@ -243,9 +241,9 @@ public:
  */
 	void reopen();
 /**
- * @brief left.
+ * @brief Get number of bytes remaining in the stream.
  *
- * @return Return value.
+ * @return Number of bytes still available for reading.
  */
 	int left() {
 		return m_left;
@@ -280,13 +278,13 @@ public:
 /**
  * @brief open.
  *
- * @param fileName Description of fileName.
+ * @param fileName Path of file to open.
  */
 	int open(const char *fileName);
 /**
  * @brief attach.
  *
- * @param f Description of f.
+ * @param f Pointer to existing FILE object.
  */
 	void attach(FILE *f);
 /**
@@ -298,39 +296,39 @@ public:
 /**
  * @brief getNext.
  *
- * @param b Description of b.
+ * @param b Byte read from stream.
  */
 	virtual int getNext(UKBYTE &b);
 /**
  * @brief peekNext.
  *
- * @param b Description of b.
+ * @param b Byte peeked from stream without removing it.
  */
 	virtual int peekNext(UKBYTE &b);
 /**
  * @brief unget.
  *
- * @param b Description of b.
+ * @param b Byte to push back into stream.
  */
 	virtual int unget(UKBYTE b);
 
 /**
  * @brief getNextW.
  *
- * @param w Description of w.
+ * @param w 16-bit word read from stream.
  */
 	virtual int getNextW(UKWORD &w);
 /**
  * @brief peekNextW.
  *
- * @param w Description of w.
+ * @param w 16-bit word peeked without consuming.
  */
 	virtual int peekNextW(UKWORD &w);
 
 /**
  * @brief getNextDW.
  *
- * @param dw Description of dw.
+ * @param dw 32-bit value read from stream.
  */
     virtual int getNextDW(UKDWORD &dw);
 
@@ -372,20 +370,20 @@ public:
 /**
  * @brief putB.
  *
- * @param b Description of b.
+ * @param b Byte to write to stream.
  */
 	virtual int putB(UKBYTE b);
 /**
  * @brief putW.
  *
- * @param w Description of w.
+ * @param w 16-bit word to write to stream.
  */
 	virtual int putW(UKWORD w);
 /**
  * @brief puts.
  *
- * @param s Description of s.
- * @param size Description of size.
+ * @param s String to write.
+ * @param size Number of bytes (or -1 for NUL-terminated).
  */
 	virtual int puts(const char *s, int size = -1);
 /**
@@ -395,9 +393,9 @@ public:
 	virtual int isOK(); // get current stream state
 
 /**
- * @brief close.
+ * @brief Close the output stream, flushing buffers if necessary.
  *
- * @return Return value.
+ * @return 1 on success, zero on failure.
  */
 	virtual int close()	
 	{
@@ -410,9 +408,9 @@ public:
  */
 	void reopen();
 /**
- * @brief getOutBytes.
+ * @brief Return number of bytes written so far to the output buffer.
  *
- * @return Return value.
+ * @return Count of bytes produced by the stream.
  */
 	int getOutBytes() {
 		return m_out;
@@ -436,13 +434,13 @@ public:
 /**
  * @brief open.
  *
- * @param fileName Description of fileName.
+ * @param fileName Path of file to open.
  */
 	int open(const char *fileName);
 /**
  * @brief attach.
  *
- * @param FILE Description of FILE.
+ * @param FILE Pointer to a `FILE` object to attach to the stream.
  */
 	void attach(FILE *);
 /**
@@ -454,20 +452,20 @@ public:
 /**
  * @brief putB.
  *
- * @param b Description of b.
+ * @param b Byte to write to stream.
  */
 	virtual int putB(UKBYTE b);
 /**
  * @brief putW.
  *
- * @param w Description of w.
+ * @param w 16-bit word to write to stream.
  */
 	virtual int putW(UKWORD w);
 /**
  * @brief puts.
  *
- * @param s Description of s.
- * @param size Description of size.
+ * @param s String to write.
+ * @param size Number of bytes (or -1 for NUL-terminated).
  */
 	virtual int puts(const char *s, int size = -1);
 /**
