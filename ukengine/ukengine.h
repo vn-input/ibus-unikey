@@ -24,6 +24,11 @@
 #ifndef __UKENGINE_H
 #define __UKENGINE_H
 
+/**
+ * @file ukengine.h
+ * @brief Core engine classes, shared-memory structs, and processing API.
+ */
+
 #include "charset.h"
 #include "vnlexi.h"
 #include "inputproc.h"

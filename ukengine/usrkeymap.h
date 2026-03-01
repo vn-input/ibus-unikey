@@ -24,6 +24,11 @@
 #ifndef __UNIKEY_USER_KEY_MAP_H
 #define __UNIKEY_USER_KEY_MAP_H
 
+/**
+ * @file usrkeymap.h
+ * @brief Load/store API for user-defined key mapping files.
+ */
+
 #include "inputproc.h"
 struct UkKeyMapPair {
     unsigned char   key;

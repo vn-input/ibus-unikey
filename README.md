@@ -1,5 +1,11 @@
 ### Hiện tại bộ gõ này không còn được hỗ trợ chính thức.
 
+<!--
+// Copyright (C) 2026 Hoang Duy Tran & AI Agent
+// Contact:
+//   hoangduytran1960@googlemail.com
+-->
+
 Nếu bạn gặp vấn đề khi sử dụng, bạn có thể cân nhắc:
 - [ibus-bamboo](https://github.com/BambooEngine/ibus-bamboo)
 - [ibus-bogo](https://github.com/BoGoEngine/ibus-bogo)

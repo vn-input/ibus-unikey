@@ -23,6 +23,11 @@
 #ifndef __UK_INPUT_PROCESSOR_H
 #define __UK_INPUT_PROCESSOR_H
 
+/**
+ * @file inputproc.h
+ * @brief Definitions for keyboard input classification and mapping.
+ */
+
 #include "keycons.h"
 #include "vnlexi.h"
 

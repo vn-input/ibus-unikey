@@ -24,6 +24,11 @@
 #ifndef __VN_LEXI_H
 #define __VN_LEXI_H
 
+/**
+ * @file vnlexi.h
+ * @brief Vietnamese lexical symbols and sequence enums used by the engine.
+ */
+
 enum VnLexiName {
   vnl_nonVnChar = -1,
   vnl_A, vnl_a, vnl_A1, vnl_a1, vnl_A2, vnl_a2, vnl_A3, vnl_a3, vnl_A4, vnl_a4, vnl_A5, vnl_a5,

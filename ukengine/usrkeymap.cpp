@@ -21,6 +21,10 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file usrkeymap.cpp
+ * @brief Implementation for usrkeymap.cpp.
+ */
 #include <iostream>
 #include <string.h>
 #include <stdio.h>
