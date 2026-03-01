@@ -100,6 +100,7 @@ GType ibus_unikey_engine_get_type(void)
 
 /**
  * @brief Perform module-level initialization when the engine is loaded.
+ *
  * @param bus IBus bus connection passed by the caller.
  */
 void ibus_unikey_init(IBusBus* bus)
@@ -122,6 +123,8 @@ void ibus_unikey_exit()
  * @brief Class initializer invoked by the GType system.
  *
  * Sets up the engine class virtual methods and property hooks.
+ *
+ * @param klass Engine class object being initialized.
  */
 static void ibus_unikey_engine_class_init(IBusUnikeyEngineClass* klass)
 {
@@ -145,6 +148,7 @@ static void ibus_unikey_engine_class_init(IBusUnikeyEngineClass* klass)
 
 /**
  * @brief Instance initializer for new engine objects.
+ *
  * @param unikey Newly-allocated engine instance.
  */
 static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
@@ -161,6 +165,7 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey)
 
 /**
  * @brief Locate a property by key within an IBusPropList.
+ *
  * @param list Property list to search.
  * @param key String key name to match.
  * @return Matching IBusProperty pointer or NULL if not found.
@@ -180,6 +185,7 @@ static IBusProperty* find_prop_from_list(IBusPropList* list, const char* key)
 
 /**
  * @brief Synchronize UI property objects with current engine options.
+ *
  * @param unikey Engine instance whose properties are being updated.
  */
 static void ibus_unikey_engine_update_property_list(IBusUnikeyEngine* unikey)
@@ -214,6 +220,8 @@ static void ibus_unikey_engine_update_property_list(IBusUnikeyEngine* unikey)
 
 /**
  * @brief Load saved configuration values into the engine instance.
+ *
+ * @param unikey Engine instance to populate from persisted settings.
  */
 static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey)
 {
@@ -264,6 +272,13 @@ static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey)
 
 /**
  * @brief Custom GObject constructor override for the engine.
+ *
+ * Used to intercept construction and perform any engine-specific setup.
+ *
+ * @param type GType of object being constructed (should be IBusUnikeyEngine).
+ * @param n_construct_params Number of construction parameters.
+ * @param construct_params Array of construction parameters.
+ * @return Newly created GObject instance.
  */
 static GObject* ibus_unikey_engine_constructor(GType type,
                                                guint n_construct_params,
@@ -281,6 +296,10 @@ static GObject* ibus_unikey_engine_constructor(GType type,
 
 /**
  * @brief Destructor called when an engine object is freed.
+ *
+ * Releases allocated memory and forwards call to parent class.
+ *
+ * @param unikey Engine instance being destroyed.
  */
 static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey)
 {
@@ -292,6 +311,10 @@ static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey)
 
 /**
  * @brief Reset the internal preedit buffer of @p engine.
+ *
+ * Clears the displayed preedit text and resets the Unikey internal buffer.
+ *
+ * @param engine IBus engine instance whose buffer should be reset.
  */
 static void ibus_unikey_buffer_reset(IBusEngine* engine)
 {
@@ -304,6 +327,11 @@ static void ibus_unikey_buffer_reset(IBusEngine* engine)
 
 /**
  * @brief Commit current preedit buffer content to IBus.
+ *
+ * Sends the contents of @p engine's preedit string as committed text to the
+ * client application and then resets the buffer.
+ *
+ * @param engine IBus engine instance performing the commit.
  */
 static void ibus_unikey_buffer_commit(IBusEngine* engine)
 {
@@ -321,9 +349,14 @@ static void ibus_unikey_buffer_commit(IBusEngine* engine)
 
 /**
  * @brief Handler invoked when the engine gets input focus.
+ *
+ * Registers engine properties with the IBus daemon.
+ *
+ * @param engine IBus engine gaining focus.
  */
 static void ibus_unikey_engine_focus_in(IBusEngine* engine)
 {
+
     unikey = (IBusUnikeyEngine*)engine;
     ibus_engine_register_properties(engine, unikey->prop_list);
 
@@ -332,40 +365,65 @@ static void ibus_unikey_engine_focus_in(IBusEngine* engine)
 
 /**
  * @brief Handler invoked when the engine loses focus.
+ *
+ * Clears the preedit buffer.
+ *
+ * @param engine IBus engine losing focus.
  */
 static void ibus_unikey_engine_focus_out(IBusEngine* engine)
 {
+
     ibus_unikey_buffer_reset(engine);
     parent_class->focus_out(engine);
 }
 
 /**
  * @brief Reset state such as preedit and input method for @p engine.
+ *
+ * This is invoked when the engine receives a reset request from IBus.
+ *
+ * @param engine IBus engine instance to reset.
  */
 static void ibus_unikey_engine_reset(IBusEngine* engine)
 {
+
     ibus_unikey_buffer_reset(engine);
     parent_class->reset(engine);
 }
 
 /**
  * @brief Enable input processing on @p engine (called when engine activated).
+ *
+ * @param engine IBus engine to enable.
  */
 static void ibus_unikey_engine_enable(IBusEngine* engine)
 {
+
     parent_class->enable(engine);
 }
 
 /**
  * @brief Disable input processing on @p engine (called when engine deactivated).
+ *
+ * @param engine IBus engine to disable.
  */
 static void ibus_unikey_engine_disable(IBusEngine* engine)
 {
+
     parent_class->disable(engine);
 }
 
+/**
+ * @brief Callback invoked when a configuration key changes.
+ *
+ * Reloads the config into the current engine and updates properties.
+ *
+ * @param name Name of the changed setting.
+ * @param user_data Opaque pointer formerly passed to registration (unused).
+ */
 static void ibus_unikey_config_value_changed(gchar* name, gpointer user_data)
 {
+
     ibus_unikey_engine_load_config(unikey);
 
     UnikeySetInputMethod(unikey->im);
@@ -375,10 +433,20 @@ static void ibus_unikey_config_value_changed(gchar* name, gpointer user_data)
     ibus_unikey_engine_update_property_list(unikey);
 }
 
+/**
+ * @brief Handler for activation of a property in the UI.
+ *
+ * Properties include toggles for spellcheck, macros, etc.
+ *
+ * @param engine Engine instance receiving the activation.
+ * @param prop_name Key of the property.
+ * @param prop_state New state value of the property.
+ */
 static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                                                  const gchar* prop_name,
                                                  guint prop_state)
 {
+
     unikey = (IBusUnikeyEngine*)engine;
 
     if (strcmp(prop_name, "more-settings") == 0)
@@ -410,6 +478,13 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
     }
 }
 
+/**
+ * @brief Create and initialize the engine property list.
+ *
+ * Populates toggle and action properties exposed in the language bar menu.
+ *
+ * @param unikey Engine instance whose property list should be created.
+ */
 static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
 {
     IBusProperty* prop;
@@ -480,8 +555,18 @@ static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey)
         ibus_prop_list_append(unikey->prop_list, prop);
 }
 
+/**
+ * @brief Update the preedit string shown to the user.
+ *
+ * Underlines the text and optionally displays it.
+ *
+ * @param engine Engine instance.
+ * @param string UTF-8 text to present.
+ * @param visible Whether the preedit should be visible.
+ */
 static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const gchar *string, gboolean visible)
 {
+
     IBusText *text;
 
     text = ibus_text_new_from_static_string(string);
@@ -493,8 +578,17 @@ static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const g
     ibus_engine_update_preedit_text_with_mode(engine, text, ibus_text_get_length(text), visible, IBUS_ENGINE_PREEDIT_COMMIT);
 }
 
+/**
+ * @brief Erase `count` characters from the preedit string.
+ *
+ * Properly handles UTF-8 multi-byte sequences.
+ *
+ * @param engine Engine whose buffer is modified.
+ * @param count Number of characters to remove.
+ */
 static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int count)
 {
+
     int i = unikey->preeditstr->length();
 
     while (i > 0 && count > 0) {
@@ -511,8 +605,18 @@ static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int count)
 }
 
 // code from x-unikey, for convert charset that not is XUtf-8
+/**
+ * @brief Convert ISO‑8859-1 (Latin-1) bytes to UTF-8.
+ *
+ * @param dst Destination buffer (must be large enough to hold output).
+ * @param src Source Latin-1 byte sequence.
+ * @param inSize Number of input bytes.
+ * @param[out] pOutSize On entry size of @p dst; on return bytes remaining.
+ * @return nonzero if conversion succeeded (destination had enough room), 0 otherwise.
+ */
 int latinToUtf(unsigned char* dst, unsigned char* src, int inSize, int* pOutSize)
 {
+
     int i;
     int outLeft;
     unsigned char ch;
@@ -544,11 +648,23 @@ int latinToUtf(unsigned char* dst, unsigned char* src, int inSize, int* pOutSize
 }
 
 
+/**
+ * @brief Process a key event, routing through preedit handling.
+ *
+ * This is the primary entry point IBus invokes for keyboard events.
+ *
+ * @param engine Engine instance receiving the key.
+ * @param keyval Unicode code point of key pressed.
+ * @param keycode Hardware keycode.
+ * @param modifiers Modifier mask (Shift/Ctrl/Alt, etc.).
+ * @return TRUE if event was handled, FALSE to propagate.
+ */
 static gboolean ibus_unikey_engine_process_key_event(IBusEngine* engine,
                                                      guint keyval,
                                                      guint keycode,
                                                      guint modifiers)
 {
+
     static gboolean tmp;
 
     unikey = (IBusUnikeyEngine*)engine;
@@ -568,11 +684,23 @@ static gboolean ibus_unikey_engine_process_key_event(IBusEngine* engine,
     return tmp;
 }
 
+/**
+ * @brief Internal preedit-specific key event processor.
+ *
+ * Called by the public process_key_event to handle editing state.
+ *
+ * @param engine Engine instance.
+ * @param keyval Unicode key value.
+ * @param keycode Physical keycode.
+ * @param modifiers Modifier flags.
+ * @return TRUE if event consumed, FALSE otherwise.
+ */
 static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
                                                              guint keyval,
                                                              guint keycode,
                                                              guint modifiers)
 {
+
     if (modifiers & IBUS_RELEASE_MASK)
     {
         return false;
