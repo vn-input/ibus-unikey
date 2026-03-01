@@ -74,11 +74,18 @@ void init_gtk_builder()
 }
 
 /**
- * @brief main.
+ * @brief Entry point for the setup utility.
  *
- * @param argc Description of argc.
- * @param argv Description of argv.
- * @return Return value.
+ * The program initializes localization and GTK, then constructs the
+ * configuration dialog defined in `ibus-unikey.ui`.
+ *
+ * @param argc Number of command-line arguments; may be altered by
+ *        `gtk_init` during initialization.
+ * @param argv Array of argument strings passed from the caller.  GTK may
+ *        remove or consume recognized options (e.g. `--display`) when
+ *        `gtk_init` is invoked.
+ * @return Standard exit status returned to the operating system (always
+ *         0 in current implementation).
  */
 int main(int argc, char** argv)
 {
