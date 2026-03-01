@@ -69,12 +69,25 @@ DllExport CVnCharsetLib VnCharsetLibObj;
 //////////////////////////////////////////////////////
 // Generic VnCharset class
 //////////////////////////////////////////////////////
+/**
+ * @brief elementSize.
+ *
+ * @return Return value.
+ */
 int VnCharset::elementSize()
 {
     return 1;
 }
 
 //-------------------------------------------
+/**
+ * @brief nextInput.
+ *
+ * @param is Parameter.
+ * @param stdChar Parameter.
+ * @param bytesRead Parameter.
+ * @return Return value.
+ */
 int VnInternalCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
     if (!is.getNextDW(stdChar)) {
@@ -86,6 +99,14 @@ int VnInternalCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & b
 }
 
 //-------------------------------------------
+/**
+ * @brief putChar.
+ *
+ * @param os Parameter.
+ * @param stdChar Parameter.
+ * @param outLen Parameter.
+ * @return Return value.
+ */
 int VnInternalCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
   outLen = sizeof(StdVnChar);
@@ -94,6 +115,11 @@ int VnInternalCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outL
 }
 
 //-------------------------------------------
+/**
+ * @brief elementSize.
+ *
+ * @return Return value.
+ */
 int VnInternalCharset::elementSize()
 {
     return 4;
@@ -112,6 +138,14 @@ SingleByteCharset::SingleByteCharset(unsigned char * vnChars)
 }
 
 //-------------------------------------------
+/**
+ * @brief nextInput.
+ *
+ * @param is Parameter.
+ * @param stdChar Parameter.
+ * @param bytesRead Parameter.
+ * @return Return value.
+ */
 int SingleByteCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
 	unsigned char ch;
@@ -127,6 +161,14 @@ int SingleByteCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & b
 
 
 //-------------------------------------------
+/**
+ * @brief putChar.
+ *
+ * @param os Parameter.
+ * @param stdChar Parameter.
+ * @param outLen Parameter.
+ * @return Return value.
+ */
 int SingleByteCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
 	int ret;
@@ -156,6 +198,13 @@ int SingleByteCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outL
 }
 
 //-------------------------------------------
+/**
+ * @brief wideCharCompare.
+ *
+ * @param ele1 Parameter.
+ * @param ele2 Parameter.
+ * @return Return value.
+ */
 int wideCharCompare(const void *ele1, const void *ele2)
 {
 	UKWORD ch1 = LOWORD(*((UKDWORD *)ele1));
@@ -174,6 +223,14 @@ UnicodeCharset::UnicodeCharset(UnicodeChar *vnChars)
 }
 
 //-------------------------------------------
+/**
+ * @brief nextInput.
+ *
+ * @param is Parameter.
+ * @param stdChar Parameter.
+ * @param bytesRead Parameter.
+ * @return Return value.
+ */
 int UnicodeCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
 	UnicodeChar uniCh;
@@ -192,6 +249,14 @@ int UnicodeCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & byte
 }
 
 //-------------------------------------------
+/**
+ * @brief putChar.
+ *
+ * @param os Parameter.
+ * @param stdChar Parameter.
+ * @param outLen Parameter.
+ * @return Return value.
+ */
 int UnicodeCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
 	outLen = sizeof(UnicodeChar);
@@ -200,6 +265,11 @@ int UnicodeCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 }
 
 //-------------------------------------------
+/**
+ * @brief elementSize.
+ *
+ * @return Return value.
+ */
 int UnicodeCharset::elementSize()
 {
     return 2;
@@ -209,6 +279,13 @@ int UnicodeCharset::elementSize()
 // Unicode decomposed
 ////////////////////////////////////////
 //-------------------------------------------
+/**
+ * @brief uniCompInfoCompare.
+ *
+ * @param ele1 Parameter.
+ * @param ele2 Parameter.
+ * @return Return value.
+ */
 int uniCompInfoCompare(const void *ele1, const void *ele2)
 {
 	UKDWORD ch1 = ((UniCompCharInfo *)ele1)->compChar;
@@ -239,6 +316,14 @@ UnicodeCompCharset::UnicodeCompCharset(UnicodeChar *uniChars, UKDWORD *uniCompCh
 }
 
 //---------------------------------------------
+/**
+ * @brief nextInput.
+ *
+ * @param is Parameter.
+ * @param stdChar Parameter.
+ * @param bytesRead Parameter.
+ * @return Return value.
+ */
 int UnicodeCompCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
 	// read first char
@@ -276,6 +361,14 @@ int UnicodeCompCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & 
 }
 
 //---------------------------------------------
+/**
+ * @brief putChar.
+ *
+ * @param os Parameter.
+ * @param stdChar Parameter.
+ * @param outLen Parameter.
+ * @return Return value.
+ */
 int UnicodeCompCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
 	int ret;
@@ -298,6 +391,11 @@ int UnicodeCompCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & out
 }
 
 //-------------------------------------------
+/**
+ * @brief elementSize.
+ *
+ * @return Return value.
+ */
 int UnicodeCompCharset::elementSize()
 {
     return 2;
@@ -306,6 +404,14 @@ int UnicodeCompCharset::elementSize()
 ////////////////////////////////
 // Unicode UTF-8              //
 ////////////////////////////////
+/**
+ * @brief nextInput.
+ *
+ * @param is Parameter.
+ * @param stdChar Parameter.
+ * @param bytesRead Parameter.
+ * @return Return value.
+ */
 int UnicodeUTF8Charset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
 	UKWORD w1, w2, w3;
@@ -319,6 +425,12 @@ int UnicodeUTF8Charset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & 
 
 	if (first < 0x80) 
 		uniCh = first; // 1-byte sequence
+/**
+ * @brief if.
+ *
+ * @param xE0 Parameter.
+ * @return Return value.
+ */
 	else if ((first & 0xE0) == 0xC0) {
 		//2-byte sequence
 		if (!is.peekNext(second))
@@ -333,6 +445,12 @@ int UnicodeUTF8Charset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & 
 		w2 = second;
 		uniCh = ((w1 & 0x001F) << 6) | (w2 & 0x3F);
 	}
+/**
+ * @brief if.
+ *
+ * @param xF0 Parameter.
+ * @return Return value.
+ */
 	else if ((first & 0xF0) == 0xE0) {
 		//3-byte sequence
 		if (!is.peekNext(second))
@@ -371,6 +489,14 @@ int UnicodeUTF8Charset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & 
 }
 
 //-------------------------------------------
+/**
+ * @brief putChar.
+ *
+ * @param os Parameter.
+ * @param stdChar Parameter.
+ * @param outLen Parameter.
+ * @return Return value.
+ */
 int UnicodeUTF8Charset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
 	UnicodeChar uChar = (stdChar < VnStdCharOffset)? 
@@ -395,6 +521,12 @@ int UnicodeUTF8Charset::putChar(ByteOutStream & os, StdVnChar stdChar, int & out
 ////////////////////////////////////////
 // Unicode character reference &#D;   //
 ////////////////////////////////////////
+/**
+ * @brief hexDigitValue.
+ *
+ * @param digit Parameter.
+ * @return Return value.
+ */
 int hexDigitValue(unsigned char digit)
 {
 	if (digit >= 'a' && digit <= 'f')
@@ -408,6 +540,14 @@ int hexDigitValue(unsigned char digit)
 
 
 //--------------------------------------
+/**
+ * @brief nextInput.
+ *
+ * @param is Parameter.
+ * @param stdChar Parameter.
+ * @param bytesRead Parameter.
+ * @return Return value.
+ */
 int UnicodeRefCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
 	unsigned char ch;
@@ -470,6 +610,14 @@ int UnicodeRefCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & b
 
 
 //--------------------------------
+/**
+ * @brief putChar.
+ *
+ * @param os Parameter.
+ * @param stdChar Parameter.
+ * @param outLen Parameter.
+ * @return Return value.
+ */
 int UnicodeRefCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
 	UnicodeChar uChar = (stdChar < VnStdCharOffset)? 
@@ -506,6 +654,14 @@ int UnicodeRefCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outL
 #define HEX_DIGIT(x) ((x < 10)? ('0'+x) : ('A'+x-10))
 
 //--------------------------------
+/**
+ * @brief putChar.
+ *
+ * @param os Parameter.
+ * @param stdChar Parameter.
+ * @param outLen Parameter.
+ * @return Return value.
+ */
 int UnicodeHexCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
 	UnicodeChar uChar = (stdChar < VnStdCharOffset)? 
@@ -544,12 +700,24 @@ int UnicodeHexCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outL
 /////////////////////////////////
 // Class UnicodeCStringCharset  /
 /////////////////////////////////
+/**
+ * @brief startInput.
+ *
+ */
 void UnicodeCStringCharset::startInput()
 {
 	m_prevIsHex = 0;
 }
 
 //----------------------------------------
+/**
+ * @brief nextInput.
+ *
+ * @param is Parameter.
+ * @param stdChar Parameter.
+ * @param bytesRead Parameter.
+ * @return Return value.
+ */
 int UnicodeCStringCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
 	unsigned char ch;
@@ -585,6 +753,14 @@ int UnicodeCStringCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int
 }
 
 //------------------------------------
+/**
+ * @brief putChar.
+ *
+ * @param os Parameter.
+ * @param stdChar Parameter.
+ * @param outLen Parameter.
+ * @return Return value.
+ */
 int UnicodeCStringCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
 	UnicodeChar uChar = (stdChar < VnStdCharOffset)? 
@@ -636,6 +812,14 @@ DoubleByteCharset::DoubleByteCharset(UKWORD *vnChars)
 }
 
 //---------------------------------------------
+/**
+ * @brief nextInput.
+ *
+ * @param is Parameter.
+ * @param stdChar Parameter.
+ * @param bytesRead Parameter.
+ * @return Return value.
+ */
 int DoubleByteCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
 	unsigned char ch;
@@ -668,6 +852,14 @@ int DoubleByteCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & b
 }
 
 //---------------------------------------------
+/**
+ * @brief putChar.
+ *
+ * @param os Parameter.
+ * @param stdChar Parameter.
+ * @param outLen Parameter.
+ * @return Return value.
+ */
 int DoubleByteCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
 	int ret;
@@ -755,6 +947,10 @@ VIQRCharset::VIQRCharset(UKDWORD *vnChars)
 }
 
 //---------------------------------------------------
+/**
+ * @brief startInput.
+ *
+ */
 void VIQRCharset::startInput()
 {
 	m_suspicious = 0;
@@ -766,6 +962,14 @@ void VIQRCharset::startInput()
 }
 
 //---------------------------------------------------
+/**
+ * @brief nextInput.
+ *
+ * @param is Parameter.
+ * @param stdChar Parameter.
+ * @param bytesRead Parameter.
+ * @return Return value.
+ */
 int VIQRCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
 	unsigned char ch1;
@@ -796,6 +1000,12 @@ int VIQRCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRe
 	if (stdChar < 256) {
 		stdChar = ch1;
 	}
+/**
+ * @brief if.
+ *
+ * @param eos Parameter.
+ * @return Return value.
+ */
 	else if (!m_escAll && !is.eos()) {
 		// try to read the next byte
 		unsigned char ch2;
@@ -864,6 +1074,10 @@ int VIQRCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRe
 }
 
 //---------------------------------------------------
+/**
+ * @brief startOutput.
+ *
+ */
 void VIQRCharset::startOutput()
 {
 	m_escapeBowl = 0;
@@ -875,6 +1089,14 @@ void VIQRCharset::startOutput()
 }
 
 //---------------------------------------------------
+/**
+ * @brief putChar.
+ *
+ * @param os Parameter.
+ * @param stdChar Parameter.
+ * @param outLen Parameter.
+ * @return Return value.
+ */
 int VIQRCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
 	int ret;
@@ -975,6 +1197,10 @@ UTF8VIQRCharset::UTF8VIQRCharset(UnicodeUTF8Charset *pUtf, VIQRCharset *pViqr)
 }
 
 //-----------------------------------------
+/**
+ * @brief startInput.
+ *
+ */
 void UTF8VIQRCharset::startInput()
 {
   m_pUtf->startInput();
@@ -982,6 +1208,10 @@ void UTF8VIQRCharset::startInput()
 }
 
 //-----------------------------------------
+/**
+ * @brief startOutput.
+ *
+ */
 void UTF8VIQRCharset::startOutput()
 {
   m_pUtf->startOutput();
@@ -989,6 +1219,14 @@ void UTF8VIQRCharset::startOutput()
 }
 
 //-----------------------------------------
+/**
+ * @brief nextInput.
+ *
+ * @param is Parameter.
+ * @param stdChar Parameter.
+ * @param bytesRead Parameter.
+ * @return Return value.
+ */
 int UTF8VIQRCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
 	UKBYTE ch;
@@ -1006,6 +1244,14 @@ int UTF8VIQRCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & byt
 }
 
 //-----------------------------------------
+/**
+ * @brief putChar.
+ *
+ * @param os Parameter.
+ * @param stdChar Parameter.
+ * @param outLen Parameter.
+ * @return Return value.
+ */
 int UTF8VIQRCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
   return m_pViqr->putChar(os, stdChar, outLen);
@@ -1089,6 +1335,12 @@ CVnCharsetLib::~CVnCharsetLib()
 }
 
 //-----------------------------------------
+/**
+ * @brief getVnCharset.
+ *
+ * @param charsetIdx Parameter.
+ * @return Return value.
+ */
 VnCharset * CVnCharsetLib::getVnCharset(int charsetIdx)
 {
 	switch (charsetIdx) {
@@ -1155,6 +1407,12 @@ VnCharset * CVnCharsetLib::getVnCharset(int charsetIdx)
 				m_sgCharsets[i] = new SingleByteCharset(SingleByteTables[i]);
 			return m_sgCharsets[i];
 		}
+/**
+ * @brief if.
+ *
+ * @param charsetIdx Parameter.
+ * @return Return value.
+ */
 		else if (IS_DOUBLE_BYTE_CHARSET(charsetIdx)) {
 			int i = charsetIdx - CONV_CHARSET_VNIWIN;
 			if (m_dbCharsets[i] == NULL)
@@ -1167,18 +1425,33 @@ VnCharset * CVnCharsetLib::getVnCharset(int charsetIdx)
 
 
 //-------------------------------------------------
+/**
+ * @brief VnConvSetOptions.
+ *
+ * @param pOptions Parameter.
+ */
 DllExport void VnConvSetOptions(VnConvOptions *pOptions)
 {
 	VnCharsetLibObj.m_options = *pOptions;
 }
 
 //-------------------------------------------------
+/**
+ * @brief VnConvGetOptions.
+ *
+ * @param pOptions Parameter.
+ */
 DllExport void VnConvGetOptions(VnConvOptions *pOptions)
 {
 	*pOptions = VnCharsetLibObj.m_options;
 }
 
 //-------------------------------------------------
+/**
+ * @brief VnConvResetOptions.
+ *
+ * @param pOptions Parameter.
+ */
 DllExport void VnConvResetOptions(VnConvOptions *pOptions)
 {
 	pOptions->viqrEsc = 1;
@@ -1232,6 +1505,14 @@ WinCP1258Charset::WinCP1258Charset(UKWORD *compositeChars, UKWORD *precomposedCh
 // This fuction is basically the same as that of DoubleByteCharset
 // with m_totalChars is used instead of constant TOTAL_VNCHARS
 //---------------------------------------------------------------------
+/**
+ * @brief nextInput.
+ *
+ * @param is Parameter.
+ * @param stdChar Parameter.
+ * @param bytesRead Parameter.
+ * @return Return value.
+ */
 int WinCP1258Charset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
 	unsigned char ch;
@@ -1266,6 +1547,14 @@ int WinCP1258Charset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & by
 //---------------------------------------------------------------------
 // This fuction is exactly the same as that of DoubleByteCharset
 //---------------------------------------------------------------------
+/**
+ * @brief putChar.
+ *
+ * @param os Parameter.
+ * @param stdChar Parameter.
+ * @param outLen Parameter.
+ * @return Return value.
+ */
 int WinCP1258Charset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
 	int ret;
@@ -1301,6 +1590,12 @@ int WinCP1258Charset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLe
 #define IS_ODD(x) (x & 1)
 #define IS_EVEN(x) (!(x & 1))
 
+/**
+ * @brief StdVnToUpper.
+ *
+ * @param ch Parameter.
+ * @return Return value.
+ */
 StdVnChar StdVnToUpper(StdVnChar ch)
 {
 	if (ch >= VnStdCharOffset && 
@@ -1311,6 +1606,12 @@ StdVnChar StdVnToUpper(StdVnChar ch)
 }
 
 //----------------------------------------
+/**
+ * @brief StdVnToLower.
+ *
+ * @param ch Parameter.
+ * @return Return value.
+ */
 StdVnChar StdVnToLower(StdVnChar ch)
 {
 	if (ch >= VnStdCharOffset && 
@@ -1321,6 +1622,12 @@ StdVnChar StdVnToLower(StdVnChar ch)
 }
 
 //----------------------------------------
+/**
+ * @brief StdVnGetRoot.
+ *
+ * @param ch Parameter.
+ * @return Return value.
+ */
 StdVnChar StdVnGetRoot(StdVnChar ch)
 {
 	if (ch >= VnStdCharOffset && ch<VnStdCharOffset+TOTAL_VNCHARS)
