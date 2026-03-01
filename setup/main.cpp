@@ -73,6 +73,13 @@ void init_gtk_builder()
     // Note: builder is kept global so signal handlers can access widgets
 }
 
+/**
+ * @brief main.
+ *
+ * @param argc Parameter.
+ * @param argv Parameter.
+ * @return Return value.
+ */
 int main(int argc, char** argv)
 {
     setlocale(LC_ALL, "");

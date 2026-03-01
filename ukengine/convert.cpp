@@ -68,6 +68,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * @brief Helper: convert from one charset to another using stdio streams.
  *
  * Used by command-line utilities and internal tests.
+ * @param inCharset Parameter.
+ * @param outCharset Parameter.
+ * @param inf Parameter.
+ * @param outf Parameter.
  */
 int vnFileStreamConvert(int inCharset, int outCharset, FILE * inf, FILE *outf);
 
@@ -78,6 +82,10 @@ int vnFileStreamConvert(int inCharset, int outCharset, FILE * inf, FILE *outf);
  * to @p output via @p outcs, applying optional case/tone transformations
  * configured in global options.
  *
+ * @param incs Parameter.
+ * @param outcs Parameter.
+ * @param input Parameter.
+ * @param output Parameter.
  * @return 0 on success, VNCONV_OUT_OF_MEMORY on out-of-memory error.
  */
 DllExport int genConvert(VnCharset & incs, VnCharset & outcs, ByteInStream & input, ByteOutStream & output)

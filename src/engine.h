@@ -40,8 +40,21 @@
 
 #define IBUS_TYPE_UNIKEY_ENGINE (ibus_unikey_engine_get_type())
 
+/**
+ * @brief ibus_unikey_init.
+ *
+ * @param bus Parameter.
+ */
 void ibus_unikey_init(IBusBus* bus);
+/**
+ * @brief ibus_unikey_exit.
+ *
+ */
 void ibus_unikey_exit();
+/**
+ * @brief ibus_unikey_engine_get_type.
+ *
+ */
 GType ibus_unikey_engine_get_type();
 
 #endif

@@ -77,6 +77,13 @@ struct CaseInsensitiveEqual {
      * @return `true` if @p a and @p b are equal ignoring case, otherwise `false`.
      */
     bool operator()(const std::string& a, const std::string& b) const {
+/**
+ * @brief strcasecmp.
+ *
+ * @param c_str Parameter.
+ * @param c_str Parameter.
+ * @return Return value.
+ */
         return strcasecmp(a.c_str(), b.c_str()) == 0;
     }
 };
@@ -96,12 +103,33 @@ gboolean list_store_check_exists(GtkListStore* store, gchar* check_key)
     auto b = gtk_tree_model_get_iter_first(model, &iter);
     while (b)
     {
+/**
+ * @brief gtk_tree_model_get.
+ *
+ * @param model Parameter.
+ * @param iter Parameter.
+ * @param COL_KEY Parameter.
+ * @param key Parameter.
+ * @return Return value.
+ */
         gtk_tree_model_get(model, &iter, COL_KEY, &key, -1);
         if (strcasecmp(key, check_key) == 0)
         {
+/**
+ * @brief g_free.
+ *
+ * @param key Parameter.
+ * @return Return value.
+ */
             g_free(key);
             return true;
         }
+/**
+ * @brief g_free.
+ *
+ * @param key Parameter.
+ * @return Return value.
+ */
         g_free(key);
 
         b = gtk_tree_model_iter_next(model, &iter);
@@ -149,7 +177,25 @@ void list_store_append_fast(GtkListStore* list, CMacroTable* macro)
             continue;
 
         // append to liststore
+/**
+ * @brief gtk_list_store_append.
+ *
+ * @param list Parameter.
+ * @param iter Parameter.
+ * @return Return value.
+ */
         gtk_list_store_append(list, &iter);
+/**
+ * @brief gtk_list_store_set.
+ *
+ * @param list Parameter.
+ * @param iter Parameter.
+ * @param COL_KEY Parameter.
+ * @param key Parameter.
+ * @param COL_VALUE Parameter.
+ * @param value Parameter.
+ * @return Return value.
+ */
         gtk_list_store_set(list, &iter, COL_KEY, key, COL_VALUE, value, -1);
     }
 }
@@ -177,9 +223,24 @@ void list_store_append(GtkListStore* list, CMacroTable* macro)
     if (gtk_tree_model_get_iter_first(model, &iter)) {
         do {
             gchar* existing_key;
+/**
+ * @brief gtk_tree_model_get.
+ *
+ * @param model Parameter.
+ * @param iter Parameter.
+ * @param COL_KEY Parameter.
+ * @param existing_key Parameter.
+ * @return Return value.
+ */
             gtk_tree_model_get(model, &iter, COL_KEY, &existing_key, -1);
             if (existing_key) {
                 seen.insert(existing_key);
+/**
+ * @brief g_free.
+ *
+ * @param existing_key Parameter.
+ * @return Return value.
+ */
                 g_free(existing_key);
             }
         } while (gtk_tree_model_iter_next(model, &iter));
@@ -213,7 +274,25 @@ void list_store_append(GtkListStore* list, CMacroTable* macro)
             continue;
 
         // append to liststore
+/**
+ * @brief gtk_list_store_append.
+ *
+ * @param list Parameter.
+ * @param iter Parameter.
+ * @return Return value.
+ */
         gtk_list_store_append(list, &iter);
+/**
+ * @brief gtk_list_store_set.
+ *
+ * @param list Parameter.
+ * @param iter Parameter.
+ * @param COL_KEY Parameter.
+ * @param key Parameter.
+ * @param COL_VALUE Parameter.
+ * @param value Parameter.
+ * @return Return value.
+ */
         gtk_list_store_set(list, &iter, COL_KEY, key, COL_VALUE, value, -1);
     }
 }
@@ -231,15 +310,46 @@ void unikey_macro_to_store(CMacroTable* macro, GtkListStore* store)
 {
     // Temporarily increase ref count and detach from any views
     // to avoid per-row UI updates during bulk insert
+/**
+ * @brief g_object_ref.
+ *
+ * @param store Parameter.
+ * @return Return value.
+ */
     g_object_ref(store);
     
+/**
+ * @brief gtk_list_store_clear.
+ *
+ * @param store Parameter.
+ * @return Return value.
+ */
     gtk_list_store_clear(store);
 
     // Use fast append - no duplicate check needed since store is empty
     // and CMacroTable already sorted + deduped
+/**
+ * @brief list_store_append_fast.
+ *
+ * @param store Parameter.
+ * @param macro Parameter.
+ * @return Return value.
+ */
     list_store_append_fast(store, macro);
+/**
+ * @brief list_store_add_null_item.
+ *
+ * @param store Parameter.
+ * @return Return value.
+ */
     list_store_add_null_item(store);
 
+/**
+ * @brief g_object_unref.
+ *
+ * @param store Parameter.
+ * @return Return value.
+ */
     g_object_unref(store);
 }
 
@@ -262,13 +372,36 @@ void unikey_store_to_macro(GtkListStore* store, CMacroTable* macro)
     while (b == TRUE)
     {
         gchar *key, *value;
+/**
+ * @brief gtk_tree_model_get.
+ *
+ * @param model Parameter.
+ * @param iter Parameter.
+ * @param COL_KEY Parameter.
+ * @param key Parameter.
+ * @param COL_VALUE Parameter.
+ * @param value Parameter.
+ * @return Return value.
+ */
         gtk_tree_model_get(model, &iter, COL_KEY, &key, COL_VALUE, &value, -1);
 
         if (strcasecmp(key, STR_NULL_ITEM) != 0)
         {
             macro->addItem(key, value, CONV_CHARSET_XUTF8);
         }
+/**
+ * @brief g_free.
+ *
+ * @param key Parameter.
+ * @return Return value.
+ */
         g_free(key);
+/**
+ * @brief g_free.
+ *
+ * @param value Parameter.
+ * @return Return value.
+ */
         g_free(value);
 
         b = gtk_tree_model_iter_next(model, &iter);
@@ -290,19 +423,67 @@ void list_store_add_null_item(GtkListStore* list)
     auto n = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(list), NULL);
     if (n > 0)
     {
+/**
+ * @brief gtk_tree_model_iter_nth_child.
+ *
+ * @param list Parameter.
+ * @param iter Parameter.
+ * @param NULL Parameter.
+ * @param n Parameter.
+ * @return Return value.
+ */
         gtk_tree_model_iter_nth_child(GTK_TREE_MODEL(list), &iter, NULL, n-1);
         gchar *key;
+/**
+ * @brief gtk_tree_model_get.
+ *
+ * @param list Parameter.
+ * @param iter Parameter.
+ * @param COL_KEY Parameter.
+ * @param key Parameter.
+ * @return Return value.
+ */
         gtk_tree_model_get(GTK_TREE_MODEL(list), &iter, COL_KEY, &key, -1);
         if (strcmp(key, STR_NULL_ITEM) == 0)
         {
+/**
+ * @brief g_free.
+ *
+ * @param key Parameter.
+ * @return Return value.
+ */
             g_free(key);
             return;
         }
+/**
+ * @brief g_free.
+ *
+ * @param key Parameter.
+ * @return Return value.
+ */
         g_free(key);
     }
 
     // if last item is valid item or no item in list, add new NULL item
+/**
+ * @brief gtk_list_store_append.
+ *
+ * @param list Parameter.
+ * @param iter Parameter.
+ * @return Return value.
+ */
     gtk_list_store_append(list, &iter);
+/**
+ * @brief gtk_list_store_set.
+ *
+ * @param list Parameter.
+ * @param iter Parameter.
+ * @param COL_KEY Parameter.
+ * @param STR_NULL_ITEM Parameter.
+ * @param COL_VALUE Parameter.
+ * @param STR_NULL_ITEM Parameter.
+ * @return Return value.
+ */
     gtk_list_store_set(list, &iter,
                        COL_KEY, STR_NULL_ITEM,
                        COL_VALUE, STR_NULL_ITEM,

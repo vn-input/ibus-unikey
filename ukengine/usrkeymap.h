@@ -35,8 +35,28 @@ struct UkKeyMapPair {
     int             action;
 };
 
+/**
+ * @brief UkLoadKeyMap.
+ *
+ * @param fileName Parameter.
+ * @param keyMap Parameter.
+ */
 DllInterface int UkLoadKeyMap(const char *fileName, int keyMap[256]);
+/**
+ * @brief UkLoadKeyOrderMap.
+ *
+ * @param fileName Parameter.
+ * @param pMap Parameter.
+ * @param pMapCount Parameter.
+ */
 DllInterface int UkLoadKeyOrderMap(const char *fileName, UkKeyMapPair *pMap, int *pMapCount);
+/**
+ * @brief UkStoreKeyOrderMap.
+ *
+ * @param fileName Parameter.
+ * @param pMap Parameter.
+ * @param mapCount Parameter.
+ */
 DllInterface int UkStoreKeyOrderMap(const char *fileName, UkKeyMapPair *pMap, int mapCount);
 
 #endif

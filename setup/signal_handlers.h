@@ -41,101 +41,147 @@ extern "C"
 {
     /**
      * @brief Main window destroy handler (quits main loop).
+ * @param w Parameter.
+ * @param user_data Parameter.
      */
     G_MODULE_EXPORT void on_main_window_destroy(GtkWidget* w, gpointer user_data);
 
     /**
      * @brief Key press event handler for the main window.
+ * @param widget Parameter.
+ * @param event Parameter.
+ * @param data Parameter.
+ * @return Return value.
      */
     G_MODULE_EXPORT gboolean on_main_window_key_press_event(GtkWidget *widget, GdkEventKey *event, gpointer data);
 
     /**
      * @brief "Close" button clicked handler.
+ * @param btn Parameter.
+ * @param user_data Parameter.
      */
     G_MODULE_EXPORT void on_btn_close_clicked(GtkButton* btn, gpointer user_data);
     
     /**
      * @brief Checkbox toggled configuration handler.
+ * @param btn Parameter.
+ * @param user_data Parameter.
      */
     G_MODULE_EXPORT void on_setting_toggled(GtkToggleButton* btn, gpointer user_data);
 
     /**
      * @brief Initialize toggle button state from configuration.
+ * @param btn Parameter.
+ * @param user_data Parameter.
      */
     G_MODULE_EXPORT void on_setting_realize(GtkToggleButton* btn, gpointer user_data);
 
     /**
      * @brief Refresh macro list dialog.
+ * @param btn Parameter.
+ * @param user_data Parameter.
      */
     G_MODULE_EXPORT void on_btn_macroedit_clicked(GtkButton* btn, gpointer user_data);
 
     /**
      * @brief Input method combo changed.
+ * @param cbb Parameter.
+ * @param user_data Parameter.
      */
     G_MODULE_EXPORT void on_input_method_changed(GtkComboBox* cbb, gpointer user_data);
 
     /**
      * @brief Input method combo "realize" event.
+ * @param cbb Parameter.
+ * @param user_data Parameter.
      */
     G_MODULE_EXPORT void on_input_method_realize(GtkComboBox* cbb, gpointer user_data);
 
     /**
      * @brief Output charset combo changed.
+ * @param cbb Parameter.
+ * @param user_data Parameter.
      */
     G_MODULE_EXPORT void on_output_charset_changed(GtkComboBox* cbb, gpointer user_data);
 
     /**
      * @brief Output charset combo "realize" event.
+ * @param cbb Parameter.
+ * @param user_data Parameter.
      */
     G_MODULE_EXPORT void on_output_charset_realize(GtkComboBox* cbb, gpointer user_data);
 
     /**
      * @brief Macro dialog delete-event handler.
+ * @param wid Parameter.
+ * @param ev Parameter.
+ * @param user_data Parameter.
+ * @return Return value.
      */
     G_MODULE_EXPORT gboolean on_macro_dialog_delete(GtkWidget* wid, GdkEvent* ev, gpointer user_data);
 
     /**
      * @brief Close/Cancel button handler inside macro dialog.
+ * @param btn Parameter.
+ * @param user_data Parameter.
      */
     G_MODULE_EXPORT void macro_dialog_hide(GtkButton* btn, gpointer user_data);
 
     /**
      * @brief Add macro button clicked.
+ * @param button Parameter.
+ * @param user_data Parameter.
      */
     G_MODULE_EXPORT void on_btn_macro_add_clicked(GtkButton *button, gpointer user_data);
 
     /**
      * @brief Delete selected macro button clicked.
+ * @param button Parameter.
+ * @param user_data Parameter.
      */
     G_MODULE_EXPORT void on_btn_macro_del_clicked(GtkButton *button, gpointer user_data);
 
     /**
      * @brief Clear all macros button clicked.
+ * @param button Parameter.
+ * @param user_data Parameter.
      */
     G_MODULE_EXPORT void on_btn_macro_clear_clicked(GtkButton *button, gpointer user_data);
 
     /**
      * @brief Import macros from file button clicked.
+ * @param button Parameter.
+ * @param user_data Parameter.
      */
     G_MODULE_EXPORT void on_btn_macro_import_clicked(GtkButton *button, gpointer user_data);
 
     /**
      * @brief Export macros to file button clicked.
+ * @param button Parameter.
+ * @param user_data Parameter.
      */
     G_MODULE_EXPORT void on_btn_macro_export_clicked(GtkButton *button, gpointer user_data);
 
     /**
      * @brief Key column header clicked (for sorting).
+ * @param column Parameter.
+ * @param user_data Parameter.
      */
     G_MODULE_EXPORT void on_column_key_clicked(GtkTreeViewColumn *column, gpointer user_data);
 
     /**
      * @brief Value column header clicked (for sorting).
+ * @param column Parameter.
+ * @param user_data Parameter.
      */
     G_MODULE_EXPORT void on_column_value_clicked(GtkTreeViewColumn *column, gpointer user_data);
 
     /**
      * @brief In-place edit of a key cell.
+ * @param celltext Parameter.
+ * @param string_path Parameter.
+ * @param newkey Parameter.
+ * @param user_data Parameter.
      */
     G_MODULE_EXPORT void on_cell_key_edited(GtkCellRendererText *celltext,
                     const gchar *string_path,
@@ -144,6 +190,10 @@ extern "C"
 
     /**
      * @brief In-place edit of a value cell.
+ * @param celltext Parameter.
+ * @param string_path Parameter.
+ * @param newvalue Parameter.
+ * @param data Parameter.
      */
     G_MODULE_EXPORT void on_cell_value_edited(GtkCellRendererText *celltext,
                      const gchar *string_path,

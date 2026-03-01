@@ -67,6 +67,12 @@ unsigned char SpecialWesternChars[] = {
 
 StdVnChar IsoStdVnCharMap[256];
 
+/**
+ * @brief IsoToStdVnChar.
+ *
+ * @param keyCode Parameter.
+ * @return Return value.
+ */
 inline StdVnChar IsoToStdVnChar(int keyCode)
 {
     return (keyCode < 256)? IsoStdVnCharMap[keyCode] : keyCode;
@@ -279,6 +285,11 @@ const int VCPairCount = sizeof(VCPairList)/sizeof(VCPair);
 
 //TODO: auto-complete: e.g. luan -> lua^n
 
+/**
+ * @brief int.
+ *
+ * @param ev Parameter.
+ */
 typedef int (UkEngine::* UkKeyProc)(UkKeyEvent & ev);
 
 UkKeyProc UkKeyProcList[vneCount] = {
@@ -305,12 +316,33 @@ UkKeyProc UkKeyProcList[vneCount] = {
 };
 
 
+/**
+ * @brief lookupVSeq.
+ *
+ * @param v1 Parameter.
+ * @param v2 Parameter.
+ * @param v3 Parameter.
+ */
 VowelSeq lookupVSeq(VnLexiName v1, VnLexiName v2 = vnl_nonVnChar, VnLexiName v3 = vnl_nonVnChar);
+/**
+ * @brief lookupCSeq.
+ *
+ * @param c1 Parameter.
+ * @param c2 Parameter.
+ * @param c3 Parameter.
+ */
 ConSeq lookupCSeq(VnLexiName c1, VnLexiName c2 = vnl_nonVnChar, VnLexiName c3 = vnl_nonVnChar);
 
 bool UkEngine::m_classInit = false;
 
 //------------------------------------------------
+/**
+ * @brief tripleVowelCompare.
+ *
+ * @param p1 Parameter.
+ * @param p2 Parameter.
+ * @return Return value.
+ */
 int tripleVowelCompare(const void *p1, const void *p2)
 {
     VSeqPair *t1 = (VSeqPair *)p1;
@@ -326,6 +358,13 @@ int tripleVowelCompare(const void *p1, const void *p2)
 }
 
 //------------------------------------------------
+/**
+ * @brief tripleConCompare.
+ *
+ * @param p1 Parameter.
+ * @param p2 Parameter.
+ * @return Return value.
+ */
 int tripleConCompare(const void *p1, const void *p2)
 {
     CSeqPair *t1 = (CSeqPair *)p1;
@@ -341,6 +380,13 @@ int tripleConCompare(const void *p1, const void *p2)
 }
 
 //------------------------------------------------
+/**
+ * @brief VCPairCompare.
+ *
+ * @param p1 Parameter.
+ * @param p2 Parameter.
+ * @return Return value.
+ */
 int VCPairCompare(const void *p1, const void *p2)
 {
     VCPair *t1 = (VCPair *)p1;
@@ -359,6 +405,13 @@ int VCPairCompare(const void *p1, const void *p2)
 }
 
 //----------------------------------------------------------
+/**
+ * @brief isValidCV.
+ *
+ * @param c Parameter.
+ * @param v Parameter.
+ * @return Return value.
+ */
 bool isValidCV(ConSeq c, VowelSeq v)
 {
     if (c == cs_nil || v == vs_nil)
@@ -384,6 +437,13 @@ bool isValidCV(ConSeq c, VowelSeq v)
 }
 
 //----------------------------------------------------------
+/**
+ * @brief isValidVC.
+ *
+ * @param v Parameter.
+ * @param c Parameter.
+ * @return Return value.
+ */
 bool isValidVC(VowelSeq v, ConSeq c)
 {
     if (v == vs_nil || c == cs_nil)
@@ -407,6 +467,14 @@ bool isValidVC(VowelSeq v, ConSeq c)
 }
 
 //----------------------------------------------------------
+/**
+ * @brief isValidCVC.
+ *
+ * @param c1 Parameter.
+ * @param v Parameter.
+ * @param c2 Parameter.
+ * @return Return value.
+ */
 bool isValidCVC(ConSeq c1, VowelSeq v, ConSeq c2)
 {
     if (v == vs_nil)
@@ -439,6 +507,10 @@ bool isValidCVC(ConSeq c1, VowelSeq v, ConSeq c2)
 }
 
 //------------------------------------------------
+/**
+ * @brief engineClassInit.
+ *
+ */
 void engineClassInit()
 {
     int i, j;
@@ -475,6 +547,14 @@ void engineClassInit()
 }
 
 //------------------------------------------------
+/**
+ * @brief lookupVSeq.
+ *
+ * @param v1 Parameter.
+ * @param v2 Parameter.
+ * @param v3 Parameter.
+ * @return Return value.
+ */
 VowelSeq lookupVSeq(VnLexiName v1, VnLexiName v2, VnLexiName v3)
 {
     VSeqPair key;
@@ -489,6 +569,14 @@ VowelSeq lookupVSeq(VnLexiName v1, VnLexiName v2, VnLexiName v3)
 }
 
 //------------------------------------------------
+/**
+ * @brief lookupCSeq.
+ *
+ * @param c1 Parameter.
+ * @param c2 Parameter.
+ * @param c3 Parameter.
+ * @return Return value.
+ */
 ConSeq lookupCSeq(VnLexiName c1, VnLexiName c2, VnLexiName c3)
 {
     CSeqPair key;
@@ -503,6 +591,12 @@ ConSeq lookupCSeq(VnLexiName c1, VnLexiName c2, VnLexiName c3)
 }
 
 //------------------------------------------------------------------
+/**
+ * @brief processRoof.
+ *
+ * @param ev Parameter.
+ * @return Return value.
+ */
 int UkEngine::processRoof(UkKeyEvent & ev)
 {
     if (!m_pCtrl->vietKey || m_current < 0 || m_buffer[m_current].vOffset < 0)
@@ -568,6 +662,11 @@ int UkEngine::processRoof(UkKeyEvent & ev)
 
         if (VSeqList[vs].len == 3)
             newVs = lookupVSeq(m_buffer[vStart].vnSym, m_buffer[vStart+1].vnSym, m_buffer[vStart+2].vnSym);
+/**
+ * @brief if.
+ *
+ * @param len Parameter.
+ */
         else if (VSeqList[vs].len == 2)
             newVs = lookupVSeq(m_buffer[vStart].vnSym, m_buffer[vStart+1].vnSym);
         else
@@ -647,6 +746,12 @@ int UkEngine::processRoof(UkKeyEvent & ev)
 //------------------------------------------------------------------
 // can only be called from processHook
 //------------------------------------------------------------------
+/**
+ * @brief processHookWithUO.
+ *
+ * @param ev Parameter.
+ * @return Return value.
+ */
 int UkEngine::processHookWithUO(UkKeyEvent & ev)
 {
     VowelSeq vs, newVs;
@@ -801,6 +906,12 @@ int UkEngine::processHookWithUO(UkKeyEvent & ev)
 }
 
 //------------------------------------------------------------------
+/**
+ * @brief processHook.
+ *
+ * @param ev Parameter.
+ * @return Return value.
+ */
 int UkEngine::processHook(UkKeyEvent & ev)
 {
     if (!m_pCtrl->vietKey || m_current < 0 || m_buffer[m_current].vOffset < 0)
@@ -864,6 +975,11 @@ int UkEngine::processHook(UkKeyEvent & ev)
 
         if (VSeqList[vs].len == 3)
             newVs = lookupVSeq(m_buffer[vStart].vnSym, m_buffer[vStart+1].vnSym, m_buffer[vStart+2].vnSym);
+/**
+ * @brief if.
+ *
+ * @param len Parameter.
+ */
         else if (VSeqList[vs].len == 2)
             newVs = lookupVSeq(m_buffer[vStart].vnSym, m_buffer[vStart+1].vnSym);
         else
@@ -948,6 +1064,13 @@ int UkEngine::processHook(UkKeyEvent & ev)
 }
 
 //----------------------------------------------------------
+/**
+ * @brief getTonePosition.
+ *
+ * @param vs Parameter.
+ * @param terminated Parameter.
+ * @return Return value.
+ */
 int UkEngine::getTonePosition(VowelSeq vs, bool terminated)
 {
     VowelSeqInfo & info = VSeqList[vs];
@@ -973,6 +1096,12 @@ int UkEngine::getTonePosition(VowelSeq vs, bool terminated)
 }
 
 //----------------------------------------------------------
+/**
+ * @brief processTone.
+ *
+ * @param ev Parameter.
+ * @return Return value.
+ */
 int UkEngine::processTone(UkKeyEvent & ev)
 {
     if (m_current < 0 || !m_pCtrl->vietKey)
@@ -1034,6 +1163,12 @@ int UkEngine::processTone(UkKeyEvent & ev)
 }
 
 //----------------------------------------------------------
+/**
+ * @brief processDd.
+ *
+ * @param ev Parameter.
+ * @return Return value.
+ */
 int UkEngine::processDd(UkKeyEvent & ev)
 {
     if (!m_pCtrl->vietKey || m_current < 0)
@@ -1091,6 +1226,12 @@ int UkEngine::processDd(UkKeyEvent & ev)
 }
 
 //----------------------------------------------------------
+/**
+ * @brief changeCase.
+ *
+ * @param x Parameter.
+ * @return Return value.
+ */
 VnLexiName changeCase(VnLexiName x)
 {
     if (x == vnl_nonVnChar)
@@ -1101,6 +1242,12 @@ VnLexiName changeCase(VnLexiName x)
 }
 
 //----------------------------------------------------------
+/**
+ * @brief vnToLower.
+ *
+ * @param x Parameter.
+ * @return Return value.
+ */
 inline VnLexiName vnToLower(VnLexiName x)
 {
     if (x == vnl_nonVnChar)
@@ -1111,6 +1258,12 @@ inline VnLexiName vnToLower(VnLexiName x)
 }
 
 //----------------------------------------------------------
+/**
+ * @brief processMapChar.
+ *
+ * @param ev Parameter.
+ * @return Return value.
+ */
 int UkEngine::processMapChar(UkKeyEvent & ev)
 {
     int capsLockOn = 0;
@@ -1191,6 +1344,12 @@ int UkEngine::processMapChar(UkKeyEvent & ev)
 }
 
 //----------------------------------------------------------
+/**
+ * @brief processTelexW.
+ *
+ * @param ev Parameter.
+ * @return Return value.
+ */
 int UkEngine::processTelexW(UkKeyEvent & ev)
 {
     if (!m_pCtrl->vietKey)
@@ -1238,6 +1397,12 @@ int UkEngine::processTelexW(UkKeyEvent & ev)
 }
 
 //----------------------------------------------------------
+/**
+ * @brief checkEscapeVIQR.
+ *
+ * @param ev Parameter.
+ * @return Return value.
+ */
 int UkEngine::checkEscapeVIQR(UkKeyEvent & ev)
 {
     if (m_current < 0)
@@ -1264,6 +1429,12 @@ int UkEngine::checkEscapeVIQR(UkKeyEvent & ev)
             break;
         }
     }
+/**
+ * @brief if.
+ *
+ * @param form Parameter.
+ * @return Return value.
+ */
     else if (entry.form == vnw_nonVn) {
         unsigned char ch = toupper(entry.keyCode);
         switch (ev.keyCode) {
@@ -1312,6 +1483,12 @@ int UkEngine::checkEscapeVIQR(UkKeyEvent & ev)
 }
 
 //----------------------------------------------------------
+/**
+ * @brief processAppend.
+ *
+ * @param ev Parameter.
+ * @return Return value.
+ */
 int UkEngine::processAppend(UkKeyEvent & ev)
 {
     int ret = 0;
@@ -1366,6 +1543,12 @@ int UkEngine::processAppend(UkKeyEvent & ev)
 }
 
 //----------------------------------------------------------
+/**
+ * @brief appendVowel.
+ *
+ * @param ev Parameter.
+ * @return Return value.
+ */
 int UkEngine::appendVowel(UkKeyEvent & ev)
 {
     bool autoCompleted = false;
@@ -1428,6 +1611,11 @@ int UkEngine::appendVowel(UkKeyEvent & ev)
         else {
             if (VSeqList[vs].len == 3)
                 newVs = vs_nil;
+/**
+ * @brief if.
+ *
+ * @param len Parameter.
+ */
             else if (VSeqList[vs].len == 2)
                 newVs = lookupVSeq(VSeqList[vs].v[0], VSeqList[vs].v[1], canSym);
             else
@@ -1524,6 +1712,12 @@ int UkEngine::appendVowel(UkKeyEvent & ev)
 }
 
 //----------------------------------------------------------
+/**
+ * @brief appendConsonnant.
+ *
+ * @param ev Parameter.
+ * @return Return value.
+ */
 int UkEngine::appendConsonnant(UkKeyEvent & ev)
 {
     bool complexEvent = false;
@@ -1596,6 +1790,12 @@ int UkEngine::appendConsonnant(UkKeyEvent & ev)
                 prev.vseq = vs_uhoh;
                 complexEvent = true;
             }
+/**
+ * @brief if.
+ *
+ * @param vs Parameter.
+ * @return Return value.
+ */
             else if (vs == vs_uoh) {
                 markChange(m_current-2);
                 m_buffer[m_current-2].vnSym = vnl_uh;
@@ -1650,6 +1850,11 @@ int UkEngine::appendConsonnant(UkKeyEvent & ev)
         cs = prev.cseq;
         if (CSeqList[cs].len == 3)
             newCs = cs_nil;
+/**
+ * @brief if.
+ *
+ * @param len Parameter.
+ */
         else if (CSeqList[cs].len == 2)
             newCs = lookupCSeq(CSeqList[cs].c[0], CSeqList[cs].c[1], lowerSym);
         else
@@ -1680,6 +1885,12 @@ int UkEngine::appendConsonnant(UkKeyEvent & ev)
                 entry.c2Offset = -1;
                 entry.vOffset = -1;
             }
+/**
+ * @brief if.
+ *
+ * @param form Parameter.
+ * @return Return value.
+ */
             else if (prev.form == vnw_vc) {
                 entry.form = vnw_vc;
                 entry.c1Offset = -1;
@@ -1707,6 +1918,12 @@ int UkEngine::appendConsonnant(UkKeyEvent & ev)
 }
 
 //----------------------------------------------------------
+/**
+ * @brief processEscChar.
+ *
+ * @param ev Parameter.
+ * @return Return value.
+ */
 int UkEngine::processEscChar(UkKeyEvent & ev)
 {
     if (m_pCtrl->vietKey && 
@@ -1717,6 +1934,11 @@ int UkEngine::processEscChar(UkKeyEvent & ev)
 }
 
 //----------------------------------------------------------
+/**
+ * @brief pass.
+ *
+ * @param keyCode Parameter.
+ */
 void UkEngine::pass(int keyCode)
 {
     UkKeyEvent ev;
@@ -1728,6 +1950,12 @@ void UkEngine::pass(int keyCode)
 // This can be called only after other processing have been done.
 // The new event is supposed to be put into m_buffer already
 //---------------------------------------------
+/**
+ * @brief processNoSpellCheck.
+ *
+ * @param ev Parameter.
+ * @return Return value.
+ */
 int UkEngine::processNoSpellCheck(UkKeyEvent & ev)
 {
     WordInfo & entry = m_buffer[m_current];
@@ -1753,6 +1981,16 @@ int UkEngine::processNoSpellCheck(UkKeyEvent & ev)
     return 1;
 }
 //----------------------------------------------------------
+/**
+ * @brief process.
+ *
+ * @param keyCode Parameter.
+ * @param backs Parameter.
+ * @param outBuf Parameter.
+ * @param outSize Parameter.
+ * @param outType Parameter.
+ * @return Return value.
+ */
 int UkEngine::process(unsigned int keyCode, int & backs, unsigned char *outBuf, int & outSize, UkOutputType & outType)
 {
     UkKeyEvent ev;
@@ -1837,11 +2075,24 @@ int UkEngine::process(unsigned int keyCode, int & backs, unsigned char *outBuf, 
 //  outSize: [in] size of buffer in bytes
 //           [out] bytes written to buffer
 //----------------------------------------------------------
+/**
+ * @brief writeOutput.
+ *
+ * @param outBuf Parameter.
+ * @param outSize Parameter.
+ * @return Return value.
+ */
 int UkEngine::writeOutput(unsigned char *outBuf, int & outSize)
 {
     StdVnChar stdChar;
     int i, bytesWritten;
     int ret = 1;
+/**
+ * @brief os.
+ *
+ * @param outBuf Parameter.
+ * @param outSize Parameter.
+ */
     StringBOStream os(outBuf, outSize);
     VnCharset *pCharset = VnCharsetLibObj.getVnCharset(m_pCtrl->charsetId);
     pCharset->startOutput();
@@ -1871,6 +2122,13 @@ int UkEngine::writeOutput(unsigned char *outBuf, int & outSize)
 // Returns the number of backspaces needed to
 // go back from last to first
 //---------------------------------------------
+/**
+ * @brief getSeqSteps.
+ *
+ * @param first Parameter.
+ * @param last Parameter.
+ * @return Return value.
+ */
 int UkEngine::getSeqSteps(int first, int last)
 {
     StdVnChar stdChar;
@@ -1882,6 +2140,10 @@ int UkEngine::getSeqSteps(int first, int last)
         m_pCtrl->charsetId == CONV_CHARSET_UNICODE)
         return (last - first +  1);
 
+/**
+ * @brief os.
+ *
+ */
     StringBOStream os(0, 0);
     int i, bytesWritten;
 
@@ -1912,6 +2174,11 @@ int UkEngine::getSeqSteps(int first, int last)
 }
 
 //---------------------------------------------
+/**
+ * @brief markChange.
+ *
+ * @param pos Parameter.
+ */
 void UkEngine::markChange(int pos)
 {
     if (pos < m_changePos) {
@@ -1924,6 +2191,10 @@ void UkEngine::markChange(int pos)
 // Called from processBackspace to keep
 // character buffer (m_buffer) and key stroke buffer in synch
 //----------------------------------------------------------------
+/**
+ * @brief synchKeyStrokeBuffer.
+ *
+ */
 void UkEngine::synchKeyStrokeBuffer()
 {
     //synchronize with key-stroke buffer
@@ -1940,6 +2211,15 @@ void UkEngine::synchKeyStrokeBuffer()
 }
 
 //---------------------------------------------
+/**
+ * @brief processBackspace.
+ *
+ * @param backs Parameter.
+ * @param outBuf Parameter.
+ * @param outSize Parameter.
+ * @param outType Parameter.
+ * @return Return value.
+ */
 int UkEngine::processBackspace(int & backs, unsigned char *outBuf, int & outSize, UkOutputType & outType)
 {
     outType = UkCharOutput;
@@ -2000,6 +2280,10 @@ int UkEngine::processBackspace(int & backs, unsigned char *outBuf, int & outSize
 }
 
 //------------------------------------------------
+/**
+ * @brief reset.
+ *
+ */
 void UkEngine::reset()
 {
     m_current = -1;
@@ -2009,6 +2293,10 @@ void UkEngine::reset()
 }
 
 //------------------------------------------------
+/**
+ * @brief resetKeyBuf.
+ *
+ */
 void UkEngine::resetKeyBuf()
 {
     m_keyCurrent = -1;
@@ -2036,6 +2324,10 @@ UkEngine::UkEngine()
 //----------------------------------------------------
 // make sure there are at least 10 entries available
 //----------------------------------------------------
+/**
+ * @brief prepareBuffer.
+ *
+ */
 void UkEngine::prepareBuffer()
 {
     int rid;
@@ -2068,6 +2360,12 @@ void UkEngine::prepareBuffer()
 enum VnCaseType {VnCaseNoChange, VnCaseAllCapital, VnCaseAllSmall};
 
 //----------------------------------------------------
+/**
+ * @brief macroMatch.
+ *
+ * @param ev Parameter.
+ * @return Return value.
+ */
 int UkEngine::macroMatch(UkKeyEvent & ev)
 {
     int capsLockOn = 0;
@@ -2145,6 +2443,12 @@ int UkEngine::macroMatch(UkKeyEvent & ev)
     if (IS_STD_VN_LOWER(*pKeyStart)) {
         macroCase = VnCaseAllSmall;
     }
+/**
+ * @brief if.
+ *
+ * @param pKeyStart Parameter.
+ * @return Return value.
+ */
     else if (IS_STD_VN_UPPER(*pKeyStart)) {
         macroCase = VnCaseAllCapital;
         for (i=1; pKeyStart[i]; i++) {
@@ -2164,6 +2468,11 @@ int UkEngine::macroMatch(UkKeyEvent & ev)
     {
         if (macroCase == VnCaseAllCapital)
             macroText[i] = StdVnToUpper(pMacText[i]);
+/**
+ * @brief if.
+ *
+ * @param macroCase Parameter.
+ */
         else if (macroCase == VnCaseAllSmall)
             macroText[i] = StdVnToLower(pMacText[i]);
         else
@@ -2202,6 +2511,15 @@ int UkEngine::macroMatch(UkKeyEvent & ev)
 }
 
 //----------------------------------------------------
+/**
+ * @brief restoreKeyStrokes.
+ *
+ * @param backs Parameter.
+ * @param outBuf Parameter.
+ * @param outSize Parameter.
+ * @param outType Parameter.
+ * @return Return value.
+ */
 int UkEngine::restoreKeyStrokes(int & backs, unsigned char *outBuf, int & outSize, UkOutputType & outType)
 {
     outType = UkKeyOutput;
@@ -2255,12 +2573,20 @@ int UkEngine::restoreKeyStrokes(int & backs, unsigned char *outBuf, int & outSiz
 }
 
 //--------------------------------------------------
+/**
+ * @brief setSingleMode.
+ *
+ */
 void UkEngine::setSingleMode()
 {
     m_singleMode = true;
 }
 
 //--------------------------------------------------
+/**
+ * @brief SetupUnikeyEngine.
+ *
+ */
 void SetupUnikeyEngine()
 {
     SetupInputClassifierTable();
@@ -2284,6 +2610,11 @@ void SetupUnikeyEngine()
 }
 
 //--------------------------------------------------
+/**
+ * @brief atWordBeginning.
+ *
+ * @return Return value.
+ */
 bool UkEngine::atWordBeginning()
 {
     return (m_current < 0 || m_buffer[m_current].form == vnw_empty);
@@ -2294,6 +2625,12 @@ bool UkEngine::atWordBeginning()
 // Spell-check, if is valid Vietnamese, return normally, if not:
 // restore key strokes if auto-restore is enabled
 //--------------------------------------------------
+/**
+ * @brief processWordEnd.
+ *
+ * @param ev Parameter.
+ * @return Return value.
+ */
 int UkEngine::processWordEnd(UkKeyEvent & ev)
 {
     if (m_pCtrl->options.macroEnabled && macroMatch(ev))
@@ -2341,6 +2678,11 @@ int UkEngine::processWordEnd(UkKeyEvent & ev)
 // Test if last word is a non-Vietnamese word, so that
 // the engine can restore key strokes if it is indeed not a Vietnamese word
 //---------------------------------------------------------------------------
+/**
+ * @brief lastWordIsNonVn.
+ *
+ * @return Return value.
+ */
 bool UkEngine::lastWordIsNonVn()
 {
     if (m_current < 0)
@@ -2385,6 +2727,11 @@ bool UkEngine::lastWordIsNonVn()
 //---------------------------------------------------------------------------
 // Test if last word has a Vietnamese mark, that is tones, decorators
 //---------------------------------------------------------------------------
+/**
+ * @brief lastWordHasVnMark.
+ *
+ * @return Return value.
+ */
 bool UkEngine::lastWordHasVnMark()
 {
     for (int i=m_current; i>=0 && m_buffer[i].form != vnw_empty; i--) {

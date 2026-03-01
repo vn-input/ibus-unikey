@@ -230,6 +230,10 @@ DllExport UkKeyMapping MsViMethodMapping[] = {
 };
 
 //-------------------------------------------
+/**
+ * @brief SetupInputClassifierTable.
+ *
+ */
 void SetupInputClassifierTable()
 {
   unsigned int c;
@@ -303,6 +307,12 @@ void UkInputProcessor::init()
 }
 
 //-------------------------------------------
+/**
+ * @brief setIM.
+ *
+ * @param im Parameter.
+ * @return Return value.
+ */
 int UkInputProcessor::setIM(UkInputMethod im)
 {
     m_im = im;
@@ -333,6 +343,12 @@ int UkInputProcessor::setIM(UkInputMethod im)
 }
 
 //-------------------------------------------
+/**
+ * @brief setIM.
+ *
+ * @param map Parameter.
+ * @return Return value.
+ */
 int UkInputProcessor::setIM(int map[256])
 {
   int i;
@@ -344,6 +360,11 @@ int UkInputProcessor::setIM(int map[256])
   
 
 //-------------------------------------------
+/**
+ * @brief UkResetKeyMap.
+ *
+ * @param keyMap Parameter.
+ */
 void UkResetKeyMap(int keyMap[256])
 {
   unsigned int c;
@@ -365,6 +386,12 @@ void UkInputProcessor::useBuiltIn(UkKeyMapping *map)
             if (islower(map[i].key)) {
                 m_keyMap[toupper(map[i].key)] = map[i].action;
             }
+/**
+ * @brief if.
+ *
+ * @param key Parameter.
+ * @return Return value.
+ */
             else if (isupper(map[i].key)) {
                 m_keyMap[tolower(map[i].key)] = map[i].action;
             }
@@ -412,6 +439,8 @@ void UkInputProcessor::keyCodeToEvent(unsigned int keyCode, UkKeyEvent & ev)
 //----------------------------------------------------------------
 /**
  * @brief Convert a keycode to its corresponding symbolic character event.
+ * @param keyCode Parameter.
+ * @param ev Parameter.
  */
 void UkInputProcessor::keyCodeToSymbol(unsigned int keyCode, UkKeyEvent & ev)
 {
@@ -427,6 +456,12 @@ void UkInputProcessor::keyCodeToSymbol(unsigned int keyCode, UkKeyEvent & ev)
 }
 
 //-------------------------------------------
+/**
+ * @brief getCharType.
+ *
+ * @param keyCode Parameter.
+ * @return Return value.
+ */
 UkCharType UkInputProcessor::getCharType(unsigned int keyCode)
 {
   if (keyCode > 255)

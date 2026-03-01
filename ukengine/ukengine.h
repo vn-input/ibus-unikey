@@ -53,6 +53,11 @@ struct UkSharedMem {
 
 enum VnWordForm {vnw_nonVn, vnw_empty, vnw_c, vnw_v, vnw_cv, vnw_vc, vnw_cvc};
 
+/**
+ * @brief void.
+ *
+ * @param pCapslockOn Parameter.
+ */
 typedef void (* CheckKeyboardCaseCb)(int *pShiftPressed, int *pCapslockOn);
 
 struct KeyBufEntry {
@@ -64,37 +69,139 @@ class UkEngine
 {
 public:
     UkEngine();
+/**
+ * @brief setCtrlInfo.
+ *
+ * @param p Parameter.
+ */
     void setCtrlInfo(UkSharedMem *p)
     {
         m_pCtrl = p;
     }
 
+/**
+ * @brief setCheckKbCaseFunc.
+ *
+ * @param pFunc Parameter.
+ */
     void setCheckKbCaseFunc(CheckKeyboardCaseCb pFunc) 
     {
         m_keyCheckFunc = pFunc;
     }
 
+/**
+ * @brief atWordBeginning.
+ *
+ */
     bool atWordBeginning();
 
+/**
+ * @brief process.
+ *
+ * @param keyCode Parameter.
+ * @param backs Parameter.
+ * @param outBuf Parameter.
+ * @param outSize Parameter.
+ * @param outType Parameter.
+ */
     int process(unsigned int keyCode, int & backs, unsigned char *outBuf, int & outSize, UkOutputType & outType);
+/**
+ * @brief pass.
+ *
+ * @param keyCode Parameter.
+ */
     void pass(int keyCode); //just pass through without filtering
+/**
+ * @brief setSingleMode.
+ *
+ */
     void setSingleMode();
 
+/**
+ * @brief processBackspace.
+ *
+ * @param backs Parameter.
+ * @param outBuf Parameter.
+ * @param outSize Parameter.
+ * @param outType Parameter.
+ */
     int processBackspace(int & backs, unsigned char *outBuf, int & outSize, UkOutputType & outType);
+/**
+ * @brief reset.
+ *
+ */
     void reset();
+/**
+ * @brief restoreKeyStrokes.
+ *
+ * @param backs Parameter.
+ * @param outBuf Parameter.
+ * @param outSize Parameter.
+ * @param outType Parameter.
+ */
     int restoreKeyStrokes(int & backs, unsigned char *outBuf, int & outSize, UkOutputType & outType);
 
     //following methods must be public just to enable the use of pointers to them
     //they should not be called from outside.
+/**
+ * @brief processTone.
+ *
+ * @param ev Parameter.
+ */
     int processTone(UkKeyEvent & ev);
+/**
+ * @brief processRoof.
+ *
+ * @param ev Parameter.
+ */
     int processRoof(UkKeyEvent & ev);
+/**
+ * @brief processHook.
+ *
+ * @param ev Parameter.
+ */
     int processHook(UkKeyEvent & ev);
+/**
+ * @brief processAppend.
+ *
+ * @param ev Parameter.
+ */
     int processAppend(UkKeyEvent & ev);
+/**
+ * @brief appendVowel.
+ *
+ * @param ev Parameter.
+ */
     int appendVowel(UkKeyEvent & ev);
+/**
+ * @brief appendConsonnant.
+ *
+ * @param ev Parameter.
+ */
     int appendConsonnant(UkKeyEvent & ev);
+/**
+ * @brief processDd.
+ *
+ * @param ev Parameter.
+ */
     int processDd(UkKeyEvent & ev);
+/**
+ * @brief processMapChar.
+ *
+ * @param ev Parameter.
+ */
     int processMapChar(UkKeyEvent & ev);
+/**
+ * @brief processTelexW.
+ *
+ * @param ev Parameter.
+ */
     int processTelexW(UkKeyEvent & ev);
+/**
+ * @brief processEscChar.
+ *
+ * @param ev Parameter.
+ */
     int processEscChar(UkKeyEvent & ev);
 
 protected:
@@ -143,23 +250,95 @@ protected:
 
     WordInfo m_buffer[MAX_UK_ENGINE];
 
+/**
+ * @brief processHookWithUO.
+ *
+ * @param ev Parameter.
+ */
     int processHookWithUO(UkKeyEvent & ev);
+/**
+ * @brief macroMatch.
+ *
+ * @param ev Parameter.
+ */
     int macroMatch(UkKeyEvent & ev);
+/**
+ * @brief markChange.
+ *
+ * @param pos Parameter.
+ */
     void markChange(int pos);
+/**
+ * @brief prepareBuffer.
+ *
+ */
     void prepareBuffer(); //make sure we have a least 10 entries available
+/**
+ * @brief writeOutput.
+ *
+ * @param outBuf Parameter.
+ * @param outSize Parameter.
+ */
     int writeOutput(unsigned char *outBuf, int & outSize);
     //int getSeqLength(int first, int last);
+/**
+ * @brief getSeqSteps.
+ *
+ * @param first Parameter.
+ * @param last Parameter.
+ */
     int getSeqSteps(int first, int last);
+/**
+ * @brief getTonePosition.
+ *
+ * @param vs Parameter.
+ * @param terminated Parameter.
+ */
     int getTonePosition(VowelSeq vs, bool terminated);
+/**
+ * @brief resetKeyBuf.
+ *
+ */
     void resetKeyBuf();
+/**
+ * @brief checkEscapeVIQR.
+ *
+ * @param ev Parameter.
+ */
     int checkEscapeVIQR(UkKeyEvent & ev);
+/**
+ * @brief processNoSpellCheck.
+ *
+ * @param ev Parameter.
+ */
     int processNoSpellCheck(UkKeyEvent & ev);
+/**
+ * @brief processWordEnd.
+ *
+ * @param ev Parameter.
+ */
     int processWordEnd(UkKeyEvent & ev);
+/**
+ * @brief synchKeyStrokeBuffer.
+ *
+ */
     void synchKeyStrokeBuffer();
+/**
+ * @brief lastWordHasVnMark.
+ *
+ */
     bool lastWordHasVnMark();
+/**
+ * @brief lastWordIsNonVn.
+ *
+ */
     bool lastWordIsNonVn();
 };
 
+/**
+ * @brief SetupUnikeyEngine.
+ *
+ */
 void SetupUnikeyEngine();
 
 #endif

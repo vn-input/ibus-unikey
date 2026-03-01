@@ -466,11 +466,23 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         unikey->ukopt.spellCheckEnabled = prop_state > 0;
         ibus_unikey_config_set_boolean(prop_name, prop_state > 0);
     }
+/**
+ * @brief if.
+ *
+ * @param CONFIG_AUTORESTORENONVN Parameter.
+ * @return Return value.
+ */
     else if (strcmp(prop_name, CONFIG_AUTORESTORENONVN) == 0)
     {
         unikey->ukopt.autoNonVnRestore = prop_state > 0;
         ibus_unikey_config_set_boolean(prop_name, prop_state > 0);
     }
+/**
+ * @brief if.
+ *
+ * @param CONFIG_MACROENABLED Parameter.
+ * @return Return value.
+ */
     else if (strcmp(prop_name, CONFIG_MACROENABLED) == 0)
     {
         unikey->ukopt.macroEnabled = prop_state > 0;
@@ -706,6 +718,12 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
         return false;
     }
 
+/**
+ * @brief if.
+ *
+ * @param keyval Parameter.
+ * @return Return value.
+ */
     else if (modifiers & IBUS_CONTROL_MASK
              || modifiers & IBUS_MOD1_MASK // alternate mask
              || keyval == IBUS_Control_L
@@ -722,6 +740,12 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
         return false;
     }
 
+/**
+ * @brief if.
+ *
+ * @param keyval Parameter.
+ * @return Return value.
+ */
     else if ((keyval >= IBUS_Caps_Lock && keyval <= IBUS_Hyper_R)
             || (!(modifiers & IBUS_SHIFT_MASK) && (keyval == IBUS_Shift_L || keyval == IBUS_Shift_R))  // when press one shift key
         )
@@ -730,6 +754,12 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
     }
 
     // capture BackSpace
+/**
+ * @brief if.
+ *
+ * @param keyval Parameter.
+ * @return Return value.
+ */
     else if (keyval == IBUS_BackSpace)
     {
         UnikeyBackspacePress();
@@ -772,6 +802,12 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
         return true;
     } // end capture BackSpace
 
+/**
+ * @brief if.
+ *
+ * @param keyval Parameter.
+ * @return Return value.
+ */
     else if (keyval >=IBUS_KP_Multiply && keyval <=IBUS_KP_9)
     {
         ibus_unikey_buffer_commit(engine);
@@ -779,6 +815,12 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
     }
 
     // capture ascii printable char
+/**
+ * @brief if.
+ *
+ * @param keyval Parameter.
+ * @return Return value.
+ */
     else if ((keyval >= IBUS_space && keyval <=IBUS_asciitilde)
             || keyval == IBUS_Shift_L || keyval == IBUS_Shift_R) // sure this have IBUS_SHIFT_MASK
     {
@@ -840,6 +882,12 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
                 unikey->preeditstr->append((const gchar*)buf, CONVERT_BUF_SIZE - bufSize);
             }
         }
+/**
+ * @brief if.
+ *
+ * @param keyval Parameter.
+ * @return Return value.
+ */
         else if (keyval != IBUS_Shift_L && keyval != IBUS_Shift_R) // if ukengine not process
         {
             static int n;
