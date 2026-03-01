@@ -93,9 +93,10 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey);
 
 /**
  * @brief Custom constructor for the Unikey engine
- * @param type Description of type.
- * @param n_construct_params Description of n_construct_params.
- * @param construct_params Description of construct_params.
+ * @param type GType of object being constructed (should be UNIKEY_ENGINE_TYPE).
+ * @param n_construct_params Number of construction parameters provided.
+ * @param construct_params Array of GObjectConstructParam structures supplied
+ *        by GObject for initialization.
  */
 static GObject* ibus_unikey_engine_constructor(GType type,
                                                guint n_construct_params,
@@ -103,15 +104,16 @@ static GObject* ibus_unikey_engine_constructor(GType type,
 
 /**
  * @brief Cleanup invoked when the Unikey engine object is destroyed.
- * @param unikey Description of unikey.
+ * @param unikey Pointer to the engine instance being freed.
  */
 static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey);
 /**
  * @brief Primary key event handler called by IBus.
- * @param engine Description of engine.
- * @param keyval Description of keyval.
- * @param keycode Description of keycode.
- * @param modifiers Description of modifiers.
+ * @param engine IBusEngine receiving the key event; cast to Unikey type for
+ *        internal use.
+ * @param keyval The GDK key value of the pressed key.
+ * @param keycode Hardware keycode (platform-specific).
+ * @param modifiers Modifier mask (Shift, Control, etc.).
  */
 static gboolean ibus_unikey_engine_process_key_event(IBusEngine* engine,
                                                      guint keyval,
@@ -120,45 +122,45 @@ static gboolean ibus_unikey_engine_process_key_event(IBusEngine* engine,
 
 /**
  * @brief Called when engine receives input focus.
- * @param engine Description of engine.
+ * @param engine Engine instance that gained focus.
  */
 static void ibus_unikey_engine_focus_in(IBusEngine* engine);
 /**
  * @brief Called when engine loses input focus.
- * @param engine Description of engine.
+ * @param engine Engine instance that lost focus.
  */
 static void ibus_unikey_engine_focus_out(IBusEngine* engine);
 /**
  * @brief Reset internal engine state (e.g. preedit) to initial.
- * @param engine Description of engine.
+ * @param engine Engine instance to reset.
  */
 static void ibus_unikey_engine_reset(IBusEngine* engine);
 /**
  * @brief Enable the engine (e.g. when user activates it).
- * @param engine Description of engine.
+ * @param engine Engine instance being enabled.
  */
 static void ibus_unikey_engine_enable(IBusEngine* engine);
 /**
  * @brief Disable the engine (e.g. when user switches away).
- * @param engine Description of engine.
+ * @param engine Engine instance being disabled.
  */
 static void ibus_unikey_engine_disable(IBusEngine* engine);
 /**
  * @brief Load persisted configuration values into the engine instance.
- * @param unikey Description of unikey.
+ * @param unikey The Unikey engine object receiving config data.
  */
 static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey);
 /**
  * @brief Callback invoked when a configuration key changes.
- * @param name Description of name.
- * @param user_data Description of user_data.
+ * @param name Name of the configuration key that was modified.
+ * @param user_data Unused pointer (typically points to engine).
  */
 static void ibus_unikey_config_value_changed(gchar* name, gpointer user_data);
 /**
  * @brief Handler for activation of engine ui properties.
- * @param engine Description of engine.
- * @param prop_name Description of prop_name.
- * @param prop_state Description of prop_state.
+ * @param engine Engine instance whose property was activated.
+ * @param prop_name Name of the property activated.
+ * @param prop_state New state value of the property.
  */
 static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                                                  const gchar* prop_name,
@@ -166,10 +168,10 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
 
 /**
  * @brief Process key event when preedit buffer is active.
- * @param engine Description of engine.
- * @param keyval Description of keyval.
- * @param keycode Description of keycode.
- * @param modifiers Description of modifiers.
+ * @param engine Engine receiving the key event.
+ * @param keyval GDK key value.
+ * @param keycode Hardware keycode.
+ * @param modifiers Modifier mask.
  */
 static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
                                                              guint keyval,
@@ -178,21 +180,21 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
 
 /**
  * @brief Build the engine's property list structure used by the GUI.
- * @param unikey Description of unikey.
+ * @param unikey Engine instance for which the property list is being built.
  */
 static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey);
 
 /**
  * @brief Helper to update the preedit string shown to the user.
- * @param engine Description of engine.
- * @param string Description of string.
- * @param visible Description of visible.
+ * @param engine Engine whose preedit text is being modified.
+ * @param string UTF-8 string to display in the preedit area.
+ * @param visible `TRUE` to show the preedit, `FALSE` to hide it.
  */
 static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const gchar *string, gboolean visible);
 /**
  * @brief Erase @p num_chars characters from the preedit buffer.
- * @param engine Description of engine.
- * @param num_chars Description of num_chars.
+ * @param engine Engine instance whose preedit is modified.
+ * @param num_chars Number of characters to remove.
  */
 static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars);
 
