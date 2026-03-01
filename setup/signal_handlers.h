@@ -84,30 +84,39 @@ extern "C"
     G_MODULE_EXPORT void on_btn_macroedit_clicked(GtkButton* btn, gpointer user_data);
 
     /**
-     * @brief Input method combo changed.
- * @param cbb Description of cbb.
- * @param user_data Description of user_data.
+     * @brief Invoked when the input method dropdown selection changes.
+     *
+     * @param cbb The `GtkComboBox` representing input methods.
+     * @param user_data User data pointer (unused).
      */
     G_MODULE_EXPORT void on_input_method_changed(GtkComboBox* cbb, gpointer user_data);
 
     /**
-     * @brief Input method combo "realize" event.
- * @param cbb Description of cbb.
- * @param user_data Description of user_data.
+     * @brief Handler for the input-method combo box `realize` event.
+     *
+     * Typically used to populate or adjust the widget once it has been
+     * created and added to the window.
+     *
+     * @param cbb The `GtkComboBox` being realized.
+     * @param user_data User data pointer (unused).
      */
     G_MODULE_EXPORT void on_input_method_realize(GtkComboBox* cbb, gpointer user_data);
 
     /**
-     * @brief Output charset combo changed.
- * @param cbb Description of cbb.
- * @param user_data Description of user_data.
+     * @brief Called when the output charset selection is changed by the user.
+     *
+     * @param cbb The `GtkComboBox` widget whose active item was changed.
+     * @param user_data Pointer to user data (unused).
      */
     G_MODULE_EXPORT void on_output_charset_changed(GtkComboBox* cbb, gpointer user_data);
 
     /**
-     * @brief Output charset combo "realize" event.
- * @param cbb Description of cbb.
- * @param user_data Description of user_data.
+     * @brief Handler for the output-charset combo box `realize` event.
+     *
+     * Used to configure the widget after it has been constructed by GTK.
+     *
+     * @param cbb The `GtkComboBox` being realized.
+     * @param user_data User data pointer (unused).
      */
     G_MODULE_EXPORT void on_output_charset_realize(GtkComboBox* cbb, gpointer user_data);
 
