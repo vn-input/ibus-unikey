@@ -1194,8 +1194,13 @@ int VIQRCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRe
 
 //---------------------------------------------------
 /**
- * @brief startOutput.
+ * @brief Reset output state before generating VIQR text.
  *
+ * Prepares the object for a fresh sequence of output characters by
+ * clearing variables used to track escaping, tone marks and related
+ * context during the conversion of standard characters back to VIQR
+ * notation.  This prevents residual flags from affecting subsequent
+ * calls to @c putChar().
  */
 void VIQRCharset::startOutput()
 {
