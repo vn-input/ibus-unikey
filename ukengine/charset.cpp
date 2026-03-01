@@ -1316,8 +1316,25 @@ int VIQRCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 /////////////////////////////////////////////
 // Class: UTF8VIQRCharset                  //
 /////////////////////////////////////////////
+/**
+ * @brief Hybrid charset combining UTF-8 and VIQR logic.
+ *
+ * When processing input the object inspects the upcoming byte to decide
+ * whether to forward to the UTF-8 handler or the VIQR handler.  Output
+ * operations are delegated exclusively to the VIQR component.  This is
+ * useful for modes where both encoding styles may coexist.
+ */
 
 //-----------------------------------------
+/**
+ * @brief Construct a UTF8VIQR helper.
+ *
+ * The wrapper does not own the passed-in charset objects; they should
+ * remain valid for the lifetime of this instance.
+ *
+ * @param pUtf   UTF-8 charset instance pointer.
+ * @param pViqr  VIQR charset instance pointer.
+ */
 UTF8VIQRCharset::UTF8VIQRCharset(UnicodeUTF8Charset *pUtf, VIQRCharset *pViqr)
 {
   m_pUtf = pUtf;
