@@ -70,9 +70,12 @@ DllExport CVnCharsetLib VnCharsetLibObj;
 // Generic VnCharset class
 //////////////////////////////////////////////////////
 /**
- * @brief elementSize.
+ * @brief Query the byte size of one element in this charset.
  *
- * @return Return value.
+ * Some charsets use 1 byte per character, others 2 or 4; this method
+ * returns that size so callers know how many bytes to read/write.
+ *
+ * @return Number of bytes used by one charset element.
  */
 int VnCharset::elementSize()
 {
@@ -81,12 +84,16 @@ int VnCharset::elementSize()
 
 //-------------------------------------------
 /**
- * @brief nextInput.
+ * @brief Read the next element from an input stream and translate it to a
+ * standard Vietnamese character.
  *
- * @param is Parameter.
- * @param stdChar Parameter.
- * @param bytesRead Parameter.
- * @return Return value.
+ * This method consumes bytes from @p is using the rules of the current
+ * charset implementation.  It handles multi-byte sequences when applicable.
+ *
+ * @param is Input byte stream to read from.
+ * @param stdChar Output variable receiving the converted character code.
+ * @param bytesRead Output count of bytes consumed from the stream.
+ * @return 1 if a character was successfully read, 0 on end-of-stream or error.
  */
 int VnInternalCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
@@ -100,12 +107,16 @@ int VnInternalCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & b
 
 //-------------------------------------------
 /**
- * @brief putChar.
+ * @brief Emit a standard Vietnamese character to the output stream.
  *
- * @param os Parameter.
- * @param stdChar Parameter.
- * @param outLen Parameter.
- * @return Return value.
+ * The character is encoded according to the specific charset's rules and
+ * written into @p os.  A padding character may be emitted if the input is
+ * not representable.
+ *
+ * @param os Output byte stream to append data to.
+ * @param stdChar Standard Vietnamese character code to write.
+ * @param outLen Output number of bytes produced by this call.
+ * @return Non-zero on success, zero on write failure.
  */
 int VnInternalCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
@@ -116,9 +127,12 @@ int VnInternalCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outL
 
 //-------------------------------------------
 /**
- * @brief elementSize.
+ * @brief Query the byte size of one element in this charset.
  *
- * @return Return value.
+ * Some charsets use 1 byte per character, others 2 or 4; this method
+ * returns that size so callers know how many bytes to read/write.
+ *
+ * @return Number of bytes used by one charset element.
  */
 int VnInternalCharset::elementSize()
 {
@@ -145,12 +159,16 @@ SingleByteCharset::SingleByteCharset(unsigned char * vnChars)
 
 //-------------------------------------------
 /**
- * @brief nextInput.
+ * @brief Read the next element from an input stream and translate it to a
+ * standard Vietnamese character.
  *
- * @param is Parameter.
- * @param stdChar Parameter.
- * @param bytesRead Parameter.
- * @return Return value.
+ * This method consumes bytes from @p is using the rules of the current
+ * charset implementation.  It handles multi-byte sequences when applicable.
+ *
+ * @param is Input byte stream to read from.
+ * @param stdChar Output variable receiving the converted character code.
+ * @param bytesRead Output count of bytes consumed from the stream.
+ * @return 1 if a character was successfully read, 0 on end-of-stream or error.
  */
 int SingleByteCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
@@ -168,12 +186,16 @@ int SingleByteCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & b
 
 //-------------------------------------------
 /**
- * @brief putChar.
+ * @brief Emit a standard Vietnamese character to the output stream.
  *
- * @param os Parameter.
- * @param stdChar Parameter.
- * @param outLen Parameter.
- * @return Return value.
+ * The character is encoded according to the specific charset's rules and
+ * written into @p os.  A padding character may be emitted if the input is
+ * not representable.
+ *
+ * @param os Output byte stream to append data to.
+ * @param stdChar Standard Vietnamese character code to write.
+ * @param outLen Output number of bytes produced by this call.
+ * @return Non-zero on success, zero on write failure.
  */
 int SingleByteCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
@@ -207,8 +229,8 @@ int SingleByteCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outL
 /**
  * @brief wideCharCompare.
  *
- * @param ele1 Parameter.
- * @param ele2 Parameter.
+ * @param ele1 First element to compare.
+ * @param ele2 Second element to compare.
  * @return Return value.
  */
 int wideCharCompare(const void *ele1, const void *ele2)
@@ -236,12 +258,16 @@ UnicodeCharset::UnicodeCharset(UnicodeChar *vnChars)
 
 //-------------------------------------------
 /**
- * @brief nextInput.
+ * @brief Read the next element from an input stream and translate it to a
+ * standard Vietnamese character.
  *
- * @param is Parameter.
- * @param stdChar Parameter.
- * @param bytesRead Parameter.
- * @return Return value.
+ * This method consumes bytes from @p is using the rules of the current
+ * charset implementation.  It handles multi-byte sequences when applicable.
+ *
+ * @param is Input byte stream to read from.
+ * @param stdChar Output variable receiving the converted character code.
+ * @param bytesRead Output count of bytes consumed from the stream.
+ * @return 1 if a character was successfully read, 0 on end-of-stream or error.
  */
 int UnicodeCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
@@ -262,12 +288,16 @@ int UnicodeCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & byte
 
 //-------------------------------------------
 /**
- * @brief putChar.
+ * @brief Emit a standard Vietnamese character to the output stream.
  *
- * @param os Parameter.
- * @param stdChar Parameter.
- * @param outLen Parameter.
- * @return Return value.
+ * The character is encoded according to the specific charset's rules and
+ * written into @p os.  A padding character may be emitted if the input is
+ * not representable.
+ *
+ * @param os Output byte stream to append data to.
+ * @param stdChar Standard Vietnamese character code to write.
+ * @param outLen Output number of bytes produced by this call.
+ * @return Non-zero on success, zero on write failure.
  */
 int UnicodeCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
@@ -278,9 +308,12 @@ int UnicodeCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 
 //-------------------------------------------
 /**
- * @brief elementSize.
+ * @brief Query the byte size of one element in this charset.
  *
- * @return Return value.
+ * Some charsets use 1 byte per character, others 2 or 4; this method
+ * returns that size so callers know how many bytes to read/write.
+ *
+ * @return Number of bytes used by one charset element.
  */
 int UnicodeCharset::elementSize()
 {
@@ -294,8 +327,8 @@ int UnicodeCharset::elementSize()
 /**
  * @brief uniCompInfoCompare.
  *
- * @param ele1 Parameter.
- * @param ele2 Parameter.
+ * @param ele1 First element to compare.
+ * @param ele2 Second element to compare.
  * @return Return value.
  */
 int uniCompInfoCompare(const void *ele1, const void *ele2)
@@ -305,6 +338,16 @@ int uniCompInfoCompare(const void *ele1, const void *ele2)
 	return (ch1 == ch2)? 0 : ((ch1 > ch2)? 1 : -1);
 }
 
+/**
+ * @brief Construct a decomposed-Unicode charset mapping.
+ *
+ * @param uniChars Table mapping standard indices to base Unicode code
+ *        points.  Characters that decompose into combinations are placed
+ *        here as well.
+ * @param uniCompChars Table mapping standard indices to composite
+ *        Unicode code points (precomposed forms).  This allows the charset
+ *        to normalize sequences of two code points into a single entry.
+ */
 UnicodeCompCharset::UnicodeCompCharset(UnicodeChar *uniChars, UKDWORD *uniCompChars)
 {
   int i,k;
@@ -329,12 +372,16 @@ UnicodeCompCharset::UnicodeCompCharset(UnicodeChar *uniChars, UKDWORD *uniCompCh
 
 //---------------------------------------------
 /**
- * @brief nextInput.
+ * @brief Read the next element from an input stream and translate it to a
+ * standard Vietnamese character.
  *
- * @param is Parameter.
- * @param stdChar Parameter.
- * @param bytesRead Parameter.
- * @return Return value.
+ * This method consumes bytes from @p is using the rules of the current
+ * charset implementation.  It handles multi-byte sequences when applicable.
+ *
+ * @param is Input byte stream to read from.
+ * @param stdChar Output variable receiving the converted character code.
+ * @param bytesRead Output count of bytes consumed from the stream.
+ * @return 1 if a character was successfully read, 0 on end-of-stream or error.
  */
 int UnicodeCompCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
@@ -374,12 +421,16 @@ int UnicodeCompCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & 
 
 //---------------------------------------------
 /**
- * @brief putChar.
+ * @brief Emit a standard Vietnamese character to the output stream.
  *
- * @param os Parameter.
- * @param stdChar Parameter.
- * @param outLen Parameter.
- * @return Return value.
+ * The character is encoded according to the specific charset's rules and
+ * written into @p os.  A padding character may be emitted if the input is
+ * not representable.
+ *
+ * @param os Output byte stream to append data to.
+ * @param stdChar Standard Vietnamese character code to write.
+ * @param outLen Output number of bytes produced by this call.
+ * @return Non-zero on success, zero on write failure.
  */
 int UnicodeCompCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
@@ -404,9 +455,12 @@ int UnicodeCompCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & out
 
 //-------------------------------------------
 /**
- * @brief elementSize.
+ * @brief Query the byte size of one element in this charset.
  *
- * @return Return value.
+ * Some charsets use 1 byte per character, others 2 or 4; this method
+ * returns that size so callers know how many bytes to read/write.
+ *
+ * @return Number of bytes used by one charset element.
  */
 int UnicodeCompCharset::elementSize()
 {
@@ -417,12 +471,16 @@ int UnicodeCompCharset::elementSize()
 // Unicode UTF-8              //
 ////////////////////////////////
 /**
- * @brief nextInput.
+ * @brief Read the next element from an input stream and translate it to a
+ * standard Vietnamese character.
  *
- * @param is Parameter.
- * @param stdChar Parameter.
- * @param bytesRead Parameter.
- * @return Return value.
+ * This method consumes bytes from @p is using the rules of the current
+ * charset implementation.  It handles multi-byte sequences when applicable.
+ *
+ * @param is Input byte stream to read from.
+ * @param stdChar Output variable receiving the converted character code.
+ * @param bytesRead Output count of bytes consumed from the stream.
+ * @return 1 if a character was successfully read, 0 on end-of-stream or error.
  */
 int UnicodeUTF8Charset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
@@ -437,12 +495,6 @@ int UnicodeUTF8Charset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & 
 
 	if (first < 0x80) 
 		uniCh = first; // 1-byte sequence
-/**
- * @brief if.
- *
- * @param xE0 Parameter.
- * @return Return value.
- */
 	else if ((first & 0xE0) == 0xC0) {
 		//2-byte sequence
 		if (!is.peekNext(second))
@@ -457,12 +509,6 @@ int UnicodeUTF8Charset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & 
 		w2 = second;
 		uniCh = ((w1 & 0x001F) << 6) | (w2 & 0x3F);
 	}
-/**
- * @brief if.
- *
- * @param xF0 Parameter.
- * @return Return value.
- */
 	else if ((first & 0xF0) == 0xE0) {
 		//3-byte sequence
 		if (!is.peekNext(second))
@@ -502,12 +548,16 @@ int UnicodeUTF8Charset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & 
 
 //-------------------------------------------
 /**
- * @brief putChar.
+ * @brief Emit a standard Vietnamese character to the output stream.
  *
- * @param os Parameter.
- * @param stdChar Parameter.
- * @param outLen Parameter.
- * @return Return value.
+ * The character is encoded according to the specific charset's rules and
+ * written into @p os.  A padding character may be emitted if the input is
+ * not representable.
+ *
+ * @param os Output byte stream to append data to.
+ * @param stdChar Standard Vietnamese character code to write.
+ * @param outLen Output number of bytes produced by this call.
+ * @return Non-zero on success, zero on write failure.
  */
 int UnicodeUTF8Charset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
@@ -536,7 +586,7 @@ int UnicodeUTF8Charset::putChar(ByteOutStream & os, StdVnChar stdChar, int & out
 /**
  * @brief hexDigitValue.
  *
- * @param digit Parameter.
+ * @param digit Hex digit character to convert to its numeric value.
  * @return Return value.
  */
 int hexDigitValue(unsigned char digit)
@@ -553,12 +603,16 @@ int hexDigitValue(unsigned char digit)
 
 //--------------------------------------
 /**
- * @brief nextInput.
+ * @brief Read the next element from an input stream and translate it to a
+ * standard Vietnamese character.
  *
- * @param is Parameter.
- * @param stdChar Parameter.
- * @param bytesRead Parameter.
- * @return Return value.
+ * This method consumes bytes from @p is using the rules of the current
+ * charset implementation.  It handles multi-byte sequences when applicable.
+ *
+ * @param is Input byte stream to read from.
+ * @param stdChar Output variable receiving the converted character code.
+ * @param bytesRead Output count of bytes consumed from the stream.
+ * @return 1 if a character was successfully read, 0 on end-of-stream or error.
  */
 int UnicodeRefCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
@@ -623,12 +677,16 @@ int UnicodeRefCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & b
 
 //--------------------------------
 /**
- * @brief putChar.
+ * @brief Emit a standard Vietnamese character to the output stream.
  *
- * @param os Parameter.
- * @param stdChar Parameter.
- * @param outLen Parameter.
- * @return Return value.
+ * The character is encoded according to the specific charset's rules and
+ * written into @p os.  A padding character may be emitted if the input is
+ * not representable.
+ *
+ * @param os Output byte stream to append data to.
+ * @param stdChar Standard Vietnamese character code to write.
+ * @param outLen Output number of bytes produced by this call.
+ * @return Non-zero on success, zero on write failure.
  */
 int UnicodeRefCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
@@ -667,12 +725,16 @@ int UnicodeRefCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outL
 
 //--------------------------------
 /**
- * @brief putChar.
+ * @brief Emit a standard Vietnamese character to the output stream.
  *
- * @param os Parameter.
- * @param stdChar Parameter.
- * @param outLen Parameter.
- * @return Return value.
+ * The character is encoded according to the specific charset's rules and
+ * written into @p os.  A padding character may be emitted if the input is
+ * not representable.
+ *
+ * @param os Output byte stream to append data to.
+ * @param stdChar Standard Vietnamese character code to write.
+ * @param outLen Output number of bytes produced by this call.
+ * @return Non-zero on success, zero on write failure.
  */
 int UnicodeHexCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
@@ -723,12 +785,16 @@ void UnicodeCStringCharset::startInput()
 
 //----------------------------------------
 /**
- * @brief nextInput.
+ * @brief Read the next element from an input stream and translate it to a
+ * standard Vietnamese character.
  *
- * @param is Parameter.
- * @param stdChar Parameter.
- * @param bytesRead Parameter.
- * @return Return value.
+ * This method consumes bytes from @p is using the rules of the current
+ * charset implementation.  It handles multi-byte sequences when applicable.
+ *
+ * @param is Input byte stream to read from.
+ * @param stdChar Output variable receiving the converted character code.
+ * @param bytesRead Output count of bytes consumed from the stream.
+ * @return 1 if a character was successfully read, 0 on end-of-stream or error.
  */
 int UnicodeCStringCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
@@ -766,12 +832,16 @@ int UnicodeCStringCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int
 
 //------------------------------------
 /**
- * @brief putChar.
+ * @brief Emit a standard Vietnamese character to the output stream.
  *
- * @param os Parameter.
- * @param stdChar Parameter.
- * @param outLen Parameter.
- * @return Return value.
+ * The character is encoded according to the specific charset's rules and
+ * written into @p os.  A padding character may be emitted if the input is
+ * not representable.
+ *
+ * @param os Output byte stream to append data to.
+ * @param stdChar Standard Vietnamese character code to write.
+ * @param outLen Output number of bytes produced by this call.
+ * @return Non-zero on success, zero on write failure.
  */
 int UnicodeCStringCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
@@ -825,12 +895,16 @@ DoubleByteCharset::DoubleByteCharset(UKWORD *vnChars)
 
 //---------------------------------------------
 /**
- * @brief nextInput.
+ * @brief Read the next element from an input stream and translate it to a
+ * standard Vietnamese character.
  *
- * @param is Parameter.
- * @param stdChar Parameter.
- * @param bytesRead Parameter.
- * @return Return value.
+ * This method consumes bytes from @p is using the rules of the current
+ * charset implementation.  It handles multi-byte sequences when applicable.
+ *
+ * @param is Input byte stream to read from.
+ * @param stdChar Output variable receiving the converted character code.
+ * @param bytesRead Output count of bytes consumed from the stream.
+ * @return 1 if a character was successfully read, 0 on end-of-stream or error.
  */
 int DoubleByteCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
@@ -865,12 +939,16 @@ int DoubleByteCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & b
 
 //---------------------------------------------
 /**
- * @brief putChar.
+ * @brief Emit a standard Vietnamese character to the output stream.
  *
- * @param os Parameter.
- * @param stdChar Parameter.
- * @param outLen Parameter.
- * @return Return value.
+ * The character is encoded according to the specific charset's rules and
+ * written into @p os.  A padding character may be emitted if the input is
+ * not representable.
+ *
+ * @param os Output byte stream to append data to.
+ * @param stdChar Standard Vietnamese character code to write.
+ * @param outLen Output number of bytes produced by this call.
+ * @return Non-zero on success, zero on write failure.
  */
 int DoubleByteCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
@@ -975,12 +1053,16 @@ void VIQRCharset::startInput()
 
 //---------------------------------------------------
 /**
- * @brief nextInput.
+ * @brief Read the next element from an input stream and translate it to a
+ * standard Vietnamese character.
  *
- * @param is Parameter.
- * @param stdChar Parameter.
- * @param bytesRead Parameter.
- * @return Return value.
+ * This method consumes bytes from @p is using the rules of the current
+ * charset implementation.  It handles multi-byte sequences when applicable.
+ *
+ * @param is Input byte stream to read from.
+ * @param stdChar Output variable receiving the converted character code.
+ * @param bytesRead Output count of bytes consumed from the stream.
+ * @return 1 if a character was successfully read, 0 on end-of-stream or error.
  */
 int VIQRCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
@@ -1012,12 +1094,6 @@ int VIQRCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRe
 	if (stdChar < 256) {
 		stdChar = ch1;
 	}
-/**
- * @brief if.
- *
- * @param eos Parameter.
- * @return Return value.
- */
 	else if (!m_escAll && !is.eos()) {
 		// try to read the next byte
 		unsigned char ch2;
@@ -1102,12 +1178,16 @@ void VIQRCharset::startOutput()
 
 //---------------------------------------------------
 /**
- * @brief putChar.
+ * @brief Emit a standard Vietnamese character to the output stream.
  *
- * @param os Parameter.
- * @param stdChar Parameter.
- * @param outLen Parameter.
- * @return Return value.
+ * The character is encoded according to the specific charset's rules and
+ * written into @p os.  A padding character may be emitted if the input is
+ * not representable.
+ *
+ * @param os Output byte stream to append data to.
+ * @param stdChar Standard Vietnamese character code to write.
+ * @param outLen Output number of bytes produced by this call.
+ * @return Non-zero on success, zero on write failure.
  */
 int VIQRCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
@@ -1232,12 +1312,16 @@ void UTF8VIQRCharset::startOutput()
 
 //-----------------------------------------
 /**
- * @brief nextInput.
+ * @brief Read the next element from an input stream and translate it to a
+ * standard Vietnamese character.
  *
- * @param is Parameter.
- * @param stdChar Parameter.
- * @param bytesRead Parameter.
- * @return Return value.
+ * This method consumes bytes from @p is using the rules of the current
+ * charset implementation.  It handles multi-byte sequences when applicable.
+ *
+ * @param is Input byte stream to read from.
+ * @param stdChar Output variable receiving the converted character code.
+ * @param bytesRead Output count of bytes consumed from the stream.
+ * @return 1 if a character was successfully read, 0 on end-of-stream or error.
  */
 int UTF8VIQRCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
@@ -1257,12 +1341,16 @@ int UTF8VIQRCharset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & byt
 
 //-----------------------------------------
 /**
- * @brief putChar.
+ * @brief Emit a standard Vietnamese character to the output stream.
  *
- * @param os Parameter.
- * @param stdChar Parameter.
- * @param outLen Parameter.
- * @return Return value.
+ * The character is encoded according to the specific charset's rules and
+ * written into @p os.  A padding character may be emitted if the input is
+ * not representable.
+ *
+ * @param os Output byte stream to append data to.
+ * @param stdChar Standard Vietnamese character code to write.
+ * @param outLen Output number of bytes produced by this call.
+ * @return Non-zero on success, zero on write failure.
  */
 int UTF8VIQRCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
@@ -1350,7 +1438,7 @@ CVnCharsetLib::~CVnCharsetLib()
 /**
  * @brief getVnCharset.
  *
- * @param charsetIdx Parameter.
+ * @param charsetIdx Identifier of the requested charset.
  * @return Return value.
  */
 VnCharset * CVnCharsetLib::getVnCharset(int charsetIdx)
@@ -1419,12 +1507,6 @@ VnCharset * CVnCharsetLib::getVnCharset(int charsetIdx)
 				m_sgCharsets[i] = new SingleByteCharset(SingleByteTables[i]);
 			return m_sgCharsets[i];
 		}
-/**
- * @brief if.
- *
- * @param charsetIdx Parameter.
- * @return Return value.
- */
 		else if (IS_DOUBLE_BYTE_CHARSET(charsetIdx)) {
 			int i = charsetIdx - CONV_CHARSET_VNIWIN;
 			if (m_dbCharsets[i] == NULL)
@@ -1440,7 +1522,7 @@ VnCharset * CVnCharsetLib::getVnCharset(int charsetIdx)
 /**
  * @brief VnConvSetOptions.
  *
- * @param pOptions Parameter.
+ * @param pOptions Pointer to an options structure.
  */
 DllExport void VnConvSetOptions(VnConvOptions *pOptions)
 {
@@ -1451,7 +1533,7 @@ DllExport void VnConvSetOptions(VnConvOptions *pOptions)
 /**
  * @brief VnConvGetOptions.
  *
- * @param pOptions Parameter.
+ * @param pOptions Pointer to an options structure.
  */
 DllExport void VnConvGetOptions(VnConvOptions *pOptions)
 {
@@ -1462,7 +1544,7 @@ DllExport void VnConvGetOptions(VnConvOptions *pOptions)
 /**
  * @brief VnConvResetOptions.
  *
- * @param pOptions Parameter.
+ * @param pOptions Pointer to an options structure.
  */
 DllExport void VnConvResetOptions(VnConvOptions *pOptions)
 {
@@ -1518,12 +1600,16 @@ WinCP1258Charset::WinCP1258Charset(UKWORD *compositeChars, UKWORD *precomposedCh
 // with m_totalChars is used instead of constant TOTAL_VNCHARS
 //---------------------------------------------------------------------
 /**
- * @brief nextInput.
+ * @brief Read the next element from an input stream and translate it to a
+ * standard Vietnamese character.
  *
- * @param is Parameter.
- * @param stdChar Parameter.
- * @param bytesRead Parameter.
- * @return Return value.
+ * This method consumes bytes from @p is using the rules of the current
+ * charset implementation.  It handles multi-byte sequences when applicable.
+ *
+ * @param is Input byte stream to read from.
+ * @param stdChar Output variable receiving the converted character code.
+ * @param bytesRead Output count of bytes consumed from the stream.
+ * @return 1 if a character was successfully read, 0 on end-of-stream or error.
  */
 int WinCP1258Charset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead)
 {
@@ -1560,12 +1646,16 @@ int WinCP1258Charset::nextInput(ByteInStream & is, StdVnChar & stdChar, int & by
 // This fuction is exactly the same as that of DoubleByteCharset
 //---------------------------------------------------------------------
 /**
- * @brief putChar.
+ * @brief Emit a standard Vietnamese character to the output stream.
  *
- * @param os Parameter.
- * @param stdChar Parameter.
- * @param outLen Parameter.
- * @return Return value.
+ * The character is encoded according to the specific charset's rules and
+ * written into @p os.  A padding character may be emitted if the input is
+ * not representable.
+ *
+ * @param os Output byte stream to append data to.
+ * @param stdChar Standard Vietnamese character code to write.
+ * @param outLen Output number of bytes produced by this call.
+ * @return Non-zero on success, zero on write failure.
  */
 int WinCP1258Charset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen)
 {
@@ -1605,7 +1695,7 @@ int WinCP1258Charset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLe
 /**
  * @brief StdVnToUpper.
  *
- * @param ch Parameter.
+ * @param ch Standard Vietnamese character code to transform.
  * @return Return value.
  */
 StdVnChar StdVnToUpper(StdVnChar ch)
@@ -1621,7 +1711,7 @@ StdVnChar StdVnToUpper(StdVnChar ch)
 /**
  * @brief StdVnToLower.
  *
- * @param ch Parameter.
+ * @param ch Standard Vietnamese character code to transform.
  * @return Return value.
  */
 StdVnChar StdVnToLower(StdVnChar ch)
