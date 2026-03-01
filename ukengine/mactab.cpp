@@ -1,8 +1,10 @@
 // -*- coding:unix; mode:c++; tab-width:4; c-basic-offset:4; indent-tabs-mode:nil -*-
 /* Unikey Vietnamese Input Method
  * Copyright (C) 2000-2005 Pham Kim Long
+ * Copyright (C) 2026 Hoang Duy Tran & AI Agent
  * Contact:
  *   unikey@gmail.com
+ *   hoangduytran1960@googlemail.com
  *   UniKey project: http://unikey.org
  *
  * This library is free software; you can redistribute it and/or
@@ -21,6 +23,17 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file mactab.cpp
+ * @brief Implementation of CMacroTable, managing macro storage and lookup.
+ *
+ * The previous fixed-size limit of 1024 macros has been removed by using
+ * dynamic arrays and geometric growth.  Macro files are read/written in a
+ * plain text format with optional UTF‑8 header.  Internally the table keeps
+ * keys and texts in a single heap‑allocated buffer for compactness and uses
+ * binary search for fast lookup at runtime.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -34,6 +47,12 @@ using namespace std;
 #define INITIAL_MACRO_ITEMS_CAPACITY 128
 #define INITIAL_MACRO_MEM_SIZE (1024*128)
 
+/**
+ * @brief Construct an empty CMacroTable.
+ *
+ * All pointers and counters are initialized to zero/null.  Storage arrays are
+ * allocated lazily by the first call to `init` or `addItem`.
+ */
 CMacroTable::CMacroTable()
 {
   m_table = NULL;
@@ -44,6 +63,11 @@ CMacroTable::CMacroTable()
   m_occupied = 0;
 }
 
+/**
+ * @brief Free all allocated memory.
+ *
+ * Called automatically when the table object is destroyed.
+ */
 CMacroTable::~CMacroTable()
 {
   if (m_table) {
@@ -56,6 +80,16 @@ CMacroTable::~CMacroTable()
   }
 }
 
+/**
+ * @brief Grow the macro entry array to accommodate at least @p minCapacity items.
+ *
+ * Capacities double each time (starting from INITIAL_MACRO_ITEMS_CAPACITY) so
+ * amortized allocation cost remains low.  The function returns `false` if
+ * memory allocation fails or requested capacity is absurdly large.
+ *
+ * @param minCapacity Minimum number of entries required.
+ * @return `true` on success.
+ */
 bool CMacroTable::ensureItemCapacity(int minCapacity)
 {
   if (minCapacity <= m_itemCapacity)
@@ -77,6 +111,12 @@ bool CMacroTable::ensureItemCapacity(int minCapacity)
   return true;
 }
 
+/**
+ * @brief Grow the raw memory buffer to hold at least @p minCapacity bytes.
+ *
+ * Similar doubling growth strategy as `ensureItemCapacity`.  The buffer holds
+ * all key and text strings concatenated back-to-back.
+ */
 bool CMacroTable::ensureMemCapacity(int minCapacity)
 {
   if (minCapacity <= m_memSize)
@@ -99,6 +139,13 @@ bool CMacroTable::ensureMemCapacity(int minCapacity)
 }
 
 //---------------------------------------------------------------
+/**
+ * @brief Prepare the table for use by ensuring initial allocations exist.
+ *
+ * Existing contents (if any) are discarded by resetting counters; this method
+ * is also invoked by `loadFromFile` and acts as a lightweight reinitialization
+ * mechanism.
+ */
 void CMacroTable::init()
 {
   if (!m_table) {
@@ -119,6 +166,12 @@ char *MacCompareStartMem;
                           !((x) & 1)) ? \
                           (x+1) : (x))
 
+/**
+ * @brief Comparison function used for sorting the macro table.
+ *
+ * Performs case-insensitive comparison of keys stored in the memory buffer
+ * pointed to by `MacCompareStartMem`.  This ordering is used by `qsort`.
+ */
 int macCompare(const void *p1, const void *p2)
 {
     StdVnChar *s1 = (StdVnChar *) ((char *)MacCompareStartMem + ((MacroDef *)p1)->keyOffset);
@@ -147,6 +200,12 @@ int macCompare(const void *p1, const void *p2)
 }
 
 //---------------------------------------------------------------
+/**
+ * @brief Comparator used by `bsearch` when looking up a key.
+ *
+ * Compares a standalone key string (first argument) with the key at a table
+ * entry (`ele`).  Uses the same case‑insensitive logic as `macCompare`.
+ */
 int macKeyCompare(const void *key, const void *ele)
 {
     StdVnChar *s1 = (StdVnChar *)key;
@@ -174,6 +233,15 @@ int macKeyCompare(const void *key, const void *ele)
 }
 
 //---------------------------------------------------------------
+/**
+ * @brief Retrieve the expansion text associated with @p key.
+ *
+ * Uses binary search on the sorted table; callers must ensure the table has
+ * been sorted and deduplicated (this is done automatically in `loadFromFile`).
+ *
+ * @param key Key string in the engine's internal charset.
+ * @return Pointer to the associated text or `nullptr` if key not found.
+ */
 const StdVnChar *CMacroTable::lookup(StdVnChar *key)
 {
   // Lookup relies on sorted `m_table`.
@@ -192,6 +260,18 @@ const StdVnChar *CMacroTable::lookup(StdVnChar *key)
 //
 // Header format: ;[DO NOT DELETE THIS LINE]***version=n
 //----------------------------------------------------------------------------
+/**
+ * @brief Attempt to read optional version header from macro file.
+ *
+ * If a header line matching the pattern `***version=n` is found the value is
+ * stored in @p version.  Absence of a header sets version to 0 and rewinds the
+ * file pointer.  A BOM at the start of the first line is skipped.
+ *
+ * @param f      Open file handle positioned at start.
+ * @param version Output parameter for the parsed version.
+ * @return `true` if the operation succeeded (even if no header was present);
+ *         `false` on read error.
+ */
 bool CMacroTable::readHeader(FILE *f, int & version)
 {
     char line[MAX_MACRO_LINE];
@@ -229,6 +309,11 @@ bool CMacroTable::readHeader(FILE *f, int & version)
 }
 
 //----------------------------------------------------------------
+/**
+ * @brief Write the version header line into a macro output file.
+ *
+ * On Windows, prepend a UTF-8 BOM for compatibility with text editors.
+ */
 void CMacroTable::writeHeader(FILE *f)
 {
 #if defined(WIN32)
@@ -238,6 +323,17 @@ void CMacroTable::writeHeader(FILE *f)
 #endif
 }
 //---------------------------------------------------------------
+/**
+ * @brief Load macros from a text file into the table.
+ *
+ * Existing contents are cleared.  The function handles optional headers and
+ * converts entries to the internal charset.  After reading, the table is
+ * sorted and duplicates removed; if the file was in an old format it is
+ * rewritten to the current UTF-8 version.
+ *
+ * @param fname Path to input file.
+ * @return 1 on success, 0 if the file could not be opened.
+ */
 int CMacroTable::loadFromFile(const char *fname)
 {
     FILE *f;
@@ -288,6 +384,13 @@ int CMacroTable::loadFromFile(const char *fname)
 // Later additions overwrite earlier ones with the same key
 // Among duplicates, the one with higher keyOffset was added later in the file
 //---------------------------------------------------------------
+/**
+ * @brief Eliminate adjacent duplicate keys in the sorted table.
+ *
+ * After calling `qsort`, identical keys will be consecutive.  This method
+ * keeps the last occurrence found (dictionary semantics) by comparing the
+ * memory offset; entries added later reside further into `m_macroMem`.
+ */
 void CMacroTable::removeDuplicates()
 {
     if (m_count <= 1)
@@ -314,6 +417,15 @@ void CMacroTable::removeDuplicates()
 }
 
 //---------------------------------------------------------------
+/**
+ * @brief Persist current macros to a text file.
+ *
+ * Each entry is converted to UTF-8 and written as `key:value` lines.  If
+ * conversion of a particular key or value fails it is silently skipped.
+ *
+ * @param fname Destination file path.
+ * @return 1 on success, 0 if the file could not be opened.
+ */
 int CMacroTable::writeToFile(const char *fname)
 {
   int ret;
@@ -365,6 +477,19 @@ int CMacroTable::writeToFile(const char *fname)
 }
 
 //---------------------------------------------------------------
+/**
+ * @brief Append a new macro given separate key and text buffers.
+ *
+ * The inputs are converted from @p charset to the internal Vietnamese standard
+ * charset and stored consecutively in the memory buffer.  Offsets are recorded
+ * in the table.  This routine ensures there is enough space for both the
+ * metadata and the string data.
+ *
+ * @param key     Null-terminated key string.
+ * @param text    Null-terminated expansion text.
+ * @param charset Charset identifier of the input strings.
+ * @return Index of newly added entry on success, -1 on failure.
+ */
 int CMacroTable::addItem(const void *key, const void *text, int charset)
 {
   int ret;
@@ -415,6 +540,12 @@ int CMacroTable::addItem(const void *key, const void *text, int charset)
 // add a new macro into the sorted macro table
 // item format: key:text (key and text are separated by a colon)
 //---------------------------------------------------------------
+/**
+ * @brief Parse and add a macro string of the form "key:value".
+ *
+ * Splits the input at the first colon and delegates to the other `addItem`
+ * overload.  Returns -1 on parse failure.
+ */
 int CMacroTable::addItem(const char *item, int charset)
 {
   char key[MAX_MACRO_KEY_LEN];
@@ -432,6 +563,11 @@ int CMacroTable::addItem(const char *item, int charset)
 }
 
 //---------------------------------------------------------------
+/**
+ * @brief Clear all entries without releasing allocated buffers.
+ *
+ * Useful when reloading from file to avoid repeated allocations.
+ */
 void CMacroTable::resetContent()
 {
   m_occupied = 0;
@@ -439,6 +575,9 @@ void CMacroTable::resetContent()
 }
 
 //---------------------------------------------------------------
+/**
+ * @brief Return pointer to the stored key at index @p idx.
+ */
 const StdVnChar *CMacroTable::getKey(int idx)
 {
     if (idx < 0 || idx >= m_count)
@@ -447,6 +586,9 @@ const StdVnChar *CMacroTable::getKey(int idx)
 }
 
 //---------------------------------------------------------------
+/**
+ * @brief Return pointer to the stored expansion text at index @p idx.
+ */
 const StdVnChar *CMacroTable::getText(int idx)
 {
     if (idx < 0 || idx >= m_count)

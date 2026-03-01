@@ -44,6 +44,9 @@ Các thay đổi chính đã được thực hiện trong nhánh làm việc nà
 
 ## Source map (for new developers)
 
+Full per-file C++ documentation is available at:
+- [docs/CPP_SOURCE_DOCUMENTATION.md](docs/CPP_SOURCE_DOCUMENTATION.md)
+
 ### Top-level modules
 
 - `src/`:

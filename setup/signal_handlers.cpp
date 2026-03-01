@@ -1,3 +1,28 @@
+//------------------------------------------------------------------------------
+// UniKey Vietnamese Input Method
+// Copyright (C) 2000-2005 Pham Kim Long
+// Copyright (C) 2026 Hoang Duy Tran & AI Agent
+// Contact:
+//   unikey@gmail.com
+//   hoangduytran1960@googlemail.com
+//   UniKey project: http://unikey.org
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this program; if not, write to the
+// Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+// Boston, MA 02111-1307, USA.
+//------------------------------------------------------------------------------
+
 #include <cstring>
 #include <libintl.h>
 #include <gdk/gdkkeysyms.h>
@@ -10,22 +35,56 @@
 
 #define _(str) gettext(str)
 
+/**
+ * @file signal_handlers.cpp
+ * @brief GTK signal callbacks and helper routines for the setup UI.
+ *
+ * This file implements the handlers attached to widgets defined in
+ * `ibus-unikey.ui`.  It also contains a few static utility functions used by
+ * multiple callbacks (sorting, count updates, scrolling).  The macro editor
+ * dialog and table are manipulated here.
+ */
+
+/**
+ * @brief Global pointer to the macro editor dialog created by the builder.
+ */
 extern GtkWidget* dlgMacro;
+
+/**
+ * @brief Tree view widget that displays the list of macros.
+ */
 extern GtkTreeView* tree_macro;
+
+/**
+ * @brief Shared GTK builder instance used by handlers to locate widgets.
+ */
 extern GtkBuilder* builder;
 
-// Forward declarations
+// Forward declarations for internal helpers.
 static void update_macro_count_label(void);
 static void sort_list_store(int column, GtkSortType order);
 static void update_column_headers(void);
 
 // Sort state for columns
-static GtkSortType sort_key_order = GTK_SORT_ASCENDING;
-static GtkSortType sort_value_order = GTK_SORT_ASCENDING;
-static int current_sort_column = COL_KEY;
+static GtkSortType sort_key_order = GTK_SORT_ASCENDING;   /**< current sort order for key column */
+static GtkSortType sort_value_order = GTK_SORT_ASCENDING; /**< current sort order for value column */
+static int current_sort_column = COL_KEY;                 /**< which column is currently sorted */
 
+/**
+ * @brief Default placeholder value inserted when a new key is added.
+ */
 #define MACRO_DEFAULT_VALUE _("(replace text)")
 
+/**
+ * @brief Handle key presses on the main window.
+ *
+ * *Escape* is treated as a request to quit the application.
+ *
+ * @param widget The main window widget.
+ * @param event  Key event information.
+ * @param data   Unused.
+ * @return `TRUE` if the event was consumed, otherwise `FALSE`.
+ */
 gboolean on_main_window_key_press_event(GtkWidget *widget, GdkEventKey *event, gpointer data)
 {
     if (event->keyval == GDK_KEY_Escape) {
@@ -35,16 +94,37 @@ gboolean on_main_window_key_press_event(GtkWidget *widget, GdkEventKey *event, g
     return false;
 }
 
+/**
+ * @brief Quit the GTK main loop when the main window is destroyed.
+ *
+ * This is connected to the "destroy" signal of the top-level window.
+ * @param btn Unused widget pointer (main window).
+ * @param user_data Unused.
+ */
 void on_main_window_destroy(GtkWidget* btn, gpointer user_data)
 {
     gtk_main_quit();
 }
 
+/**
+ * @brief Handler for the "Close" button in the main dialog.
+ *
+ * Terminates the application by quitting the main loop.
+ */
 void on_btn_close_clicked(GtkButton* btn, gpointer user_data)
 {
     gtk_main_quit();
 }
 
+/**
+ * @brief Helper to update a string configuration value from a combo box.
+ *
+ * Reads the currently selected row's first column as a string and writes the
+ * result into the configuration under @p key.
+ *
+ * @param cbb GTK combo box containing string options.
+ * @param key Configuration key to update.
+ */
 static void cbb_config_update(GtkComboBox* cbb, const gchar* key)
 {
     GValue val = {0};
@@ -60,16 +140,35 @@ static void cbb_config_update(GtkComboBox* cbb, const gchar* key)
     g_value_unset(&val);
 }
 
+/**
+ * @brief Callback when the input method combo selection changes.
+ *
+ * Updates the CONFIG_INPUTMETHOD string in preferences.
+ */
 void on_input_method_changed(GtkComboBox* cbb, gpointer user_data)
 {
     cbb_config_update(cbb, CONFIG_INPUTMETHOD);
 }
 
+/**
+ * @brief Callback when the output charset combo selection changes.
+ *
+ * Updates the CONFIG_OUTPUTCHARSET string in preferences.
+ */
 void on_output_charset_changed(GtkComboBox* cbb, gpointer user_data)
 {
     cbb_config_update(cbb, CONFIG_OUTPUTCHARSET);
 }
 
+/**
+ * @brief Set the active row of a combo box based on a config string.
+ *
+ * Reads the saved value under @p key and iterates through the model looking for
+ * a matching string.  If found, makes that row active.
+ *
+ * @param cbb GTK combo box to modify.
+ * @param key Configuration key holding the value to match.
+ */
 void cbb_config_set_active(GtkComboBox* cbb, const gchar* key)
 {
     GValue val = {0};
@@ -99,16 +198,35 @@ void cbb_config_set_active(GtkComboBox* cbb, const gchar* key)
     g_free(im);
 }
 
+/**
+ * @brief Handler for the "realize" event of the input-method combo box.
+ *
+ * Called when the widget is instantiated; sets its active row from config.
+ */
 void on_input_method_realize(GtkComboBox* cbb, gpointer user_data)
 {
     cbb_config_set_active(cbb, CONFIG_INPUTMETHOD);
 }
 
+/**
+ * @brief "realize" event handler for the output-charset combo box.
+ *
+ * Populates the selection according to stored configuration.
+ */
 void on_output_charset_realize(GtkComboBox* cbb, gpointer user_data)
 {
     cbb_config_set_active(cbb, CONFIG_OUTPUTCHARSET);
 }
 
+/**
+ * @brief Generic handler for toggling boolean configuration checkboxes.
+ *
+ * The widget's name is expected to be "cfg_<key>"; the function strips the
+ * prefix and writes the boolean state to configuration.
+ *
+ * @param btn Toggle button that was clicked.
+ * @param user_data Unused.
+ */
 void on_setting_toggled(GtkToggleButton* btn, gpointer user_data)
 {
     const gchar* key = gtk_widget_get_name(GTK_WIDGET(btn));
@@ -118,6 +236,13 @@ void on_setting_toggled(GtkToggleButton* btn, gpointer user_data)
     ibus_unikey_config_set_boolean(key, b);
 }
 
+/**
+ * @brief Initialize a toggle button's state from configuration when realized.
+ *
+ * Like `on_setting_toggled`, this assumes the widget name starts with
+ * "cfg_".  If the key exists in config its value is used to set the button's
+ * active state.
+ */
 void on_setting_realize(GtkToggleButton* btn, gpointer user_data)
 {
     const gchar* key = gtk_widget_get_name(GTK_WIDGET(btn));
@@ -130,6 +255,18 @@ void on_setting_realize(GtkToggleButton* btn, gpointer user_data)
     }
 }
 
+/**
+ * @brief Display the macro editor dialog and handle load/save operations.
+ *
+ * This callback is invoked when the "Edit" button is clicked.  It reads the
+ * current macro file into a `CMacroTable`, populates the tree view, allows the
+ * user to modify entries, and writes the table back if the dialog is closed with
+ * the OK response.  The tree's model is temporarily detached during bulk
+ * updates for performance.
+ *
+ * @param btn Button widget that was clicked (unused).
+ * @param user_data Unused.
+ */
 void on_btn_macroedit_clicked(GtkButton* btn, gpointer user_data)
 {
     gchar* macrofile = get_macro_file();
@@ -175,17 +312,40 @@ void on_btn_macroedit_clicked(GtkButton* btn, gpointer user_data)
     g_free(macrofile);
 }
 
+/**
+ * @brief Handler for the delete-event on the macro dialog window.
+ *
+ * Hides the dialog instead of destroying it so it can be reused.
+ * @return `TRUE` to stop further handlers.
+ */
 gboolean on_macro_dialog_delete(GtkWidget* wid, GdkEvent* ev, gpointer user_data)
 {
     gtk_widget_hide(dlgMacro);
     return true;
 }
 
+/**
+ * @brief Simple helper bound to the cancel/close button inside the macro dialog.
+ *
+ * @param btn Unused button pointer.
+ * @param user_data Unused.
+ */
 void macro_dialog_hide(GtkButton* btn, gpointer user_data)
 {
     gtk_widget_hide(dlgMacro);
 }
 
+/**
+ * @brief Callback invoked when the key cell of a row is edited in-place.
+ *
+ * Performs validation, rejects duplicates or sentinel text, and ensures a
+ * null placeholder row remains at the end.
+ *
+ * @param celltext The cell renderer that was edited.
+ * @param string_path String representation of the tree path of the edited row.
+ * @param newkey The new text typed by the user.
+ * @param data Unused user data.
+ */
 void on_cell_key_edited(GtkCellRendererText *celltext,
                     const gchar *string_path,
                     const gchar *newkey,
@@ -218,6 +378,12 @@ void on_cell_key_edited(GtkCellRendererText *celltext,
     list_store_add_null_item(GTK_LIST_STORE(model));
 }
 
+/**
+ * @brief Callback invoked when the value cell of a row is edited in-place.
+ *
+ * The new text is truncated to the maximum allowed length.  Entries with the
+ * null sentinel key are ignored.
+ */
 void on_cell_value_edited(GtkCellRendererText *celltext,
                      const gchar *string_path,
                      const gchar *newvalue,
@@ -241,6 +407,11 @@ void on_cell_value_edited(GtkCellRendererText *celltext,
     g_free(key);
 }
 
+/**
+ * @brief Remove the currently selected macro row (if not the null placeholder).
+ *
+ * Updates the count label and keeps the selection on the subsequent row.
+ */
 void on_btn_macro_del_clicked(GtkButton *button, gpointer user_data)
 {
     GtkTreeIter     iter;
@@ -260,6 +431,9 @@ void on_btn_macro_del_clicked(GtkButton *button, gpointer user_data)
     }
 }
 
+/**
+ * @brief Clear all macros from the list, leaving only the null placeholder.
+ */
 void on_btn_macro_clear_clicked(GtkButton *button, gpointer data)
 {
     auto store = GTK_LIST_STORE(gtk_tree_view_get_model(tree_macro));
@@ -273,6 +447,17 @@ void on_btn_macro_clear_clicked(GtkButton *button, gpointer data)
     update_macro_count_label();
 }
 
+/**
+ * @brief Import macros from a file and merge them into the current list.
+ *
+ * A file chooser dialog is presented; selected entries are loaded into a
+ * temporary CMacroTable and appended to the tree store using duplicate checking.
+ * The previous selection moves to the first row, and the count/ sort state is
+ * updated.
+ *
+ * @param button Unused.
+ * @param data Unused.
+ */
 void on_btn_macro_import_clicked(GtkButton *button, gpointer data)
 {
     auto file = gtk_file_chooser_dialog_new(_("Import macro"),
@@ -323,6 +508,12 @@ void on_btn_macro_import_clicked(GtkButton *button, gpointer data)
     gtk_widget_destroy(file);
 }
 
+/**
+ * @brief Export the current macros to a file chosen by the user.
+ *
+ * Presents a save file chooser; all non-placeholder rows are copied into a
+ * temporary CMacroTable which is then written in engine format.
+ */
 void on_btn_macro_export_clicked(GtkButton *button, gpointer data)
 {
     auto file = gtk_file_chooser_dialog_new(_("Export macro"),
@@ -362,6 +553,12 @@ void on_btn_macro_export_clicked(GtkButton *button, gpointer data)
     gtk_widget_destroy(file);
 }
 
+/**
+ * @brief Update the label that displays the number of macros currently shown.
+ *
+ * Counts the rows in the tree model excluding the null placeholder and updates
+ * the "lbl_macro_count" label accordingly, using correct pluralization.
+ */
 static void update_macro_count_label(void)
 {
     GtkLabel* lbl = GTK_LABEL(gtk_builder_get_object(builder, "lbl_macro_count"));
@@ -379,6 +576,13 @@ static void update_macro_count_label(void)
     g_free(text);
 }
 
+/**
+ * @brief Custom comparison function for sorting tree store rows.
+ *
+ * Ensures the null sentinel row always sorts to the very end, regardless of the
+ * chosen column or order.  Otherwise uses `g_utf8_collate` for locale-aware
+ * comparison of the text in column `user_data`.
+ */
 static int compare_store_items(GtkTreeModel *model,
                                GtkTreeIter *a,
                                GtkTreeIter *b,
@@ -407,6 +611,16 @@ static int compare_store_items(GtkTreeModel *model,
     return result;
 }
 
+/**
+ * @brief Apply sorting to the macro tree store.
+ *
+ * This routine installs a custom sort func (`compare_store_items`) to ensure
+ * the null placeholder remains last, and then updates the sort column and
+ * order.
+ *
+ * @param column Column index to sort (COL_KEY or COL_VALUE).
+ * @param order  GTK_SORT_ASCENDING or GTK_SORT_DESCENDING.
+ */
 static void sort_list_store(int column, GtkSortType order)
 {
     auto store = GTK_LIST_STORE(gtk_tree_view_get_model(tree_macro));
@@ -419,6 +633,12 @@ static void sort_list_store(int column, GtkSortType order)
     current_sort_column = column;
 }
 
+/**
+ * @brief Refresh the sort indicators on the tree view headers.
+ *
+ * Only the currently active column shows an arrow; the direction matches the
+ * stored sort order variables.
+ */
 static void update_column_headers(void)
 {
     GtkTreeViewColumn* col_key = GTK_TREE_VIEW_COLUMN(gtk_builder_get_object(builder, "treeviewcolumn1"));
@@ -436,6 +656,12 @@ static void update_column_headers(void)
     }
 }
 
+/**
+ * @brief Scroll the tree view so the current selection (or first row) is centered.
+ *
+ * Used after sorting so that the user does not lose context.  If no row is
+ * selected, the first row is chosen.
+ */
 static void scroll_to_selection_or_top(void)
 {
     auto model = gtk_tree_view_get_model(tree_macro);
@@ -461,6 +687,12 @@ static void scroll_to_selection_or_top(void)
     }
 }
 
+/**
+ * @brief Handler for clicking the key column header.
+ *
+ * Toggles the sort order if already sorting by key; otherwise switches to key
+ * sorting ascending.  After sorting, headers and scroll position are updated.
+ */
 void on_column_key_clicked(GtkTreeViewColumn *column, gpointer user_data)
 {
     if (current_sort_column == COL_KEY) {
@@ -473,6 +705,11 @@ void on_column_key_clicked(GtkTreeViewColumn *column, gpointer user_data)
     scroll_to_selection_or_top();
 }
 
+/**
+ * @brief Handler for clicking the value column header.
+ *
+ * Behaves similarly to `on_column_key_clicked` but for the value column.
+ */
 void on_column_value_clicked(GtkTreeViewColumn *column, gpointer user_data)
 {
     if (current_sort_column == COL_VALUE) {
@@ -485,6 +722,13 @@ void on_column_value_clicked(GtkTreeViewColumn *column, gpointer user_data)
     scroll_to_selection_or_top();
 }
 
+/**
+ * @brief Add a new macro via a secondary dialog.
+ *
+ * Displays a simple dialog where the user can type a key/value pair.  After
+ * validation and duplicate checking the new row is inserted, the list is
+ * resorted, and the new entry is scrolled into view and selected.
+ */
 void on_btn_macro_add_clicked(GtkButton *button, gpointer user_data)
 {
     GtkDialog* add_dialog = GTK_DIALOG(gtk_builder_get_object(builder, "add_macro_dialog"));
