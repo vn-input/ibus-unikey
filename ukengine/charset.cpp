@@ -1417,6 +1417,14 @@ int UTF8VIQRCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen
 
 
 //-----------------------------------------
+/**
+ * @brief CVnCharsetLib constructor.
+ *
+ * Initializes internal lookup tables, state pointers, and option
+ * structures used by the charset library.  All member pointers are set
+ * to NULL and vowel lookup arrays are populated.  Escape pattern
+ * matchers for VIQR conversion are created here as well.
+ */
 CVnCharsetLib::CVnCharsetLib()
 {
 	unsigned char ch;
@@ -1462,6 +1470,13 @@ CVnCharsetLib::CVnCharsetLib()
 
 
 //-----------------------------------------
+/**
+ * @brief CVnCharsetLib destructor.
+ *
+ * Deletes any charset objects that were instantiated and releases memory
+ * allocated for helper objects.  This ensures a clean shutdown of the
+ * charset library.
+ */
 CVnCharsetLib::~CVnCharsetLib()
 {
 	if (m_pUniCharset)
@@ -1494,10 +1509,15 @@ CVnCharsetLib::~CVnCharsetLib()
 
 //-----------------------------------------
 /**
- * @brief getVnCharset.
+ * @brief Retrieve or create a charset implementation by index.
+ *
+ * The library maintains singleton instances of each supported charset
+ * type.  This method lazily constructs the requested object when it is
+ * first needed and returns a pointer to it.  Caller should not delete
+ * the returned object.
  *
  * @param charsetIdx Identifier of the requested charset.
- * @return Return value.
+ * @return Pointer to a VnCharset object or NULL if the index is invalid.
  */
 VnCharset * CVnCharsetLib::getVnCharset(int charsetIdx)
 {
