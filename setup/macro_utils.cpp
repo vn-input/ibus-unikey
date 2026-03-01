@@ -83,6 +83,7 @@ struct CaseInsensitiveEqual {
 
 /**
  * @brief Checks whether a key already exists in a GTK list store.
+ *
  * @param store List model containing macro rows.
  * @param check_key Key to search for (case-insensitive).
  * @return `true` when a matching key exists, otherwise `false`.
