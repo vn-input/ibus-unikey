@@ -19,10 +19,14 @@ extern "C"
     G_MODULE_EXPORT gboolean on_macro_dialog_delete(GtkWidget* wid, GdkEvent* ev, gpointer user_data);
     G_MODULE_EXPORT void macro_dialog_hide(GtkButton* btn, gpointer user_data);
 
+    G_MODULE_EXPORT void on_btn_macro_add_clicked(GtkButton *button, gpointer user_data);
     G_MODULE_EXPORT void on_btn_macro_del_clicked(GtkButton *button, gpointer user_data);
     G_MODULE_EXPORT void on_btn_macro_clear_clicked(GtkButton *button, gpointer user_data);
     G_MODULE_EXPORT void on_btn_macro_import_clicked(GtkButton *button, gpointer user_data);
     G_MODULE_EXPORT void on_btn_macro_export_clicked(GtkButton *button, gpointer user_data);
+
+    G_MODULE_EXPORT void on_column_key_clicked(GtkTreeViewColumn *column, gpointer user_data);
+    G_MODULE_EXPORT void on_column_value_clicked(GtkTreeViewColumn *column, gpointer user_data);
 
     G_MODULE_EXPORT void on_cell_key_edited(GtkCellRendererText *celltext,
                     const gchar *string_path,

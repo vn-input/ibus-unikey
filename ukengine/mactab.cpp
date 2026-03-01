@@ -31,10 +31,82 @@
 using namespace std;
 #define UKMACRO_VERSION_UTF8 1
 
+#define INITIAL_MACRO_ITEMS_CAPACITY 128
+#define INITIAL_MACRO_MEM_SIZE (1024*128)
+
+CMacroTable::CMacroTable()
+{
+  m_table = NULL;
+  m_macroMem = NULL;
+  m_count = 0;
+  m_itemCapacity = 0;
+  m_memSize = 0;
+  m_occupied = 0;
+}
+
+CMacroTable::~CMacroTable()
+{
+  if (m_table) {
+    free(m_table);
+    m_table = NULL;
+  }
+  if (m_macroMem) {
+    free(m_macroMem);
+    m_macroMem = NULL;
+  }
+}
+
+bool CMacroTable::ensureItemCapacity(int minCapacity)
+{
+  if (minCapacity <= m_itemCapacity)
+    return true;
+
+  int newCapacity = (m_itemCapacity > 0) ? m_itemCapacity : INITIAL_MACRO_ITEMS_CAPACITY;
+  while (newCapacity < minCapacity) {
+    if (newCapacity > (1 << 29))
+      return false;
+    newCapacity *= 2;
+  }
+
+  MacroDef *newTable = (MacroDef *)realloc(m_table, sizeof(MacroDef) * newCapacity);
+  if (!newTable)
+    return false;
+
+  m_table = newTable;
+  m_itemCapacity = newCapacity;
+  return true;
+}
+
+bool CMacroTable::ensureMemCapacity(int minCapacity)
+{
+  if (minCapacity <= m_memSize)
+    return true;
+
+  int newSize = (m_memSize > 0) ? m_memSize : INITIAL_MACRO_MEM_SIZE;
+  while (newSize < minCapacity) {
+    if (newSize > (1 << 29))
+      return false;
+    newSize *= 2;
+  }
+
+  char *newMem = (char *)realloc(m_macroMem, newSize);
+  if (!newMem)
+    return false;
+
+  m_macroMem = newMem;
+  m_memSize = newSize;
+  return true;
+}
+
 //---------------------------------------------------------------
 void CMacroTable::init()
 {
-  m_memSize = MACRO_MEM_SIZE;
+  if (!m_table) {
+    ensureItemCapacity(INITIAL_MACRO_ITEMS_CAPACITY);
+  }
+  if (!m_macroMem) {
+    ensureMemCapacity(INITIAL_MACRO_MEM_SIZE);
+  }
   m_count = 0;
   m_occupied = 0;
 }
@@ -104,6 +176,8 @@ int macKeyCompare(const void *key, const void *ele)
 //---------------------------------------------------------------
 const StdVnChar *CMacroTable::lookup(StdVnChar *key)
 {
+  // Lookup relies on sorted `m_table`.
+  // `loadFromFile` enforces ordering + dedupe before runtime use.
   MacCompareStartMem = m_macroMem;
   MacroDef *p = (MacroDef *)bsearch(key, m_table, m_count, sizeof(MacroDef), macKeyCompare);
   if (p)
@@ -198,13 +272,45 @@ int CMacroTable::loadFromFile(const char *fname)
             addItem(line, CONV_CHARSET_VIQR);
     }
     fclose(f);
+    // Keep table sorted for binary-search lookup and normalize duplicates.
     MacCompareStartMem = m_macroMem;
     qsort(m_table, m_count, sizeof(MacroDef), macCompare);
+    removeDuplicates();
     // Convert old version
     if (version != UKMACRO_VERSION_UTF8) {
         writeToFile(fname);
     }
     return 1;
+}
+
+//---------------------------------------------------------------
+// Remove consecutive duplicates after sorting (keeps LAST occurrence - dictionary semantics)
+// Later additions overwrite earlier ones with the same key
+// Among duplicates, the one with higher keyOffset was added later in the file
+//---------------------------------------------------------------
+void CMacroTable::removeDuplicates()
+{
+    if (m_count <= 1)
+        return;
+
+    MacCompareStartMem = m_macroMem;
+    int writeIdx = 0;
+    for (int readIdx = 1; readIdx < m_count; readIdx++) {
+        // Compare current with last kept entry
+        if (macCompare(&m_table[writeIdx], &m_table[readIdx]) != 0) {
+            // Different key - move write position and copy
+            writeIdx++;
+            if (writeIdx != readIdx) {
+                m_table[writeIdx] = m_table[readIdx];
+            }
+        } else {
+            // Same key (duplicate) - keep whichever was added later (higher offset in memory)
+            if (m_table[readIdx].keyOffset > m_table[writeIdx].keyOffset) {
+                m_table[writeIdx] = m_table[readIdx];
+            }
+        }
+    }
+    m_count = writeIdx + 1;
 }
 
 //---------------------------------------------------------------
@@ -264,18 +370,23 @@ int CMacroTable::addItem(const void *key, const void *text, int charset)
   int ret;
   int inLen, maxOutLen;
   int offset = m_occupied;
-  char *p = m_macroMem + offset;
+  char *p;
 
-  if (m_count >= MAX_MACRO_ITEMS)
+  if (!ensureItemCapacity(m_count + 1))
     return -1;
+
+  int needed = offset + MAX_MACRO_KEY_LEN * (int)sizeof(StdVnChar) +
+               MAX_MACRO_TEXT_LEN * (int)sizeof(StdVnChar);
+  if (!ensureMemCapacity(needed))
+    return -1;
+
+  p = m_macroMem + offset;
   
   m_table[m_count].keyOffset = offset;
 
   // Convert macro key to VN standard
   inLen = -1; //input is null-terminated
   maxOutLen = MAX_MACRO_KEY_LEN * sizeof(StdVnChar);
-  if (maxOutLen + offset > m_memSize)
-    maxOutLen = m_memSize - offset;
   ret = VnConvert(charset, CONV_CHARSET_VNSTANDARD, 
 		          (UKBYTE *)key, (UKBYTE *)p,
 		          &inLen, &maxOutLen);
@@ -289,8 +400,6 @@ int CMacroTable::addItem(const void *key, const void *text, int charset)
   m_table[m_count].textOffset = offset;
   inLen = -1; //input is null-terminated
   maxOutLen = MAX_MACRO_TEXT_LEN * sizeof(StdVnChar);
-  if (maxOutLen + offset > m_memSize)
-    maxOutLen = m_memSize - offset;
   ret = VnConvert(charset, CONV_CHARSET_VNSTANDARD, 
 		  (UKBYTE *)text, (UKBYTE *)p,
 		  &inLen, &maxOutLen);

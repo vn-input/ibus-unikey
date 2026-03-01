@@ -13,10 +13,11 @@
 GtkWidget* mwin;
 GtkWidget* dlgMacro;
 GtkTreeView* tree_macro;
+GtkBuilder* builder;
 
 void init_gtk_builder()
 {
-    GtkBuilder* builder = gtk_builder_new();
+    builder = gtk_builder_new();
     gtk_builder_add_from_file(builder, PKGDATADIR "/ui/ibus-unikey.ui", NULL);
     gtk_builder_connect_signals(builder, NULL);
 
@@ -26,7 +27,7 @@ void init_gtk_builder()
 
     tree_macro = GTK_TREE_VIEW(gtk_builder_get_object(builder, "tree_macro"));
 
-    g_object_unref(builder);
+    // Note: builder is kept global so signal handlers can access widgets
 }
 
 int main(int argc, char** argv)

@@ -11,6 +11,7 @@ target_link_libraries(ibus-setup-unikey
     unikey-config
     ${GTK3_LIBRARIES}
 )
+target_link_options(ibus-setup-unikey PRIVATE -rdynamic)
 target_include_directories(ibus-setup-unikey PUBLIC ${GTK3_INCLUDE_DIRS})
 
 install(TARGETS ibus-setup-unikey DESTINATION ${LIBEXECDIR})

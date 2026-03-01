@@ -9,6 +9,7 @@ enum {COL_KEY = 0, COL_VALUE};
 
 gboolean list_store_check_exists(GtkListStore* store, gchar* check_key);
 void list_store_add_null_item(GtkListStore* list);
+void list_store_append_fast(GtkListStore* list, CMacroTable* macro);
 void list_store_append(GtkListStore* list, CMacroTable* macro);
 void unikey_macro_to_store(CMacroTable* macro, GtkListStore* store);
 void unikey_store_to_macro(GtkListStore* store, CMacroTable* macro);

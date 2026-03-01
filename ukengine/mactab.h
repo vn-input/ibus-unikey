@@ -52,6 +52,9 @@ typedef char TCHAR;
 class DllInterface CMacroTable
 {
 public:
+    CMacroTable();
+    ~CMacroTable();
+
     void init();
     int loadFromFile(const char *fname);
     int writeToFile(const char *fname);
@@ -65,13 +68,24 @@ public:
     int addItem(const void *key, const void *text, int charset);
 
 protected:
+    // Ensure dynamic storage for macro metadata (key/text offsets).
+    // Capacity grows geometrically to support large macro tables.
     bool readHeader(FILE *f, int & version);
     void writeHeader(FILE *f);
+    bool ensureItemCapacity(int minCapacity);
+    bool ensureMemCapacity(int minCapacity);
 
-    MacroDef m_table[MAX_MACRO_ITEMS];
-    char m_macroMem[MACRO_MEM_SIZE];
+    // Remove duplicate keys after sorting.
+    // Dictionary semantics: later definition in source file wins.
+    void removeDuplicates();
+
+    // `m_table` stores offsets into `m_macroMem`.
+    // Both buffers are dynamically allocated and expanded on demand.
+    MacroDef *m_table;
+    char *m_macroMem;
 
     int m_count;
+    int m_itemCapacity;
     int m_memSize, m_occupied;
 };
 
