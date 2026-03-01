@@ -1006,8 +1006,15 @@ int DoubleByteCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outL
 // Class: VIQRCharset                      //
 /////////////////////////////////////////////
 
+/** Tone mark characters used in VIQR encoding. */
 unsigned char VIQRTones[] = {'\'','`','?','~','.'};
 
+/**
+ * @brief Escape patterns that suppress VIQR tone interpretation.
+ *
+ * When escaping is enabled these sequences at the beginning of a word
+ * prevent the following characters from being treated as VIQR tone marks.
+ */
 const char *VIQREscapes[] = {
 	"://",
 	"/",
@@ -1021,6 +1028,12 @@ const char *VIQREscapes[] = {
 
 const int VIQREscCount = sizeof(VIQREscapes) / sizeof(char*);
 
+/**
+ * @brief Construct a VIQR charset object.
+ *
+ * @param vnChars Mapping table from standard Vietnamese indices to VIQR
+ *        encoded values.  Ownership of the array remains with the caller.
+ */
 VIQRCharset::VIQRCharset(UKDWORD *vnChars)
 {
 	memset(m_stdMap, 0, 256*sizeof(UKWORD));
