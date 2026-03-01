@@ -38,8 +38,8 @@
  * Loads the specified input macro file, reports the entry count, writes it to
  * the output file, then reloads the output file and reports the count again.
  * This helps detect serialization issues during changes to CMacroTable.
- * @param argc Parameter.
- * @param argv Parameter.
+ * @param argc Description of argc.
+ * @param argv Description of argv.
  * @return Return value.
  */
 

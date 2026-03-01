@@ -76,8 +76,8 @@ void init_gtk_builder()
 /**
  * @brief main.
  *
- * @param argc Parameter.
- * @param argv Parameter.
+ * @param argc Description of argc.
+ * @param argv Description of argv.
  * @return Return value.
  */
 int main(int argc, char** argv)

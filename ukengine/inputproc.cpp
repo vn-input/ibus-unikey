@@ -310,7 +310,7 @@ void UkInputProcessor::init()
 /**
  * @brief setIM.
  *
- * @param im Parameter.
+ * @param im Description of im.
  * @return Return value.
  */
 int UkInputProcessor::setIM(UkInputMethod im)
@@ -346,7 +346,7 @@ int UkInputProcessor::setIM(UkInputMethod im)
 /**
  * @brief setIM.
  *
- * @param map Parameter.
+ * @param map Description of map.
  * @return Return value.
  */
 int UkInputProcessor::setIM(int map[256])
@@ -363,7 +363,7 @@ int UkInputProcessor::setIM(int map[256])
 /**
  * @brief UkResetKeyMap.
  *
- * @param keyMap Parameter.
+ * @param keyMap Description of keyMap.
  */
 void UkResetKeyMap(int keyMap[256])
 {
@@ -389,7 +389,7 @@ void UkInputProcessor::useBuiltIn(UkKeyMapping *map)
 /**
  * @brief if.
  *
- * @param key Parameter.
+ * @param key Description of key.
  * @return Return value.
  */
             else if (isupper(map[i].key)) {
@@ -439,8 +439,8 @@ void UkInputProcessor::keyCodeToEvent(unsigned int keyCode, UkKeyEvent & ev)
 //----------------------------------------------------------------
 /**
  * @brief Convert a keycode to its corresponding symbolic character event.
- * @param keyCode Parameter.
- * @param ev Parameter.
+ * @param keyCode Description of keyCode.
+ * @param ev Description of ev.
  */
 void UkInputProcessor::keyCodeToSymbol(unsigned int keyCode, UkKeyEvent & ev)
 {
@@ -459,7 +459,7 @@ void UkInputProcessor::keyCodeToSymbol(unsigned int keyCode, UkKeyEvent & ev)
 /**
  * @brief getCharType.
  *
- * @param keyCode Parameter.
+ * @param keyCode Description of keyCode.
  * @return Return value.
  */
 UkCharType UkInputProcessor::getCharType(unsigned int keyCode)

@@ -37,13 +37,13 @@ using namespace std;
 /**
  * @brief getLabelIndex.
  *
- * @param action Parameter.
+ * @param action Description of action.
  */
 int getLabelIndex(int action);
 /**
  * @brief initKeyMap.
  *
- * @param keyMap Parameter.
+ * @param keyMap Description of keyMap.
  */
 void initKeyMap(int keyMap[256]);
 
@@ -96,9 +96,9 @@ const int UkEvLabelCount = sizeof(UkEvLabelList)/sizeof(UkEventLabelPair);
 /**
  * @brief parseNameValue.
  *
- * @param line Parameter.
- * @param name Parameter.
- * @param value Parameter.
+ * @param line Description of line.
+ * @param name Description of name.
+ * @param value Description of value.
  * @return Return value.
  */
 static int parseNameValue(char *line, char **name, char **value)
@@ -153,8 +153,8 @@ static int parseNameValue(char *line, char **name, char **value)
 /**
  * @brief UkLoadKeyMap.
  *
- * @param fileName Parameter.
- * @param keyMap Parameter.
+ * @param fileName Description of fileName.
+ * @param keyMap Description of keyMap.
  * @return Return value.
  */
 DllExport int UkLoadKeyMap(const char *fileName, int keyMap[256])
@@ -178,9 +178,9 @@ DllExport int UkLoadKeyMap(const char *fileName, int keyMap[256])
 /**
  * @brief UkLoadKeyOrderMap.
  *
- * @param fileName Parameter.
- * @param pMap Parameter.
- * @param pMapCount Parameter.
+ * @param fileName Description of fileName.
+ * @param pMap Description of pMap.
+ * @param pMapCount Description of pMapCount.
  * @return Return value.
  */
 DllExport int UkLoadKeyOrderMap(const char *fileName, UkKeyMapPair *pMap, int *pMapCount)
@@ -261,7 +261,7 @@ DllExport int UkLoadKeyOrderMap(const char *fileName, UkKeyMapPair *pMap, int *p
 /**
  * @brief initKeyMap.
  *
- * @param keyMap Parameter.
+ * @param keyMap Description of keyMap.
  */
 void initKeyMap(int keyMap[256])
 {
@@ -276,9 +276,9 @@ const char *UkKeyMapHeader =
 /**
  * @brief UkStoreKeyOrderMap.
  *
- * @param fileName Parameter.
- * @param pMap Parameter.
- * @param mapCount Parameter.
+ * @param fileName Description of fileName.
+ * @param pMap Description of pMap.
+ * @param mapCount Description of mapCount.
  * @return Return value.
  */
 DllExport int UkStoreKeyOrderMap(const char *fileName, UkKeyMapPair *pMap, int mapCount)
@@ -309,7 +309,7 @@ DllExport int UkStoreKeyOrderMap(const char *fileName, UkKeyMapPair *pMap, int m
 /**
  * @brief getLabelIndex.
  *
- * @param event Parameter.
+ * @param event Description of event.
  * @return Return value.
  */
 int getLabelIndex(int event)

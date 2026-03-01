@@ -43,7 +43,7 @@
 /**
  * @brief ibus_unikey_init.
  *
- * @param bus Parameter.
+ * @param bus Description of bus.
  */
 void ibus_unikey_init(IBusBus* bus);
 /**

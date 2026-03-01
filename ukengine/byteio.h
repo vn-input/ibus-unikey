@@ -60,39 +60,39 @@ public:
 /**
  * @brief getNext.
  *
- * @param b Parameter.
+ * @param b Description of b.
  */
 	virtual int getNext(UKBYTE &b) = 0;
 /**
  * @brief peekNext.
  *
- * @param b Parameter.
+ * @param b Description of b.
  */
 	virtual int peekNext(UKBYTE &b) = 0;
 /**
  * @brief unget.
  *
- * @param b Parameter.
+ * @param b Description of b.
  */
 	virtual int unget(UKBYTE b) = 0;
 
 /**
  * @brief getNextW.
  *
- * @param w Parameter.
+ * @param w Description of w.
  */
 	virtual int getNextW(UKWORD &w) = 0;
 /**
  * @brief peekNextW.
  *
- * @param w Parameter.
+ * @param w Description of w.
  */
 	virtual int peekNextW(UKWORD &w) = 0;
 
 /**
  * @brief getNextDW.
  *
- * @param dw Parameter.
+ * @param dw Description of dw.
  */
 	virtual int getNextDW(UKDWORD &dw) = 0;
 
@@ -135,20 +135,20 @@ public:
 /**
  * @brief putB.
  *
- * @param b Parameter.
+ * @param b Description of b.
  */
 	virtual int putB(UKBYTE b) = 0;
 /**
  * @brief putW.
  *
- * @param w Parameter.
+ * @param w Description of w.
  */
 	virtual int putW(UKWORD w) = 0;
 /**
  * @brief puts.
  *
- * @param s Parameter.
- * @param size Parameter.
+ * @param s Description of s.
+ * @param size Description of size.
  */
 	virtual int puts(const char *s, int size = -1) = 0; // write an 8-bit string
 /**
@@ -179,39 +179,39 @@ public:
 /**
  * @brief getNext.
  *
- * @param b Parameter.
+ * @param b Description of b.
  */
 	virtual int getNext(UKBYTE &b);
 /**
  * @brief peekNext.
  *
- * @param b Parameter.
+ * @param b Description of b.
  */
 	virtual int peekNext(UKBYTE &b);
 /**
  * @brief unget.
  *
- * @param b Parameter.
+ * @param b Description of b.
  */
 	virtual int unget(UKBYTE b);
 
 /**
  * @brief getNextW.
  *
- * @param w Parameter.
+ * @param w Description of w.
  */
 	virtual int getNextW(UKWORD &w);
 /**
  * @brief peekNextW.
  *
- * @param w Parameter.
+ * @param w Description of w.
  */
 	virtual int peekNextW(UKWORD &w);
 
 /**
  * @brief getNextDW.
  *
- * @param dw Parameter.
+ * @param dw Description of dw.
  */
 	virtual int getNextDW(UKDWORD &dw);
 
@@ -280,13 +280,13 @@ public:
 /**
  * @brief open.
  *
- * @param fileName Parameter.
+ * @param fileName Description of fileName.
  */
 	int open(const char *fileName);
 /**
  * @brief attach.
  *
- * @param f Parameter.
+ * @param f Description of f.
  */
 	void attach(FILE *f);
 /**
@@ -298,39 +298,39 @@ public:
 /**
  * @brief getNext.
  *
- * @param b Parameter.
+ * @param b Description of b.
  */
 	virtual int getNext(UKBYTE &b);
 /**
  * @brief peekNext.
  *
- * @param b Parameter.
+ * @param b Description of b.
  */
 	virtual int peekNext(UKBYTE &b);
 /**
  * @brief unget.
  *
- * @param b Parameter.
+ * @param b Description of b.
  */
 	virtual int unget(UKBYTE b);
 
 /**
  * @brief getNextW.
  *
- * @param w Parameter.
+ * @param w Description of w.
  */
 	virtual int getNextW(UKWORD &w);
 /**
  * @brief peekNextW.
  *
- * @param w Parameter.
+ * @param w Description of w.
  */
 	virtual int peekNextW(UKWORD &w);
 
 /**
  * @brief getNextDW.
  *
- * @param dw Parameter.
+ * @param dw Description of dw.
  */
     virtual int getNextDW(UKDWORD &dw);
 
@@ -372,20 +372,20 @@ public:
 /**
  * @brief putB.
  *
- * @param b Parameter.
+ * @param b Description of b.
  */
 	virtual int putB(UKBYTE b);
 /**
  * @brief putW.
  *
- * @param w Parameter.
+ * @param w Description of w.
  */
 	virtual int putW(UKWORD w);
 /**
  * @brief puts.
  *
- * @param s Parameter.
- * @param size Parameter.
+ * @param s Description of s.
+ * @param size Description of size.
  */
 	virtual int puts(const char *s, int size = -1);
 /**
@@ -436,13 +436,13 @@ public:
 /**
  * @brief open.
  *
- * @param fileName Parameter.
+ * @param fileName Description of fileName.
  */
 	int open(const char *fileName);
 /**
  * @brief attach.
  *
- * @param FILE Parameter.
+ * @param FILE Description of FILE.
  */
 	void attach(FILE *);
 /**
@@ -454,20 +454,20 @@ public:
 /**
  * @brief putB.
  *
- * @param b Parameter.
+ * @param b Description of b.
  */
 	virtual int putB(UKBYTE b);
 /**
  * @brief putW.
  *
- * @param w Parameter.
+ * @param w Description of w.
  */
 	virtual int putW(UKWORD w);
 /**
  * @brief puts.
  *
- * @param s Parameter.
- * @param size Parameter.
+ * @param s Description of s.
+ * @param size Description of size.
  */
 	virtual int puts(const char *s, int size = -1);
 /**

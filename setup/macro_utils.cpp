@@ -80,8 +80,8 @@ struct CaseInsensitiveEqual {
 /**
  * @brief strcasecmp.
  *
- * @param c_str Parameter.
- * @param c_str Parameter.
+ * @param c_str Description of c_str.
+ * @param c_str Description of c_str.
  * @return Return value.
  */
         return strcasecmp(a.c_str(), b.c_str()) == 0;
@@ -106,10 +106,10 @@ gboolean list_store_check_exists(GtkListStore* store, gchar* check_key)
 /**
  * @brief gtk_tree_model_get.
  *
- * @param model Parameter.
- * @param iter Parameter.
- * @param COL_KEY Parameter.
- * @param key Parameter.
+ * @param model Description of model.
+ * @param iter Description of iter.
+ * @param COL_KEY Description of COL_KEY.
+ * @param key Description of key.
  * @return Return value.
  */
         gtk_tree_model_get(model, &iter, COL_KEY, &key, -1);
@@ -118,7 +118,7 @@ gboolean list_store_check_exists(GtkListStore* store, gchar* check_key)
 /**
  * @brief g_free.
  *
- * @param key Parameter.
+ * @param key Description of key.
  * @return Return value.
  */
             g_free(key);
@@ -127,7 +127,7 @@ gboolean list_store_check_exists(GtkListStore* store, gchar* check_key)
 /**
  * @brief g_free.
  *
- * @param key Parameter.
+ * @param key Description of key.
  * @return Return value.
  */
         g_free(key);
@@ -180,20 +180,20 @@ void list_store_append_fast(GtkListStore* list, CMacroTable* macro)
 /**
  * @brief gtk_list_store_append.
  *
- * @param list Parameter.
- * @param iter Parameter.
+ * @param list Description of list.
+ * @param iter Description of iter.
  * @return Return value.
  */
         gtk_list_store_append(list, &iter);
 /**
  * @brief gtk_list_store_set.
  *
- * @param list Parameter.
- * @param iter Parameter.
- * @param COL_KEY Parameter.
- * @param key Parameter.
- * @param COL_VALUE Parameter.
- * @param value Parameter.
+ * @param list Description of list.
+ * @param iter Description of iter.
+ * @param COL_KEY Description of COL_KEY.
+ * @param key Description of key.
+ * @param COL_VALUE Description of COL_VALUE.
+ * @param value Description of value.
  * @return Return value.
  */
         gtk_list_store_set(list, &iter, COL_KEY, key, COL_VALUE, value, -1);
@@ -226,10 +226,10 @@ void list_store_append(GtkListStore* list, CMacroTable* macro)
 /**
  * @brief gtk_tree_model_get.
  *
- * @param model Parameter.
- * @param iter Parameter.
- * @param COL_KEY Parameter.
- * @param existing_key Parameter.
+ * @param model Description of model.
+ * @param iter Description of iter.
+ * @param COL_KEY Description of COL_KEY.
+ * @param existing_key Description of existing_key.
  * @return Return value.
  */
             gtk_tree_model_get(model, &iter, COL_KEY, &existing_key, -1);
@@ -238,7 +238,7 @@ void list_store_append(GtkListStore* list, CMacroTable* macro)
 /**
  * @brief g_free.
  *
- * @param existing_key Parameter.
+ * @param existing_key Description of existing_key.
  * @return Return value.
  */
                 g_free(existing_key);
@@ -277,20 +277,20 @@ void list_store_append(GtkListStore* list, CMacroTable* macro)
 /**
  * @brief gtk_list_store_append.
  *
- * @param list Parameter.
- * @param iter Parameter.
+ * @param list Description of list.
+ * @param iter Description of iter.
  * @return Return value.
  */
         gtk_list_store_append(list, &iter);
 /**
  * @brief gtk_list_store_set.
  *
- * @param list Parameter.
- * @param iter Parameter.
- * @param COL_KEY Parameter.
- * @param key Parameter.
- * @param COL_VALUE Parameter.
- * @param value Parameter.
+ * @param list Description of list.
+ * @param iter Description of iter.
+ * @param COL_KEY Description of COL_KEY.
+ * @param key Description of key.
+ * @param COL_VALUE Description of COL_VALUE.
+ * @param value Description of value.
  * @return Return value.
  */
         gtk_list_store_set(list, &iter, COL_KEY, key, COL_VALUE, value, -1);
@@ -313,7 +313,7 @@ void unikey_macro_to_store(CMacroTable* macro, GtkListStore* store)
 /**
  * @brief g_object_ref.
  *
- * @param store Parameter.
+ * @param store Description of store.
  * @return Return value.
  */
     g_object_ref(store);
@@ -321,7 +321,7 @@ void unikey_macro_to_store(CMacroTable* macro, GtkListStore* store)
 /**
  * @brief gtk_list_store_clear.
  *
- * @param store Parameter.
+ * @param store Description of store.
  * @return Return value.
  */
     gtk_list_store_clear(store);
@@ -331,15 +331,15 @@ void unikey_macro_to_store(CMacroTable* macro, GtkListStore* store)
 /**
  * @brief list_store_append_fast.
  *
- * @param store Parameter.
- * @param macro Parameter.
+ * @param store Description of store.
+ * @param macro Description of macro.
  * @return Return value.
  */
     list_store_append_fast(store, macro);
 /**
  * @brief list_store_add_null_item.
  *
- * @param store Parameter.
+ * @param store Description of store.
  * @return Return value.
  */
     list_store_add_null_item(store);
@@ -347,7 +347,7 @@ void unikey_macro_to_store(CMacroTable* macro, GtkListStore* store)
 /**
  * @brief g_object_unref.
  *
- * @param store Parameter.
+ * @param store Description of store.
  * @return Return value.
  */
     g_object_unref(store);
@@ -375,12 +375,12 @@ void unikey_store_to_macro(GtkListStore* store, CMacroTable* macro)
 /**
  * @brief gtk_tree_model_get.
  *
- * @param model Parameter.
- * @param iter Parameter.
- * @param COL_KEY Parameter.
- * @param key Parameter.
- * @param COL_VALUE Parameter.
- * @param value Parameter.
+ * @param model Description of model.
+ * @param iter Description of iter.
+ * @param COL_KEY Description of COL_KEY.
+ * @param key Description of key.
+ * @param COL_VALUE Description of COL_VALUE.
+ * @param value Description of value.
  * @return Return value.
  */
         gtk_tree_model_get(model, &iter, COL_KEY, &key, COL_VALUE, &value, -1);
@@ -392,14 +392,14 @@ void unikey_store_to_macro(GtkListStore* store, CMacroTable* macro)
 /**
  * @brief g_free.
  *
- * @param key Parameter.
+ * @param key Description of key.
  * @return Return value.
  */
         g_free(key);
 /**
  * @brief g_free.
  *
- * @param value Parameter.
+ * @param value Description of value.
  * @return Return value.
  */
         g_free(value);
@@ -426,10 +426,10 @@ void list_store_add_null_item(GtkListStore* list)
 /**
  * @brief gtk_tree_model_iter_nth_child.
  *
- * @param list Parameter.
- * @param iter Parameter.
- * @param NULL Parameter.
- * @param n Parameter.
+ * @param list Description of list.
+ * @param iter Description of iter.
+ * @param NULL Description of NULL.
+ * @param n Description of n.
  * @return Return value.
  */
         gtk_tree_model_iter_nth_child(GTK_TREE_MODEL(list), &iter, NULL, n-1);
@@ -437,10 +437,10 @@ void list_store_add_null_item(GtkListStore* list)
 /**
  * @brief gtk_tree_model_get.
  *
- * @param list Parameter.
- * @param iter Parameter.
- * @param COL_KEY Parameter.
- * @param key Parameter.
+ * @param list Description of list.
+ * @param iter Description of iter.
+ * @param COL_KEY Description of COL_KEY.
+ * @param key Description of key.
  * @return Return value.
  */
         gtk_tree_model_get(GTK_TREE_MODEL(list), &iter, COL_KEY, &key, -1);
@@ -449,7 +449,7 @@ void list_store_add_null_item(GtkListStore* list)
 /**
  * @brief g_free.
  *
- * @param key Parameter.
+ * @param key Description of key.
  * @return Return value.
  */
             g_free(key);
@@ -458,7 +458,7 @@ void list_store_add_null_item(GtkListStore* list)
 /**
  * @brief g_free.
  *
- * @param key Parameter.
+ * @param key Description of key.
  * @return Return value.
  */
         g_free(key);
@@ -468,20 +468,20 @@ void list_store_add_null_item(GtkListStore* list)
 /**
  * @brief gtk_list_store_append.
  *
- * @param list Parameter.
- * @param iter Parameter.
+ * @param list Description of list.
+ * @param iter Description of iter.
  * @return Return value.
  */
     gtk_list_store_append(list, &iter);
 /**
  * @brief gtk_list_store_set.
  *
- * @param list Parameter.
- * @param iter Parameter.
- * @param COL_KEY Parameter.
- * @param STR_NULL_ITEM Parameter.
- * @param COL_VALUE Parameter.
- * @param STR_NULL_ITEM Parameter.
+ * @param list Description of list.
+ * @param iter Description of iter.
+ * @param COL_KEY Description of COL_KEY.
+ * @param STR_NULL_ITEM Description of STR_NULL_ITEM.
+ * @param COL_VALUE Description of COL_VALUE.
+ * @param STR_NULL_ITEM Description of STR_NULL_ITEM.
  * @return Return value.
  */
     gtk_list_store_set(list, &iter,

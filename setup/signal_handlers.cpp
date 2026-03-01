@@ -69,8 +69,8 @@ static void update_macro_count_label(void);
 /**
  * @brief sort_list_store.
  *
- * @param column Parameter.
- * @param order Parameter.
+ * @param column Description of column.
+ * @param order Description of order.
  */
 static void sort_list_store(int column, GtkSortType order);
 /**
@@ -124,8 +124,8 @@ void on_main_window_destroy(GtkWidget* btn, gpointer user_data)
  * @brief Handler for the "Close" button in the main dialog.
  *
  * Terminates the application by quitting the main loop.
- * @param btn Parameter.
- * @param user_data Parameter.
+ * @param btn Description of btn.
+ * @param user_data Description of user_data.
  */
 void on_btn_close_clicked(GtkButton* btn, gpointer user_data)
 {
@@ -160,8 +160,8 @@ static void cbb_config_update(GtkComboBox* cbb, const gchar* key)
  * @brief Callback when the input method combo selection changes.
  *
  * Updates the CONFIG_INPUTMETHOD string in preferences.
- * @param cbb Parameter.
- * @param user_data Parameter.
+ * @param cbb Description of cbb.
+ * @param user_data Description of user_data.
  */
 void on_input_method_changed(GtkComboBox* cbb, gpointer user_data)
 {
@@ -172,8 +172,8 @@ void on_input_method_changed(GtkComboBox* cbb, gpointer user_data)
  * @brief Callback when the output charset combo selection changes.
  *
  * Updates the CONFIG_OUTPUTCHARSET string in preferences.
- * @param cbb Parameter.
- * @param user_data Parameter.
+ * @param cbb Description of cbb.
+ * @param user_data Description of user_data.
  */
 void on_output_charset_changed(GtkComboBox* cbb, gpointer user_data)
 {
@@ -222,8 +222,8 @@ void cbb_config_set_active(GtkComboBox* cbb, const gchar* key)
  * @brief Handler for the "realize" event of the input-method combo box.
  *
  * Called when the widget is instantiated; sets its active row from config.
- * @param cbb Parameter.
- * @param user_data Parameter.
+ * @param cbb Description of cbb.
+ * @param user_data Description of user_data.
  */
 void on_input_method_realize(GtkComboBox* cbb, gpointer user_data)
 {
@@ -234,8 +234,8 @@ void on_input_method_realize(GtkComboBox* cbb, gpointer user_data)
  * @brief "realize" event handler for the output-charset combo box.
  *
  * Populates the selection according to stored configuration.
- * @param cbb Parameter.
- * @param user_data Parameter.
+ * @param cbb Description of cbb.
+ * @param user_data Description of user_data.
  */
 void on_output_charset_realize(GtkComboBox* cbb, gpointer user_data)
 {
@@ -266,8 +266,8 @@ void on_setting_toggled(GtkToggleButton* btn, gpointer user_data)
  * Like `on_setting_toggled`, this assumes the widget name starts with
  * "cfg_".  If the key exists in config its value is used to set the button's
  * active state.
- * @param btn Parameter.
- * @param user_data Parameter.
+ * @param btn Description of btn.
+ * @param user_data Description of user_data.
  */
 void on_setting_realize(GtkToggleButton* btn, gpointer user_data)
 {
@@ -342,9 +342,9 @@ void on_btn_macroedit_clicked(GtkButton* btn, gpointer user_data)
  * @brief Handler for the delete-event on the macro dialog window.
  *
  * Hides the dialog instead of destroying it so it can be reused.
- * @param wid Parameter.
- * @param ev Parameter.
- * @param user_data Parameter.
+ * @param wid Description of wid.
+ * @param ev Description of ev.
+ * @param user_data Description of user_data.
  * @return `TRUE` to stop further handlers.
  */
 gboolean on_macro_dialog_delete(GtkWidget* wid, GdkEvent* ev, gpointer user_data)
@@ -412,10 +412,10 @@ void on_cell_key_edited(GtkCellRendererText *celltext,
  *
  * The new text is truncated to the maximum allowed length.  Entries with the
  * null sentinel key are ignored.
- * @param celltext Parameter.
- * @param string_path Parameter.
- * @param newvalue Parameter.
- * @param data Parameter.
+ * @param celltext Description of celltext.
+ * @param string_path Description of string_path.
+ * @param newvalue Description of newvalue.
+ * @param data Description of data.
  */
 void on_cell_value_edited(GtkCellRendererText *celltext,
                      const gchar *string_path,
@@ -444,8 +444,8 @@ void on_cell_value_edited(GtkCellRendererText *celltext,
  * @brief Remove the currently selected macro row (if not the null placeholder).
  *
  * Updates the count label and keeps the selection on the subsequent row.
- * @param button Parameter.
- * @param user_data Parameter.
+ * @param button Description of button.
+ * @param user_data Description of user_data.
  */
 void on_btn_macro_del_clicked(GtkButton *button, gpointer user_data)
 {
@@ -468,8 +468,8 @@ void on_btn_macro_del_clicked(GtkButton *button, gpointer user_data)
 
 /**
  * @brief Clear all macros from the list, leaving only the null placeholder.
- * @param button Parameter.
- * @param data Parameter.
+ * @param button Description of button.
+ * @param data Description of data.
  */
 void on_btn_macro_clear_clicked(GtkButton *button, gpointer data)
 {
@@ -550,8 +550,8 @@ void on_btn_macro_import_clicked(GtkButton *button, gpointer data)
  *
  * Presents a save file chooser; all non-placeholder rows are copied into a
  * temporary CMacroTable which is then written in engine format.
- * @param button Parameter.
- * @param data Parameter.
+ * @param button Description of button.
+ * @param data Description of data.
  */
 void on_btn_macro_export_clicked(GtkButton *button, gpointer data)
 {
@@ -621,10 +621,10 @@ static void update_macro_count_label(void)
  * Ensures the null sentinel row always sorts to the very end, regardless of the
  * chosen column or order.  Otherwise uses `g_utf8_collate` for locale-aware
  * comparison of the text in column `user_data`.
- * @param model Parameter.
- * @param a Parameter.
- * @param b Parameter.
- * @param user_data Parameter.
+ * @param model Description of model.
+ * @param a Description of a.
+ * @param b Description of b.
+ * @param user_data Description of user_data.
  * @return Return value.
  */
 static int compare_store_items(GtkTreeModel *model,
@@ -736,8 +736,8 @@ static void scroll_to_selection_or_top(void)
  *
  * Toggles the sort order if already sorting by key; otherwise switches to key
  * sorting ascending.  After sorting, headers and scroll position are updated.
- * @param column Parameter.
- * @param user_data Parameter.
+ * @param column Description of column.
+ * @param user_data Description of user_data.
  */
 void on_column_key_clicked(GtkTreeViewColumn *column, gpointer user_data)
 {
@@ -755,8 +755,8 @@ void on_column_key_clicked(GtkTreeViewColumn *column, gpointer user_data)
  * @brief Handler for clicking the value column header.
  *
  * Behaves similarly to `on_column_key_clicked` but for the value column.
- * @param column Parameter.
- * @param user_data Parameter.
+ * @param column Description of column.
+ * @param user_data Description of user_data.
  */
 void on_column_value_clicked(GtkTreeViewColumn *column, gpointer user_data)
 {
@@ -776,8 +776,8 @@ void on_column_value_clicked(GtkTreeViewColumn *column, gpointer user_data)
  * Displays a simple dialog where the user can type a key/value pair.  After
  * validation and duplicate checking the new row is inserted, the list is
  * resorted, and the new entry is scrolled into view and selected.
- * @param button Parameter.
- * @param user_data Parameter.
+ * @param button Description of button.
+ * @param user_data Description of user_data.
  */
 void on_btn_macro_add_clicked(GtkButton *button, gpointer user_data)
 {

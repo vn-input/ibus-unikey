@@ -56,7 +56,7 @@ enum VnWordForm {vnw_nonVn, vnw_empty, vnw_c, vnw_v, vnw_cv, vnw_vc, vnw_cvc};
 /**
  * @brief void.
  *
- * @param pCapslockOn Parameter.
+ * @param pCapslockOn Description of pCapslockOn.
  */
 typedef void (* CheckKeyboardCaseCb)(int *pShiftPressed, int *pCapslockOn);
 
@@ -72,7 +72,7 @@ public:
 /**
  * @brief setCtrlInfo.
  *
- * @param p Parameter.
+ * @param p Description of p.
  */
     void setCtrlInfo(UkSharedMem *p)
     {
@@ -82,7 +82,7 @@ public:
 /**
  * @brief setCheckKbCaseFunc.
  *
- * @param pFunc Parameter.
+ * @param pFunc Description of pFunc.
  */
     void setCheckKbCaseFunc(CheckKeyboardCaseCb pFunc) 
     {
@@ -98,17 +98,17 @@ public:
 /**
  * @brief process.
  *
- * @param keyCode Parameter.
- * @param backs Parameter.
- * @param outBuf Parameter.
- * @param outSize Parameter.
- * @param outType Parameter.
+ * @param keyCode Description of keyCode.
+ * @param backs Description of backs.
+ * @param outBuf Description of outBuf.
+ * @param outSize Description of outSize.
+ * @param outType Description of outType.
  */
     int process(unsigned int keyCode, int & backs, unsigned char *outBuf, int & outSize, UkOutputType & outType);
 /**
  * @brief pass.
  *
- * @param keyCode Parameter.
+ * @param keyCode Description of keyCode.
  */
     void pass(int keyCode); //just pass through without filtering
 /**
@@ -120,10 +120,10 @@ public:
 /**
  * @brief processBackspace.
  *
- * @param backs Parameter.
- * @param outBuf Parameter.
- * @param outSize Parameter.
- * @param outType Parameter.
+ * @param backs Description of backs.
+ * @param outBuf Description of outBuf.
+ * @param outSize Description of outSize.
+ * @param outType Description of outType.
  */
     int processBackspace(int & backs, unsigned char *outBuf, int & outSize, UkOutputType & outType);
 /**
@@ -134,10 +134,10 @@ public:
 /**
  * @brief restoreKeyStrokes.
  *
- * @param backs Parameter.
- * @param outBuf Parameter.
- * @param outSize Parameter.
- * @param outType Parameter.
+ * @param backs Description of backs.
+ * @param outBuf Description of outBuf.
+ * @param outSize Description of outSize.
+ * @param outType Description of outType.
  */
     int restoreKeyStrokes(int & backs, unsigned char *outBuf, int & outSize, UkOutputType & outType);
 
@@ -146,61 +146,61 @@ public:
 /**
  * @brief processTone.
  *
- * @param ev Parameter.
+ * @param ev Description of ev.
  */
     int processTone(UkKeyEvent & ev);
 /**
  * @brief processRoof.
  *
- * @param ev Parameter.
+ * @param ev Description of ev.
  */
     int processRoof(UkKeyEvent & ev);
 /**
  * @brief processHook.
  *
- * @param ev Parameter.
+ * @param ev Description of ev.
  */
     int processHook(UkKeyEvent & ev);
 /**
  * @brief processAppend.
  *
- * @param ev Parameter.
+ * @param ev Description of ev.
  */
     int processAppend(UkKeyEvent & ev);
 /**
  * @brief appendVowel.
  *
- * @param ev Parameter.
+ * @param ev Description of ev.
  */
     int appendVowel(UkKeyEvent & ev);
 /**
  * @brief appendConsonnant.
  *
- * @param ev Parameter.
+ * @param ev Description of ev.
  */
     int appendConsonnant(UkKeyEvent & ev);
 /**
  * @brief processDd.
  *
- * @param ev Parameter.
+ * @param ev Description of ev.
  */
     int processDd(UkKeyEvent & ev);
 /**
  * @brief processMapChar.
  *
- * @param ev Parameter.
+ * @param ev Description of ev.
  */
     int processMapChar(UkKeyEvent & ev);
 /**
  * @brief processTelexW.
  *
- * @param ev Parameter.
+ * @param ev Description of ev.
  */
     int processTelexW(UkKeyEvent & ev);
 /**
  * @brief processEscChar.
  *
- * @param ev Parameter.
+ * @param ev Description of ev.
  */
     int processEscChar(UkKeyEvent & ev);
 
@@ -253,19 +253,19 @@ protected:
 /**
  * @brief processHookWithUO.
  *
- * @param ev Parameter.
+ * @param ev Description of ev.
  */
     int processHookWithUO(UkKeyEvent & ev);
 /**
  * @brief macroMatch.
  *
- * @param ev Parameter.
+ * @param ev Description of ev.
  */
     int macroMatch(UkKeyEvent & ev);
 /**
  * @brief markChange.
  *
- * @param pos Parameter.
+ * @param pos Description of pos.
  */
     void markChange(int pos);
 /**
@@ -276,23 +276,23 @@ protected:
 /**
  * @brief writeOutput.
  *
- * @param outBuf Parameter.
- * @param outSize Parameter.
+ * @param outBuf Description of outBuf.
+ * @param outSize Description of outSize.
  */
     int writeOutput(unsigned char *outBuf, int & outSize);
     //int getSeqLength(int first, int last);
 /**
  * @brief getSeqSteps.
  *
- * @param first Parameter.
- * @param last Parameter.
+ * @param first Description of first.
+ * @param last Description of last.
  */
     int getSeqSteps(int first, int last);
 /**
  * @brief getTonePosition.
  *
- * @param vs Parameter.
- * @param terminated Parameter.
+ * @param vs Description of vs.
+ * @param terminated Description of terminated.
  */
     int getTonePosition(VowelSeq vs, bool terminated);
 /**
@@ -303,19 +303,19 @@ protected:
 /**
  * @brief checkEscapeVIQR.
  *
- * @param ev Parameter.
+ * @param ev Description of ev.
  */
     int checkEscapeVIQR(UkKeyEvent & ev);
 /**
  * @brief processNoSpellCheck.
  *
- * @param ev Parameter.
+ * @param ev Description of ev.
  */
     int processNoSpellCheck(UkKeyEvent & ev);
 /**
  * @brief processWordEnd.
  *
- * @param ev Parameter.
+ * @param ev Description of ev.
  */
     int processWordEnd(UkKeyEvent & ev);
 /**

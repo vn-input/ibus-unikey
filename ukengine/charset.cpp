@@ -1727,7 +1727,7 @@ StdVnChar StdVnToLower(StdVnChar ch)
 /**
  * @brief StdVnGetRoot.
  *
- * @param ch Parameter.
+ * @param ch Description of ch.
  * @return Return value.
  */
 StdVnChar StdVnGetRoot(StdVnChar ch)

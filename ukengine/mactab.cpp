@@ -116,7 +116,7 @@ bool CMacroTable::ensureItemCapacity(int minCapacity)
  *
  * Similar doubling growth strategy as `ensureItemCapacity`.  The buffer holds
  * all key and text strings concatenated back-to-back.
- * @param minCapacity Parameter.
+ * @param minCapacity Description of minCapacity.
  * @return Return value.
  */
 bool CMacroTable::ensureMemCapacity(int minCapacity)
@@ -173,8 +173,8 @@ char *MacCompareStartMem;
  *
  * Performs case-insensitive comparison of keys stored in the memory buffer
  * pointed to by `MacCompareStartMem`.  This ordering is used by `qsort`.
- * @param p1 Parameter.
- * @param p2 Parameter.
+ * @param p1 Description of p1.
+ * @param p2 Description of p2.
  * @return Return value.
  */
 int macCompare(const void *p1, const void *p2)
@@ -210,8 +210,8 @@ int macCompare(const void *p1, const void *p2)
  *
  * Compares a standalone key string (first argument) with the key at a table
  * entry (`ele`).  Uses the same case‑insensitive logic as `macCompare`.
- * @param key Parameter.
- * @param ele Parameter.
+ * @param key Description of key.
+ * @param ele Description of ele.
  * @return Return value.
  */
 int macKeyCompare(const void *key, const void *ele)
@@ -321,7 +321,7 @@ bool CMacroTable::readHeader(FILE *f, int & version)
  * @brief Write the version header line into a macro output file.
  *
  * On Windows, prepend a UTF-8 BOM for compatibility with text editors.
- * @param f Parameter.
+ * @param f Description of f.
  */
 void CMacroTable::writeHeader(FILE *f)
 {
@@ -554,8 +554,8 @@ int CMacroTable::addItem(const void *key, const void *text, int charset)
  *
  * Splits the input at the first colon and delegates to the other `addItem`
  * overload.  Returns -1 on parse failure.
- * @param item Parameter.
- * @param charset Parameter.
+ * @param item Description of item.
+ * @param charset Description of charset.
  * @return Return value.
  */
 int CMacroTable::addItem(const char *item, int charset)

@@ -469,7 +469,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
 /**
  * @brief if.
  *
- * @param CONFIG_AUTORESTORENONVN Parameter.
+ * @param CONFIG_AUTORESTORENONVN Description of CONFIG_AUTORESTORENONVN.
  * @return Return value.
  */
     else if (strcmp(prop_name, CONFIG_AUTORESTORENONVN) == 0)
@@ -480,7 +480,7 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
 /**
  * @brief if.
  *
- * @param CONFIG_MACROENABLED Parameter.
+ * @param CONFIG_MACROENABLED Description of CONFIG_MACROENABLED.
  * @return Return value.
  */
     else if (strcmp(prop_name, CONFIG_MACROENABLED) == 0)
@@ -721,7 +721,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
 /**
  * @brief if.
  *
- * @param keyval Parameter.
+ * @param keyval Description of keyval.
  * @return Return value.
  */
     else if (modifiers & IBUS_CONTROL_MASK
@@ -743,7 +743,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
 /**
  * @brief if.
  *
- * @param keyval Parameter.
+ * @param keyval Description of keyval.
  * @return Return value.
  */
     else if ((keyval >= IBUS_Caps_Lock && keyval <= IBUS_Hyper_R)
@@ -757,7 +757,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
 /**
  * @brief if.
  *
- * @param keyval Parameter.
+ * @param keyval Description of keyval.
  * @return Return value.
  */
     else if (keyval == IBUS_BackSpace)
@@ -805,7 +805,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
 /**
  * @brief if.
  *
- * @param keyval Parameter.
+ * @param keyval Description of keyval.
  * @return Return value.
  */
     else if (keyval >=IBUS_KP_Multiply && keyval <=IBUS_KP_9)
@@ -818,7 +818,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
 /**
  * @brief if.
  *
- * @param keyval Parameter.
+ * @param keyval Description of keyval.
  * @return Return value.
  */
     else if ((keyval >= IBUS_space && keyval <=IBUS_asciitilde)
@@ -885,7 +885,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
 /**
  * @brief if.
  *
- * @param keyval Parameter.
+ * @param keyval Description of keyval.
  * @return Return value.
  */
         else if (keyval != IBUS_Shift_L && keyval != IBUS_Shift_R) // if ukengine not process

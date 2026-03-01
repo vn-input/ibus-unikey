@@ -115,7 +115,7 @@ public:
 	void init(char **patterns, int count);
 	/**
 	 * @brief Feed character through every pattern state.
- * @param ch Parameter.
+ * @param ch Description of ch.
 	 * @return 1 if any pattern matched on this character.
 	 */
 	int foundAtNextChar(char ch); 

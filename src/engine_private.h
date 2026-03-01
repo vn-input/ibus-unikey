@@ -93,9 +93,9 @@ static void ibus_unikey_engine_init(IBusUnikeyEngine* unikey);
 
 /**
  * @brief Custom constructor for the Unikey engine
- * @param type Parameter.
- * @param n_construct_params Parameter.
- * @param construct_params Parameter.
+ * @param type Description of type.
+ * @param n_construct_params Description of n_construct_params.
+ * @param construct_params Description of construct_params.
  */
 static GObject* ibus_unikey_engine_constructor(GType type,
                                                guint n_construct_params,
@@ -103,15 +103,15 @@ static GObject* ibus_unikey_engine_constructor(GType type,
 
 /**
  * @brief Cleanup invoked when the Unikey engine object is destroyed.
- * @param unikey Parameter.
+ * @param unikey Description of unikey.
  */
 static void ibus_unikey_engine_destroy(IBusUnikeyEngine* unikey);
 /**
  * @brief Primary key event handler called by IBus.
- * @param engine Parameter.
- * @param keyval Parameter.
- * @param keycode Parameter.
- * @param modifiers Parameter.
+ * @param engine Description of engine.
+ * @param keyval Description of keyval.
+ * @param keycode Description of keycode.
+ * @param modifiers Description of modifiers.
  */
 static gboolean ibus_unikey_engine_process_key_event(IBusEngine* engine,
                                                      guint keyval,
@@ -120,45 +120,45 @@ static gboolean ibus_unikey_engine_process_key_event(IBusEngine* engine,
 
 /**
  * @brief Called when engine receives input focus.
- * @param engine Parameter.
+ * @param engine Description of engine.
  */
 static void ibus_unikey_engine_focus_in(IBusEngine* engine);
 /**
  * @brief Called when engine loses input focus.
- * @param engine Parameter.
+ * @param engine Description of engine.
  */
 static void ibus_unikey_engine_focus_out(IBusEngine* engine);
 /**
  * @brief Reset internal engine state (e.g. preedit) to initial.
- * @param engine Parameter.
+ * @param engine Description of engine.
  */
 static void ibus_unikey_engine_reset(IBusEngine* engine);
 /**
  * @brief Enable the engine (e.g. when user activates it).
- * @param engine Parameter.
+ * @param engine Description of engine.
  */
 static void ibus_unikey_engine_enable(IBusEngine* engine);
 /**
  * @brief Disable the engine (e.g. when user switches away).
- * @param engine Parameter.
+ * @param engine Description of engine.
  */
 static void ibus_unikey_engine_disable(IBusEngine* engine);
 /**
  * @brief Load persisted configuration values into the engine instance.
- * @param unikey Parameter.
+ * @param unikey Description of unikey.
  */
 static void ibus_unikey_engine_load_config(IBusUnikeyEngine* unikey);
 /**
  * @brief Callback invoked when a configuration key changes.
- * @param name Parameter.
- * @param user_data Parameter.
+ * @param name Description of name.
+ * @param user_data Description of user_data.
  */
 static void ibus_unikey_config_value_changed(gchar* name, gpointer user_data);
 /**
  * @brief Handler for activation of engine ui properties.
- * @param engine Parameter.
- * @param prop_name Parameter.
- * @param prop_state Parameter.
+ * @param engine Description of engine.
+ * @param prop_name Description of prop_name.
+ * @param prop_state Description of prop_state.
  */
 static void ibus_unikey_engine_property_activate(IBusEngine* engine,
                                                  const gchar* prop_name,
@@ -166,10 +166,10 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
 
 /**
  * @brief Process key event when preedit buffer is active.
- * @param engine Parameter.
- * @param keyval Parameter.
- * @param keycode Parameter.
- * @param modifiers Parameter.
+ * @param engine Description of engine.
+ * @param keyval Description of keyval.
+ * @param keycode Description of keycode.
+ * @param modifiers Description of modifiers.
  */
 static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
                                                              guint keyval,
@@ -178,21 +178,21 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
 
 /**
  * @brief Build the engine's property list structure used by the GUI.
- * @param unikey Parameter.
+ * @param unikey Description of unikey.
  */
 static void ibus_unikey_engine_create_property_list(IBusUnikeyEngine* unikey);
 
 /**
  * @brief Helper to update the preedit string shown to the user.
- * @param engine Parameter.
- * @param string Parameter.
- * @param visible Parameter.
+ * @param engine Description of engine.
+ * @param string Description of string.
+ * @param visible Description of visible.
  */
 static void ibus_unikey_engine_update_preedit_string(IBusEngine *engine, const gchar *string, gboolean visible);
 /**
  * @brief Erase @p num_chars characters from the preedit buffer.
- * @param engine Parameter.
- * @param num_chars Parameter.
+ * @param engine Description of engine.
+ * @param num_chars Description of num_chars.
  */
 static void ibus_unikey_engine_erase_chars(IBusEngine *engine, int num_chars);
 
