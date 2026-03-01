@@ -75,7 +75,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "byteio.h"
 #include "pattern.h"
 
+/**
+ * @brief Total number of Vietnamese characters supported by the tables.
+ */
 #define TOTAL_VNCHARS 213
+/**
+ * @brief Number of alphabetic Vietnamese characters (excluding control symbols).
+ */
 #define TOTAL_ALPHA_VNCHARS 186
 
 #if defined(_WIN32)
@@ -96,52 +102,104 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //typedef unsigned int UKDWORD; //the size should be more specific
 
+/**
+ * @brief Extract low-order word from double-word.
+ */
 #ifndef LOWORD
 #define LOWORD(l)           ((UKWORD)(l))
 #endif
 
+/**
+ * @brief Extract high-order word from double-word.
+ */
 #ifndef HIWORD
 #define HIWORD(l)           ((UKWORD)(((UKDWORD)(l) >> 16) & 0xFFFF))
 #endif
 
+/**
+ * @brief Construct a word from two bytes.
+ */
 #ifndef MAKEWORD
 #define MAKEWORD(a, b)      ((UKWORD)(((UKBYTE)(a)) | ((UKWORD)((UKBYTE)(b))) << 8))
 #endif
 
+/**
+ * @brief Base offset used for standard Vietnamese character codes.
+ */
 const StdVnChar VnStdCharOffset = 0x10000;
+/**
+ * @brief Value representing an invalid standardized character.
+ */
 const StdVnChar INVALID_STD_CHAR = 0xFFFFFFFF;
-//const unsigned char PadChar = '?'; //? is used for VIQR charset
+
+/**
+ * @brief Padding character inserted during VIQR conversion (currently '#').
+ */
 const unsigned char PadChar = '#';
-const unsigned char PadStartQuote = '\"';
-const unsigned char PadEndQuote = '\"';
+/**
+ * @brief Character used to start quoted text during conversion.
+ */
+const unsigned char PadStartQuote = '"';
+/**
+ * @brief Character used to end quoted text during conversion.
+ */
+const unsigned char PadEndQuote = '"';
+/**
+ * @brief Character used to mark ellipsis sequences.
+ */
 const unsigned char PadEllipsis = '.';
 
+/**
+ * @class VnCharset
+ * @brief Abstract base class for Vietnamese character set conversion.
+ *
+ * Concrete subclasses implement encoding/decoding of various one- and
+ * multi-byte Vietnamese character sets used by the engine.
+ */
 class DllInterface VnCharset {
 public:
+	/**
+	 * @brief Prepare for a sequence of input conversions.
+	 */
 	virtual void startInput() {};
+	/**
+	 * @brief Prepare for a sequence of output conversions.
+	 */
 	virtual void startOutput() {};
-//	virtual UKBYTE *nextInput(UKBYTE *input, int inLen, StdVnChar & stdChar, int & bytesRead) = 0;
+
+	/**
+	 * @brief Convert next byte sequence from input stream to standard code.
+	 * @param is Byte input stream to read from.
+	 * @param[out] stdChar Standardized character result.
+	 * @param[out] bytesRead Number of bytes consumed from input.
+	 * @return nonzero on success, zero on end-of-input.
+	 */
 	virtual int nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead) = 0;
 
-	//------------------------------------------------------------------------
-	// put a character to the output after converting it
-	// Arguments:
-	//     output[in]: output buffer
-	//     stdChar[in]: character in standard charset
-	//     outLen[out]: length of converted sequence
-	//     maxAvail[in]: max length available.
-	// Returns: next position in output
-	//------------------------------------------------------------------------
+	/**
+	 * @brief Write a standard character to output stream in the target charset.
+	 * @param os Output stream to write converted bytes.
+	 * @param stdChar Standard character to convert.
+	 * @param[out] outLen Number of bytes written.
+	 * @return updated stream position (typically ignored).
+	 */
 	virtual int putChar(ByteOutStream & os, StdVnChar stdChar, int & outLen) = 0;
     virtual int elementSize();
 	virtual ~VnCharset() {}
 };
 
 //--------------------------------------------------
+/**
+ * @class SingleByteCharset
+ * @brief Charset converter for single-byte Vietnamese encodings.
+ *
+ * Uses a 256-entry map and an array of Vietnamese characters to perform
+ * conversions to/from the standard codepoint space.
+ */
 class SingleByteCharset: public VnCharset {
 protected:
-	UKWORD m_stdMap[256];
-	unsigned char * m_vnChars;
+	UKWORD m_stdMap[256]; /**< lookup table from byte to standard code */
+	unsigned char * m_vnChars; /**< array of Vietnamese bytes */
 public:
 	SingleByteCharset(unsigned char * vnChars);
 	virtual int nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead);
@@ -149,6 +207,10 @@ public:
 };
 
 //--------------------------------------------------
+/**
+ * @class VnInternalCharset
+ * @brief Identity charset used internally by the engine (no conversion).
+ */
 class VnInternalCharset: public VnCharset {
 public:
   VnInternalCharset() {};
@@ -158,10 +220,14 @@ public:
 };
 
 //--------------------------------------------------
+/**
+ * @class UnicodeCharset
+ * @brief Converter for fixed-width Unicode Vietnamese charsets.
+ */
 class UnicodeCharset: public VnCharset {
 protected:
-	UKDWORD m_vnChars[TOTAL_VNCHARS];
-	UnicodeChar * m_toUnicode;
+	UKDWORD m_vnChars[TOTAL_VNCHARS]; /**< mapping table from standard to VN char */
+	UnicodeChar * m_toUnicode;       /**< reverse mapping to Unicode codes */
 public:
 	UnicodeCharset(UnicodeChar *vnChars);
 	virtual int nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead);
@@ -170,11 +236,16 @@ public:
 };
 
 //--------------------------------------------------
+/**
+ * @class DoubleByteCharset
+ * @brief Converter for double-byte Vietnamese charsets.
+ */
 class DoubleByteCharset: public VnCharset {
 protected:
-	UKWORD m_stdMap[256];
-	UKDWORD m_vnChars[TOTAL_VNCHARS];
-	UKWORD * m_toDoubleChar;
+	UKWORD m_stdMap[256]; /**< single-byte map to standard codes */
+	UKDWORD m_vnChars[TOTAL_VNCHARS]; /**< array of double-byte VN chars */
+	UKWORD * m_toDoubleChar;          /**< reverse mapping
+ */
 public:
 	DoubleByteCharset(UKWORD *vnChars);
 	virtual int nextInput(ByteInStream & is, StdVnChar & stdChar, int & bytesRead);
@@ -182,7 +253,10 @@ public:
 };
 
 //--------------------------------------------------
-class UnicodeUTF8Charset: public UnicodeCharset
+/**
+ * @class UnicodeUTF8Charset
+ * @brief Unicode charset that outputs UTF-8 encoded bytes.
+ */class UnicodeUTF8Charset: public UnicodeCharset
 {
 public:
 	UnicodeUTF8Charset(UnicodeChar *vnChars) : UnicodeCharset(vnChars)	{}
@@ -192,6 +266,10 @@ public:
 };
 
 //--------------------------------------------------
+/**
+ * @class UnicodeRefCharset
+ * @brief Unicode charset variant that references external storage for data.
+ */
 class UnicodeRefCharset: public UnicodeCharset
 {
 public:

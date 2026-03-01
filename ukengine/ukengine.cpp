@@ -43,8 +43,11 @@
 
 using namespace std;
 
+/** @brief ASCII code for the Enter key. */
 #define ENTER_CHAR 13
+/** @brief True if integer x is odd. */
 #define IS_ODD(x) (x & 1)
+/** @brief True if integer x is even. */
 #define IS_EVEN(x) (!(x & 1))
 
 #define IS_STD_VN_LOWER(x) ((x) >= VnStdCharOffset && (x) < (VnStdCharOffset + TOTAL_ALPHA_VNCHARS) && IS_ODD(x))
@@ -69,18 +72,25 @@ inline StdVnChar IsoToStdVnChar(int keyCode)
     return (keyCode < 256)? IsoStdVnCharMap[keyCode] : keyCode;
 }
 
+/**
+ * @struct VowelSeqInfo
+ * @brief Information about a vowel sequence and its allowable modifications.
+ *
+ * Used by the engine to handle compound vowels, roofs, hooks and consonant
+ * suffixes when composing Vietnamese syllables.
+ */
 struct VowelSeqInfo {
-    int len;
-    int complete;
-    int conSuffix; //allow consonnant suffix
-    VnLexiName v[3];
-    VowelSeq sub[3];
+    int len; /**< length of sequence */
+    int complete; /**< whether sequence is complete */
+    int conSuffix; /**< allow consonant suffix after sequence */
+    VnLexiName v[3]; /**< lexicon names for constituent vowels */
+    VowelSeq sub[3]; /**< subsequences represented */
 
-    int roofPos;
-    VowelSeq withRoof;
+    int roofPos; /**< position of roof diacritic if any */
+    VowelSeq withRoof; /**< resulting sequence when roof added */
 
-    int hookPos;
-    VowelSeq withHook; //hook & bowl
+    int hookPos; /**< position of hook diacritic if any */
+    VowelSeq withHook; /**< resulting sequence when hook/bowl added */
 };
 
 VowelSeqInfo VSeqList[] = {

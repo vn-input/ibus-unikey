@@ -65,27 +65,62 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     #define DllInterface //not used
 #endif
 
+/**
+ * @brief Maximum length of a search pattern.
+ */
 #define MAX_PATTERN_LEN 40
 
+/**
+ * @class PatternState
+ * @brief Maintains state for a single search pattern using KMP algorithm.
+ */
 class DllInterface PatternState
 {
 public:
-	char *m_pattern;
-	int m_border[MAX_PATTERN_LEN+1];
-	int m_pos;
-	int m_found;
+	char *m_pattern; /**< NUL‑terminated search string */
+	int m_border[MAX_PATTERN_LEN+1]; /**< KMP failure function table */
+	int m_pos; /**< current scan position */
+	int m_found; /**< flag set when pattern is matched */
+	/**
+	 * @brief Initialize state with given pattern.
+	 * @param pattern NUL‑terminated pattern string.
+	 */
 	void init(char *pattern);
+	/**
+	 * @brief Reset search state to beginning.
+	 */
 	void reset();
-	int foundAtNextChar(char ch); //get next input char, returns 1 if pattern is found.
+	/**
+	 * @brief Feed next input character and check for match.
+	 * @param ch Input character.
+	 * @return 1 if pattern has just been found, 0 otherwise.
+	 */
+	int foundAtNextChar(char ch);
 };
 
+/**
+ * @class PatternList
+ * @brief A collection of `PatternState` objects for matching multiple patterns.
+ */
 class DllInterface PatternList
 {
 public:
-	PatternState *m_patterns;
-	int m_count;
+	PatternState *m_patterns; /**< dynamically allocated array of states */
+	int m_count; /**< number of patterns in the list */
+	/**
+	 * @brief Initialize list with given C-string patterns.
+	 * @param patterns Array of NUL‑terminated strings.
+	 * @param count Number of entries in @p patterns.
+	 */
 	void init(char **patterns, int count);
+	/**
+	 * @brief Feed character through every pattern state.
+	 * @return 1 if any pattern matched on this character.
+	 */
 	int foundAtNextChar(char ch); 
+	/**
+	 * @brief Reset all contained pattern states.
+	 */
 	void reset();
 
 	PatternList() {

@@ -64,8 +64,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "vnconv.h"
 
+/**
+ * @brief Helper: convert from one charset to another using stdio streams.
+ *
+ * Used by command-line utilities and internal tests.
+ */
 int vnFileStreamConvert(int inCharset, int outCharset, FILE * inf, FILE *outf);
 
+/**
+ * @brief Generic conversion routine operating on `VnCharset` objects.
+ *
+ * Repeatedly reads characters from @p input using @p incs and writes them
+ * to @p output via @p outcs, applying optional case/tone transformations
+ * configured in global options.
+ *
+ * @return 0 on success, VNCONV_OUT_OF_MEMORY on out-of-memory error.
+ */
 DllExport int genConvert(VnCharset & incs, VnCharset & outcs, ByteInStream & input, ByteOutStream & output)
 {
 	StdVnChar stdChar;
@@ -109,6 +123,17 @@ DllExport int genConvert(VnCharset & incs, VnCharset & outcs, ByteInStream & inp
 //----------------------------------------------
 //int VnConvert(int inCharset, int outCharset, UKBYTE *input, UKBYTE *output, int & inLen, int & maxOutLen)
 
+/**
+ * @brief High-level conversion between two named charsets.
+ *
+ * @param inCharset Source charset identifier (CONV_* constant).
+ * @param outCharset Destination charset identifier.
+ * @param input Input byte buffer.
+ * @param output Output byte buffer.
+ * @param pInLen [in,out] input length or -1 for NUL-terminated, returns remaining bytes.
+ * @param pMaxOutLen [in,out] output buffer size, returns bytes written or needed.
+ * @return 0 on success or error code on failure.
+ */
 DllExport int VnConvert(int inCharset, int outCharset, UKBYTE *input, UKBYTE *output, 
 	      int * pInLen, int * pMaxOutLen)
 {

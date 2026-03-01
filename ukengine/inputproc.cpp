@@ -36,17 +36,28 @@ unsigned char WordBreakSyms[] = {
 	'<', '>', '=', '+', '-', '*', '/', '\\',
 	'_', '~', '`', '@', '#', '$', '%', '^', '&', '(', ')', '{', '}', '[', ']'};
 */
-
-unsigned char WordBreakSyms[] = {
+/**
+ * @brief Characters considered to break words (delimiters).
+ *
+ * Used by the input processor to decide when to end the current word.
+ * Note that some punctuation like `~`, `` ` ``, and `^` are intentionally
+ * excluded to avoid interfering with Vietnamese composition.
+ */unsigned char WordBreakSyms[] = {
 	',', ';', ':', '.', '\"', '\'', '!', '?', ' ',
 	'<', '>', '=', '+', '-', '*', '/', '\\',
 	'_', '@', '#', '$', '%', '&', '(', ')', '{', '}', '[', ']', '|'}; //we excluded ~, `, ^
 
+/**
+ * @brief Mapping from ASCII uppercase letters to Vietnamese lexicon names.
+ */
 VnLexiName AZLexiUpper[] = 
   {vnl_A, vnl_B, vnl_C, vnl_D, vnl_E, vnl_F, vnl_G, vnl_H, vnl_I, vnl_J,
    vnl_K, vnl_L, vnl_M, vnl_N, vnl_O, vnl_P, vnl_Q, vnl_R, vnl_S, vnl_T,
    vnl_U, vnl_V, vnl_W, vnl_X, vnl_Y, vnl_Z};
 
+/**
+ * @brief Mapping from ASCII lowercase letters to Vietnamese lexicon names.
+ */
 VnLexiName AZLexiLower[] =
   {vnl_a, vnl_b, vnl_c, vnl_d, vnl_e, vnl_f, vnl_g, vnl_h, vnl_i, vnl_j,
    vnl_k, vnl_l, vnl_m, vnl_n, vnl_o, vnl_p, vnl_q, vnl_r, vnl_s, vnl_t,
@@ -54,10 +65,15 @@ VnLexiName AZLexiLower[] =
 
 UkCharType UkcMap[256];
 
+/**
+ * @struct _ascVnLexi
+ * @brief Maps a Western character codepoint to a Vietnamese lexicon symbol.
+ */
 struct _ascVnLexi {
     int asc;
     VnLexiName lexi;
 };
+
 
 //List of western characters outside range A-Z that are
 //also Vietnamese characters
@@ -99,7 +115,12 @@ _ascVnLexi AscVnLexiList[] = {
 
 VnLexiName IsoVnLexiMap[256];
 
+/**
+ * @brief Flag indicating whether the input classification tables have been
+ * initialized.
+ */
 bool ClassifierTableInitialized = false;
+
 
 DllExport UkKeyMapping TelexMethodMapping[] = {
     {'Z', vneTone0},
@@ -266,6 +287,12 @@ void SetupInputClassifierTable()
 }
 
 //-------------------------------------------
+/**
+ * @brief Initialize the processor and classification tables.
+ *
+ * This will allocate and populate the character classifier table the first
+ * time it is called; subsequent invocations are no-ops.
+ */
 void UkInputProcessor::init()
 {
   if (!ClassifierTableInitialized) {
@@ -325,6 +352,10 @@ void UkResetKeyMap(int keyMap[256])
 }
 
 //-------------------------------------------
+/**
+ * @brief Load a built-in key mapping array into the keymap.
+ * @param map Null‑terminated array of `UkKeyMapping` entries.
+ */
 void UkInputProcessor::useBuiltIn(UkKeyMapping *map)
 {
     UkResetKeyMap(m_keyMap);
@@ -342,6 +373,11 @@ void UkInputProcessor::useBuiltIn(UkKeyMapping *map)
 }
 
 //-------------------------------------------
+/**
+ * @brief Translate raw keycode into an `UkKeyEvent`.
+ * @param keyCode The raw code supplied by the keyboard driver.
+ * @param[out] ev Event object that will be filled.
+ */
 void UkInputProcessor::keyCodeToEvent(unsigned int keyCode, UkKeyEvent & ev)
 {
     ev.keyCode = keyCode;
@@ -374,6 +410,9 @@ void UkInputProcessor::keyCodeToEvent(unsigned int keyCode, UkKeyEvent & ev)
 // Key strokes are simply considered character input, not action keys as in
 // keyCodeToEvent method
 //----------------------------------------------------------------
+/**
+ * @brief Convert a keycode to its corresponding symbolic character event.
+ */
 void UkInputProcessor::keyCodeToSymbol(unsigned int keyCode, UkKeyEvent & ev)
 {
     ev.keyCode = keyCode;
@@ -396,6 +435,10 @@ UkCharType UkInputProcessor::getCharType(unsigned int keyCode)
 }
 
 //-------------------------------------------
+/**
+ * @brief Export the current key mapping table.
+ * @param[out] map Caller‑allocated 256‑element int array to receive values.
+ */
 void UkInputProcessor::getKeyMap(int map[256])
 {
   int i;
