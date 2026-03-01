@@ -879,6 +879,18 @@ int UnicodeCStringCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & 
 /////////////////////////////////
 // Double-byte charsets        //
 /////////////////////////////////
+/**
+ * @brief Initialize mapping data for a double-byte charset.
+ *
+ * The provided @p vnChars array contains encoded values corresponding to
+ * each standard Vietnamese character index.  Single-byte entries embed the
+ * character value in the low byte, while multi-byte sequences use a non-
+ * zero high byte.  During construction, a forward lookup table and a
+ * reverse-sorted array (for binary search) are built to speed conversions.
+ *
+ * @param vnChars Array of TOTAL_VNCHARS elements; the caller retains
+ *        ownership.  Undefined characters may be represented by zero.
+ */
 DoubleByteCharset::DoubleByteCharset(UKWORD *vnChars)
 {
 	m_toDoubleChar = vnChars;
