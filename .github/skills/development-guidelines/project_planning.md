@@ -17,21 +17,14 @@ setup utility modification, etc.) follow these steps:
    mkdir -p project_planning
    ```
    You may optionally also maintain planning notes under
-   `.github/skills/development-guidelines/project_planning` for the AI
-   assistant’s benefit, but the primary workspace is now the top‑level
-   `project_planning`.
+   `project_planning` for the AI assistant’s benefit, but the primary
+   workspace is the top‑level `project_planning`.
 
 2. Inside `project_planning` create a subdirectory that reflects the category of
 the task, e.g. `UI`, `Setup`, `Core`, `Macro`, etc. You can use lowercase if you
 prefer, but pick something descriptive:
    ```sh
-   mkdir -p .github/skills/development-guidelines/project_planning/UI
-   ```
-2. Inside `project_planning` create a subdirectory that reflects the category of
-the task, e.g. `UI`, `Setup`, `Core`, `Macro`, etc. You can use lowercase if you
-prefer, but pick something descriptive:
-   ```sh
-   mkdir -p .github/skills/development-guidelines/project_planning/UI
+   mkdir -p project_planning/UI
    ```
 3. Add a new markdown file to the appropriate category using the current date‑
 time as a prefix. The filename format should be
@@ -41,12 +34,12 @@ time as a prefix. The filename format should be
    where `YYYYMMDD` is year/month/day and `HHmmSS` is hour/minute/second from
    the system clock. For example:
    ```sh
-   touch .github/skills/development-guidelines/project_planning/UI/20260308_macro_right_click.md
+   touch project_planning/UI/20260308_macro_right_click.md
    ```
    You can obtain the timestamp quickly via the `date` command:
    ```sh
    ts=$(date +"%Y%m%d_%H%M%S")
-   touch .github/skills/development-guidelines/project_planning/UI/${ts}_myplan.md
+   touch project_planning/UI/${ts}_myplan.md
    ```
 
 ## Purpose of the plan files
@@ -60,6 +53,8 @@ can be consulted during implementation, review, or later discussion.
 > AI assistant) can access the planning notes.
 >
 > The top‑level `project_planning` directory is part of the project; ensure any
-> notes placed there are committed and pushed.Including this guideline in the workflows ensures that the AI assistant and
+> notes placed there are committed and pushed.
+
+Including this guideline in the workflows ensures that the AI assistant and
 future contributors know where planning notes live and how they should be
 organized.
