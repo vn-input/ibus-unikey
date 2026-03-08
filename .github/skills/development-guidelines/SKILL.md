@@ -68,9 +68,6 @@ This skill contains a concise but thorough set of development guidelines for con
 
 Consult this document during code review, refactoring, or when establishing new components. Its presence in the `.github/skills` directory means the AI assistant will reference these guidelines automatically when appropriate.
 
-For planning new work, see the companion
-[`project_planning.md`](project_planning.md) guide in this folder; it explains
-how to create and name planning documents by category.
 ---
 
 ### Hướng dẫn (Tiếng Việt)
