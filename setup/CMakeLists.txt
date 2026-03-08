@@ -5,6 +5,7 @@ add_executable(ibus-setup-unikey
     main.cpp
     signal_handlers.cpp
     macro_utils.cpp
+    macro_file_io.cpp
 )
 target_link_libraries(ibus-setup-unikey
     ukengine

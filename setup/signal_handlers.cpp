@@ -28,6 +28,7 @@
 #include <gdk/gdkkeysyms.h>
 
 #include "mactab.h"
+#include "macro_file_io.h"
 #include "unikey_config.h"
 
 #include "macro_utils.h"
@@ -88,6 +89,24 @@ static void sort_list_store(int column, GtkSortType order);
  */
 static void update_column_headers(void);
 
+/**
+ * @brief Add file chooser filters for supported import/export macro formats.
+ *
+ * Native UniKey files do not have a standard extension, so an all-files filter
+ * is kept available alongside explicit YAML and plist filters.
+ *
+ * @param chooser GTK file chooser to configure.
+ */
+static void add_macro_file_filters(GtkFileChooser* chooser);
+
+/**
+ * @brief Display a descriptive error dialog for macro file operations.
+ *
+ * @param title Short operation-specific title.
+ * @param error Detailed error object to display and free.
+ */
+static void show_macro_file_error_dialog(const gchar* title, GError* error);
+
 // Sort state for columns
 static GtkSortType sort_key_order = GTK_SORT_ASCENDING;   /**< current sort order for key column */
 static GtkSortType sort_value_order = GTK_SORT_ASCENDING; /**< current sort order for value column */
@@ -97,6 +116,70 @@ static int current_sort_column = COL_KEY;                 /**< which column is c
  * @brief Default placeholder value inserted when a new key is added.
  */
 #define MACRO_DEFAULT_VALUE _("(replace text)")
+
+/**
+ * @brief Install file chooser filters for native text, YAML, plist, and generic files.
+ *
+ * @param chooser GTK file chooser to receive the filters.
+ */
+static void add_macro_file_filters(GtkFileChooser* chooser)
+{
+    GtkFileFilter* filter_supported = gtk_file_filter_new();
+    gtk_file_filter_set_name(filter_supported, _("Supported macro files"));
+    gtk_file_filter_add_pattern(filter_supported, "*.txt");
+    gtk_file_filter_add_pattern(filter_supported, "*.yml");
+    gtk_file_filter_add_pattern(filter_supported, "*.yaml");
+    gtk_file_filter_add_pattern(filter_supported, "*.plist");
+    gtk_file_chooser_add_filter(chooser, filter_supported);
+
+    GtkFileFilter* filter_native = gtk_file_filter_new();
+    gtk_file_filter_set_name(filter_native, _("UniKey text macro files"));
+    gtk_file_filter_add_pattern(filter_native, "*.txt");
+    gtk_file_chooser_add_filter(chooser, filter_native);
+
+    GtkFileFilter* filter_yaml = gtk_file_filter_new();
+    gtk_file_filter_set_name(filter_yaml, _("YAML files"));
+    gtk_file_filter_add_pattern(filter_yaml, "*.yml");
+    gtk_file_filter_add_pattern(filter_yaml, "*.yaml");
+    gtk_file_chooser_add_filter(chooser, filter_yaml);
+
+    GtkFileFilter* filter_plist = gtk_file_filter_new();
+    gtk_file_filter_set_name(filter_plist, _("macOS plist files"));
+    gtk_file_filter_add_pattern(filter_plist, "*.plist");
+    gtk_file_chooser_add_filter(chooser, filter_plist);
+
+    GtkFileFilter* filter_all = gtk_file_filter_new();
+    gtk_file_filter_set_name(filter_all, dgettext("gtk30", "All Files"));
+    gtk_file_filter_add_pattern(filter_all, "*");
+    gtk_file_chooser_add_filter(chooser, filter_all);
+}
+
+/**
+ * @brief Show a message dialog for import/export failures.
+ *
+ * @param title Dialog primary text.
+ * @param error Error containing the detailed message. Ownership is consumed.
+ */
+static void show_macro_file_error_dialog(const gchar* title, GError* error)
+{
+    const gchar* detail = (error != NULL && error->message != NULL)
+        ? error->message
+        : _("Unknown error.");
+
+    GtkWidget* dialog = gtk_message_dialog_new(GTK_WINDOW(dlgMacro),
+                                               GTK_DIALOG_MODAL,
+                                               GTK_MESSAGE_ERROR,
+                                               GTK_BUTTONS_OK,
+                                               "%s",
+                                               title);
+    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s", detail);
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+
+    if (error != NULL) {
+        g_error_free(error);
+    }
+}
 
 /**
  * @brief Handle key presses on the main window.
@@ -526,14 +609,21 @@ void on_btn_macro_import_clicked(GtkButton* button, gpointer data)
                                        dgettext("gtk30", "_Cancel"), GTK_RESPONSE_CANCEL,
                                        dgettext("gtk30", "_Open"), GTK_RESPONSE_OK,
                                        NULL);
+    add_macro_file_filters(GTK_FILE_CHOOSER(file));
 
     if (gtk_dialog_run(GTK_DIALOG(file)) == GTK_RESPONSE_OK)
     {
-
         auto fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file));
         CMacroTable macro;
-        macro.init();
-        macro.loadFromFile(fn);
+        GError* error = NULL;
+        const gboolean is_loaded = macro_table_load_any_format(fn, &macro, &error);
+        if (!is_loaded)
+        {
+            show_macro_file_error_dialog(_("Failed to import macros."), error);
+            g_free(fn);
+            gtk_widget_destroy(file);
+            return;
+        }
         g_free(fn);
 
         auto store = GTK_LIST_STORE(gtk_tree_view_get_model(tree_macro));
@@ -585,6 +675,8 @@ void on_btn_macro_export_clicked(GtkButton* button, gpointer data)
                                        dgettext("gtk30", "_Cancel"), GTK_RESPONSE_CANCEL,
                                        dgettext("gtk30", "_Save"), GTK_RESPONSE_OK,
                                        NULL);
+    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(file), TRUE);
+    add_macro_file_filters(GTK_FILE_CHOOSER(file));
 
     if (gtk_dialog_run(GTK_DIALOG(file)) == GTK_RESPONSE_OK)
     {
@@ -609,7 +701,14 @@ void on_btn_macro_export_clicked(GtkButton* button, gpointer data)
         }
 
         auto fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file));
-        macro.writeToFile(fn);
+        GError* error = NULL;
+        if (!macro_table_write_any_format(fn, &macro, &error))
+        {
+            show_macro_file_error_dialog(_("Failed to export macros."), error);
+            g_free(fn);
+            gtk_widget_destroy(file);
+            return;
+        }
         g_free(fn);
     }
 
