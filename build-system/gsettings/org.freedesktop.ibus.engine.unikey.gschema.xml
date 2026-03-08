@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema
+      id="org.freedesktop.ibus.engine.unikey"
+      path="/org/freedesktop/ibus/engine/unikey/">
+    <key name="input-method" type="s">
+      <choices>
+        <choice value='telex'/>
+        <choice value='vni'/>
+        <choice value='stelex'/>
+        <choice value='stelex2'/>
+      </choices>
+      <default>'telex'</default>
+      <summary>Input Method</summary>
+      <description></description>
+    </key>
+    <key name="output-charset" type="s">
+      <choices>
+        <choice value='unicode'/>
+        <choice value='tcvn3'/>
+        <choice value='vni-win'/>
+        <choice value='viqr'/>
+        <choice value='bk-hcm2'/>
+        <choice value='cstr'/>
+        <choice value='ncr-dec'/>
+        <choice value='ncr-hex'/>
+      </choices>
+      <default>'unicode'</default>
+      <summary>Output charset</summary>
+      <description>Allow to choice old Vietnamese charset (hidden setting)</description>
+    </key>
+    <key name="spell-check" type="b">
+      <default>true</default>
+      <summary>Spell check</summary>
+      <description></description>
+    </key>
+    <key name="auto-restore-non-vn" type="b">
+      <default>true</default>
+      <summary>Auto restore non Vietnamese word</summary>
+      <description>Auto restore word that not in Vietnamese (required spell-check)</description>
+    </key>
+    <key name="modern-style" type="b">
+      <default>false</default>
+      <summary>Modern style</summary>
+      <description>Use oà, _uý (instead of òa, úy)</description>
+    </key>
+    <key name="free-marking" type="b">
+      <default>true</default>
+      <summary>Free marking</summary>
+      <description>Allow type with more freedom</description>
+    </key>
+    <key name="macro-enabled" type="b">
+      <default>false</default>
+      <summary>Use macro</summary>
+      <description>Enable macro feature</description>
+    </key>
+    <key name="standalone-w-as-uw" type="b">
+      <default>true</default>
+      <summary>Standalone W as ư (Telex only)</summary>
+      <description></description>
+    </key>
+  </schema>
+</schemalist>
