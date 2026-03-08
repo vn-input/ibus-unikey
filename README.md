@@ -39,30 +39,18 @@ Các thay đổi chính đã được thực hiện trong nhánh làm việc nà
 	 - Sau khi thêm, danh sách được sort, tự cuộn tới item mới và highlight.
 	 - Khi đổi sort, giao diện tự cuộn về item đang chọn (hoặc dòng đầu nếu chưa chọn).
 
-4. **Tối ưu hiệu năng macro list lớn**
-	 - Detach model khi nạp hàng loạt.
-	 - Tránh cập nhật UI theo từng dòng.
+4. **File import/export hỗ trợ**
+ 	 - Người dùng có thể nhập khẩu macro từ các định dạng bên ngoài (Espanso YAML,
+ 	   macOS text substitutions plist) và xuất khẩu sang các định dạng này.
+ 	 - Chức năng có sẵn trong hộp thoại macro; lựa chọn định dạng dựa trên phần
+ 	   mở rộng tên tệp (`.yml`/`.yaml`/`.plist`).
+ 	 - Tích hợp với `macro_file_io` để tự động chuyển đổi và xử lý trùng lặp.
 
-5. **Sửa signal binding cho GTK builder**
-	 - Build setup utility có `-rdynamic` để GTK tìm được handlers qua `gtk_builder_connect_signals`.
+5. **Tối ưu hiệu năng macro list lớn**
+ 	 - Detach model khi nạp hàng loạt.
+ 	 - Tránh cập nhật UI theo từng dòng.
 
----
-
-## Source map (for new developers)
-
-Full per-file C++ documentation is available at:
-- [docs/CPP_SOURCE_DOCUMENTATION.md](docs/CPP_SOURCE_DOCUMENTATION.md)
-
-### Top-level modules
-
-- `src/`:
-	- IBus engine integration (`engine.cpp`, `engine.h`, `engine_private.h`)
-	- Xử lý event bàn phím từ IBus, nạp cấu hình, gọi API của `ukengine`.
-- `ukengine/`:
-	- Lõi xử lý tiếng Việt (tone, roof, hook, macro expansion, charset conversion).
-	- Đây là nơi thay đổi thuật toán và data structure cốt lõi.
-- `setup/`:
-	- Ứng dụng cấu hình GUI (`ibus-setup-unikey`) bằng GTK3 + GtkBuilder.
+6. **Sửa signal binding cho GTK builder**
 	- Macro editor UI, import/export, cấu hình engine options.
 - `src/config/`:
 	- GSettings schema + wrapper đọc/ghi config.
@@ -86,6 +74,16 @@ Full per-file C++ documentation is available at:
 - File mặc định: `~/.ibus/unikey/macro`
 - Header UTF-8: `DO NOT DELETE THIS LINE*** version=1 ***`
 - Mỗi dòng macro: `key:replacement`
+
+**Import/export formats**
+
+Ứng dụng cấu hình giờ hỗ trợ đọc và ghi một số định dạng bên ngoài:
+
+- **YAML**: cấu trúc giống [Espanso](https://espanso.org) (`.yml`/`.yaml`).
+- **Apple plist**: bảng thay thế văn bản của macOS (`.plist`).
+
+Chọn định dạng dựa trên phần mở rộng tệp khi lưu hoặc nhập. Các macro được
+chuyển đổi sang bảng nội bộ với cùng quy tắc dedupe như khi load file gốc.
 
 ### Core files
 
