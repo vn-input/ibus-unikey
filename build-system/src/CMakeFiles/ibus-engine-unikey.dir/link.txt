@@ -1,0 +1,1 @@
+/usr/bin/c++ -L/usr/local/opt/tcl-tk/lib -L /usr/libexec "CMakeFiles/ibus-engine-unikey.dir/main.cpp.o" "CMakeFiles/ibus-engine-unikey.dir/engine.cpp.o" -o ibus-engine-unikey  ../ukengine/libukengine.a config/libunikey-config.a -libus-1.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 

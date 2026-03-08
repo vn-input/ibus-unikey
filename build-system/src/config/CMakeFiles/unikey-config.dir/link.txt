@@ -1,0 +1,2 @@
+/usr/bin/ar qc libunikey-config.a "CMakeFiles/unikey-config.dir/unikey_config.cpp.o"
+/usr/bin/ranlib libunikey-config.a
