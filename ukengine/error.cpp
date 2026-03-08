@@ -21,10 +21,6 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/**
- * @file error.cpp
- * @brief Implementation for error.cpp.
- */
 // -*- coding:unix; mode:c++; tab-width:4; c-basic-offset:4; indent-tabs-mode:nil -*-
 /*------------------------------------------------------------------------------
 VnConv: Vietnamese Encoding Converter Library

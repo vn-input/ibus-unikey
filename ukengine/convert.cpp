@@ -1,30 +1,3 @@
-// -*- mode:c++; tab-width:4; c-basic-offset:4; indent-tabs-mode:nil -*-
-/* Unikey Vietnamese Input Method
- * Copyright (C) 2000-2005 Pham Kim Long
- * Contact:
- *   unikey@gmail.com
- *   UniKey project: http://unikey.org
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- */
-
-/**
- * @file convert.cpp
- * @brief Implementation for convert.cpp.
- */
 // -*- coding:unix; mode:c++; tab-width:4; c-basic-offset:4; indent-tabs-mode:nil -*-
 /*------------------------------------------------------------------------------
 VnConv: Vietnamese Encoding Converter Library
@@ -68,10 +41,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * @brief Helper: convert from one charset to another using stdio streams.
  *
  * Used by command-line utilities and internal tests.
- * @param inCharset Description of inCharset.
- * @param outCharset Description of outCharset.
- * @param inf Description of inf.
- * @param outf Description of outf.
+ * @param inCharset  Integer identifier of the input charset.
+ * @param outCharset Integer identifier of the output charset.
+ * @param inf        Input FILE* to read encoded data from.
+ * @param outf       Output FILE* to write converted data to.
  */
 int vnFileStreamConvert(int inCharset, int outCharset, FILE * inf, FILE *outf);
 
@@ -82,10 +55,10 @@ int vnFileStreamConvert(int inCharset, int outCharset, FILE * inf, FILE *outf);
  * to @p output via @p outcs, applying optional case/tone transformations
  * configured in global options.
  *
- * @param incs Description of incs.
- * @param outcs Description of outcs.
- * @param input Description of input.
- * @param output Description of output.
+ * @param incs   Input charset converter object.
+ * @param outcs  Output charset converter object.
+ * @param input  ByteInStream providing source data.
+ * @param output ByteOutStream receiving converted bytes.
  * @return 0 on success, VNCONV_OUT_OF_MEMORY on out-of-memory error.
  */
 DllExport int genConvert(VnCharset & incs, VnCharset & outcs, ByteInStream & input, ByteOutStream & output)

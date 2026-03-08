@@ -21,10 +21,6 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/**
- * @file pattern.h
- * @brief Public declarations for pattern.h.
- */
 // -*- coding:unix; mode:c++; tab-width:4; c-basic-offset:4; indent-tabs-mode:nil -*-
 /*------------------------------------------------------------------------------
 VnConv: Vietnamese Encoding Converter Library
@@ -115,7 +111,11 @@ public:
 	void init(char **patterns, int count);
 	/**
 	 * @brief Feed character through every pattern state.
- * @param ch Description of ch.
+ * @param ch Input character to feed into each pattern state.
+	 *
+	 * The character is compared against all patterns managed by this list; if
+	 * any of them report a match at the current position the function returns
+	 * a positive result.
 	 * @return 1 if any pattern matched on this character.
 	 */
 	int foundAtNextChar(char ch); 

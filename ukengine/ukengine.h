@@ -54,9 +54,15 @@ struct UkSharedMem {
 enum VnWordForm {vnw_nonVn, vnw_empty, vnw_c, vnw_v, vnw_cv, vnw_vc, vnw_cvc};
 
 /**
- * @brief void.
+ * @brief Callback prototype used to query the current keyboard case state.
  *
- * @param pCapslockOn Description of pCapslockOn.
+ * The engine calls this function (if registered) before processing a key
+ * event so it can adjust behaviour based on whether Shift or CapsLock are
+ * active.  The implementation is provided by the host (e.g. setup UI or
+ * platform-specific glue).
+ *
+ * @param pShiftPressed Pointer returned nonzero when Shift is held.
+ * @param pCapslockOn   Pointer returned nonzero when CapsLock is on.
  */
 typedef void (* CheckKeyboardCaseCb)(int *pShiftPressed, int *pCapslockOn);
 
@@ -68,11 +74,22 @@ struct KeyBufEntry {
 class UkEngine
 {
 public:
+    /**
+     * @brief Construct a new `UkEngine` instance.
+     *
+     * Initializes internal buffers, state flags and prepares the engine to
+     * accept key events.  After construction the caller should assign a
+     * shared memory pointer via `setCtrlInfo()` before use.
+     */
     UkEngine();
 /**
- * @brief setCtrlInfo.
+ * @brief Store a pointer to the shared engine control memory.
  *
- * @param p Description of p.
+ * The engine reads options, macro tables and other global state from the
+ * `UkSharedMem` structure supplied by the caller.  This must be called before
+ * processing any key events.
+ *
+ * @param p Pointer to the shared memory region.
  */
     void setCtrlInfo(UkSharedMem *p)
     {
@@ -80,9 +97,13 @@ public:
     }
 
 /**
- * @brief setCheckKbCaseFunc.
+ * @brief Register a keyboard case query callback.
  *
- * @param pFunc Description of pFunc.
+ * The supplied function will be invoked before key processing so the engine
+ * can know whether Shift or CapsLock are active (important for macro
+ * detection and character mapping).
+ *
+ * @param pFunc Function pointer matching `CheckKeyboardCaseCb`.
  */
     void setCheckKbCaseFunc(CheckKeyboardCaseCb pFunc) 
     {
@@ -90,117 +111,188 @@ public:
     }
 
 /**
- * @brief atWordBeginning.
+ * @brief Determine whether the engine is currently at a word boundary.
  *
+ * Returns true when there are no characters in the internal buffer or the
+ * most recent entry represents an empty (word‑separator) state.  This is used
+ * by the IBus front end to make decisions about committing preedit text and
+ * applying certain smart rules.
  */
     bool atWordBeginning();
 
 /**
- * @brief process.
+ * @brief Handle a key event and perform all engine logic.
  *
- * @param keyCode Description of keyCode.
- * @param backs Description of backs.
- * @param outBuf Description of outBuf.
- * @param outSize Description of outSize.
- * @param outType Description of outType.
+ * This is the primary entry point used by the host to feed keystrokes into
+ * the engine.  The method updates internal buffers and may write output
+ * characters, backspace counts, or commit actions into the supplied
+ * parameters.  Various sub‑routines (tone, roof, macro expansion, etc.) are
+ * invoked here.
+ *
+ * @param keyCode  Unicode code (or hardware code) of the pressed key.
+ * @param backs    [out] number of backspace operations the caller should
+ *                 perform before inserting new text.
+ * @param outBuf   [out] buffer to receive committed output bytes.
+ * @param outSize  [in,out] on entry contains space available, on return the
+ *                 number of bytes written.
+ * @param outType  [out] classification of the output (commit, preedit,
+ *                 nothing, etc.).
+ * @return 1 on success, 0 on failure.
  */
     int process(unsigned int keyCode, int & backs, unsigned char *outBuf, int & outSize, UkOutputType & outType);
 /**
- * @brief pass.
+ * @brief Pass a key through without applying any filtering or conversion.
  *
- * @param keyCode Description of keyCode.
+ * Useful when the engine is temporarily disabled but the host still wishes
+ * to feed events through the same interface.
+ *
+ * @param keyCode Code of the key to forward.
  */
     void pass(int keyCode); //just pass through without filtering
 /**
- * @brief setSingleMode.
+ * @brief Enable "single mode" operation.
  *
+ * In single mode the engine processes one character at a time, which is
+ * useful for compatibility with certain input methods that don't support
+ * multi‑key sequences.
  */
     void setSingleMode();
 
 /**
- * @brief processBackspace.
+ * @brief Handle a backspace key event.
  *
- * @param backs Description of backs.
- * @param outBuf Description of outBuf.
- * @param outSize Description of outSize.
- * @param outType Description of outType.
+ * Adjusts the internal buffer appropriately and may request additional
+ * backspaces or produce output to undo previous conversions.
+ *
+ * @param backs    [out] number of backspaces the caller should apply to the
+ *                 document before inserting further text.
+ * @param outBuf   [out] buffer for any text that must be re‑emitted.
+ * @param outSize  [in,out] available space / bytes written.
+ * @param outType  [out] output classification as with `process`.
+ * @return 1 on success, 0 on failure.
  */
     int processBackspace(int & backs, unsigned char *outBuf, int & outSize, UkOutputType & outType);
 /**
- * @brief reset.
+ * @brief Reset the engine state and clear the input buffer.
  *
+ * This discards any pending composition and returns the engine to its initial
+ * condition.  It is typically called when the input focus is changed or the
+ * user explicitly resets the IME.
  */
     void reset();
 /**
- * @brief restoreKeyStrokes.
+ * @brief Restore previously buffered keystrokes after a failed conversion.
  *
- * @param backs Description of backs.
- * @param outBuf Description of outBuf.
- * @param outSize Description of outSize.
- * @param outType Description of outType.
+ * When a sequence is determined to be invalid or not subject to spell‑check,
+ * this routine can replay the buffered keys so the host can insert them
+ * literally.  Used by auto‑restore features.
+ *
+ * @param backs    [out] requested backspace count.
+ * @param outBuf   [out] bytes to commit during restoration.
+ * @param outSize  [in,out] space available / bytes produced.
+ * @param outType  [out] classification of the output.
+ * @return 1 on success.
  */
     int restoreKeyStrokes(int & backs, unsigned char *outBuf, int & outSize, UkOutputType & outType);
 
     //following methods must be public just to enable the use of pointers to them
     //they should not be called from outside.
 /**
- * @brief processTone.
+ * @brief Apply a tone diacritic to the most recent vowel in the buffer.
  *
- * @param ev Description of ev.
+ * The event describes which tone key was pressed; the engine updates its
+ * internal representation accordingly.
+ *
+ * @param ev Key event triggering the tone insertion.
+ * @return 1 if the tone was applied, 0 otherwise.
  */
     int processTone(UkKeyEvent & ev);
 /**
- * @brief processRoof.
+ * @brief Handle a roof diacritic key (e.g. '^') on the current character.
  *
- * @param ev Description of ev.
+ * Updates vowel sequence information and may adjust output accordingly.
+ *
+ * @param ev Key event corresponding to a roof input.
+ * @return 1 if handled.
  */
     int processRoof(UkKeyEvent & ev);
 /**
- * @brief processHook.
+ * @brief Process a hook or bowl diacritic (e.g. '`' or 'o') input.
  *
- * @param ev Description of ev.
+ * May call `processHookWithUO` for special cases.  Adjusts the engine state
+ * to apply the diacritic to the appropriate character.
+ *
+ * @param ev Input event describing the hook key.
+ * @return 1 if applied.
  */
     int processHook(UkKeyEvent & ev);
 /**
- * @brief processAppend.
+ * @brief Append a raw character to the internal composition buffer.
  *
- * @param ev Description of ev.
+ * This helper is used when an input key does not correspond to a diacritic or
+ * special rule; the event is simply buffered for later processing.
+ *
+ * @param ev Key event whose character should be appended.
+ * @return 1 on success.
  */
     int processAppend(UkKeyEvent & ev);
 /**
- * @brief appendVowel.
+ * @brief Append a vowel character and update vowel sequence tracking.
  *
- * @param ev Description of ev.
+ * Called from `processAppend` when the appended character is recognized as a
+ * Vietnamese vowel.  Handles special sequencing rules.
+ *
+ * @param ev Key event for the vowel character.
+ * @return 1 on success.
  */
     int appendVowel(UkKeyEvent & ev);
 /**
- * @brief appendConsonnant.
+ * @brief Append a consonant character to the composition buffer.
  *
- * @param ev Description of ev.
+ * Updates state such as whether the last symbol was non‑Vietnamese.
+ *
+ * @param ev Key event representing the consonant.
+ * @return 1 on success.
  */
     int appendConsonnant(UkKeyEvent & ev);
 /**
- * @brief processDd.
+ * @brief Handle the special "dd" combination that produces the letter đ/Đ.
  *
- * @param ev Description of ev.
+ * When the user types 'd' twice under certain rules this function maps the
+ * sequence to the appropriate Vietnamese character.
+ *
+ * @param ev Key event corresponding to the second 'd'.
+ * @return 1 if conversion occurred.
  */
     int processDd(UkKeyEvent & ev);
 /**
- * @brief processMapChar.
+ * @brief Map a character according to the user-defined key map table.
  *
- * @param ev Description of ev.
+ * Consults `m_pCtrl->usrKeyMap` and replaces the event with the mapped action
+ * if one exists.
+ *
+ * @param ev Original key event; may be modified in-place.
+ * @return 1 if mapping applied.
  */
     int processMapChar(UkKeyEvent & ev);
 /**
- * @brief processTelexW.
+ * @brief Handle Telex-style 'w' input rules used for certain diacritics.
  *
- * @param ev Description of ev.
+ * In Telex mode pressing 'w' after a vowel may add a diacritic or convert to
+ * another letter; this routine encapsulates that behaviour.
+ *
+ * @param ev Key event for the 'w' character.
+ * @return 1 if Telex transformation occurred.
  */
     int processTelexW(UkKeyEvent & ev);
 /**
- * @brief processEscChar.
+ * @brief Process an escape character which forces literal output.
  *
- * @param ev Description of ev.
+ * Certain input modes allow prefixing a keystroke with an escape to bypass the
+ * normal conversion logic; this function handles such events.
+ *
+ * @param ev Escape key event received by the engine.
+ * @return 1 if the escape was consumed.
  */
     int processEscChar(UkKeyEvent & ev);
 
@@ -251,93 +343,144 @@ protected:
     WordInfo m_buffer[MAX_UK_ENGINE];
 
 /**
- * @brief processHookWithUO.
+ * @brief Specialised hook handling when preceding letter is 'u' or 'o'.
  *
- * @param ev Description of ev.
+ * On sequences such as "uo" or "uo" the rules for applying hooks/bowls are
+ * slightly different; this helper encapsulates that logic.
+ *
+ * @param ev Key event for the hook character.
+ * @return 1 if handled.
  */
     int processHookWithUO(UkKeyEvent & ev);
 /**
- * @brief macroMatch.
+ * @brief Check whether the current keystroke sequence matches a macro.
  *
- * @param ev Description of ev.
+ * If a macro is found and expansion is appropriate, the routine performs the
+ * substitution in-place and returns a nonzero value so the caller can handle
+ * the output according to the engine's macro rules.
+ *
+ * @param ev Key event to include in macro matching.
+ * @return nonzero if a macro expansion occurred.
  */
     int macroMatch(UkKeyEvent & ev);
 /**
- * @brief markChange.
+ * @brief Mark the given buffer position as having been modified.
  *
- * @param pos Description of pos.
+ * Used internally to track where the last transformation occurred so that
+ * subsequent processing can resume from the correct location.
+ *
+ * @param pos Index in the internal buffer to flag as changed.
  */
     void markChange(int pos);
 /**
- * @brief prepareBuffer.
+ * @brief Ensure the internal composition buffer has sufficient space.
  *
+ * Allocates or shifts the buffer as necessary so that at least 10 entries are
+ * available for new keystrokes.
  */
     void prepareBuffer(); //make sure we have a least 10 entries available
 /**
- * @brief writeOutput.
+ * @brief Flush pending output characters into the provided buffer.
  *
- * @param outBuf Description of outBuf.
- * @param outSize Description of outSize.
+ * Copies any characters accumulated in the engine's internal output buffer to
+ * the caller's buffer and updates the size accordingly.
+ *
+ * @param outBuf Destination buffer for output bytes.
+ * @param outSize [in,out] available space on entry, bytes written on return.
+ * @return number of bytes actually written.
  */
     int writeOutput(unsigned char *outBuf, int & outSize);
     //int getSeqLength(int first, int last);
 /**
- * @brief getSeqSteps.
+ * @brief Compute the number of intermediate steps between two buffer indices.
  *
- * @param first Description of first.
- * @param last Description of last.
+ * Used for navigating vowel/consonant sequence structures during processing.
+ *
+ * @param first Starting index in the internal sequence array.
+ * @param last  Ending index.
+ * @return Step count between the two positions.
  */
     int getSeqSteps(int first, int last);
 /**
- * @brief getTonePosition.
+ * @brief Locate the tone diacritic position within a vowel sequence.
  *
- * @param vs Description of vs.
- * @param terminated Description of terminated.
+ * Takes a vowel sequence enum and returns the offset where a tone mark should
+ * be inserted.  The `terminated` flag indicates whether the sequence is
+ * considered complete.
+ *
+ * @param vs        Vowel sequence identifier.
+ * @param terminated True if the sequence has been terminated by a consonant.
+ * @return Offset index for the tone character, or -1 if none.
  */
     int getTonePosition(VowelSeq vs, bool terminated);
 /**
- * @brief resetKeyBuf.
+ * @brief Clear and reinitialize the internal keystroke history buffer.
  *
+ * Called when the engine needs to discard stored key events, e.g. on reset.
  */
     void resetKeyBuf();
 /**
- * @brief checkEscapeVIQR.
+ * @brief Handle VIQR escape sequences for literal character entry.
  *
- * @param ev Description of ev.
+ * When VIQR mode is active, certain prefix characters (like '\\') instruct
+ * the engine to treat the following keystroke literally.  This routine
+ * examines the event and performs the necessary adjustment.
+ *
+ * @param ev Input key event to examine.
+ * @return 1 if the event was consumed as an escape.
  */
     int checkEscapeVIQR(UkKeyEvent & ev);
 /**
- * @brief processNoSpellCheck.
+ * @brief Process a key event without applying Vietnamese spell‑checking rules.
  *
- * @param ev Description of ev.
+ * Used in modes where the user explicitly disables automatic corrections; the
+ * input is buffered but not validated.
+ *
+ * @param ev Key event to process.
+ * @return 1 if the key was added to the buffer.
  */
     int processNoSpellCheck(UkKeyEvent & ev);
 /**
- * @brief processWordEnd.
+ * @brief Handle tasks that occur when a word boundary is reached.
  *
- * @param ev Description of ev.
+ * This may include macro triggering, spell-check lookups, and buffer
+ * housekeeping.  It is typically invoked when a space or punctuation is
+ * entered.
+ *
+ * @param ev Key event representing the boundary character.
+ * @return 1 if processing succeeded.
  */
     int processWordEnd(UkKeyEvent & ev);
 /**
- * @brief synchKeyStrokeBuffer.
+ * @brief Synchronize the keystroke history buffer with the current state.
  *
+ * Ensures that the internal record of recent key events matches the
+ * position and content of `m_buffer`, which is important after operations
+ * like macro expansion or restoration.
  */
     void synchKeyStrokeBuffer();
 /**
- * @brief lastWordHasVnMark.
+ * @brief Determine if the last completed word contains any Vietnamese marks.
  *
+ * Returns true when the previous word included a diacritic such as a tone or
+ * roof, which affects input rules for following characters.
  */
     bool lastWordHasVnMark();
 /**
- * @brief lastWordIsNonVn.
+ * @brief Check whether the last completed word consisted solely of non‑Vietnamese
+ * characters.
  *
+ * This is used to decide whether to enter Vietnamese processing when the
+ * user resumes typing in ASCII.
  */
     bool lastWordIsNonVn();
 };
 
 /**
- * @brief SetupUnikeyEngine.
+ * @brief Perform one-time initialization of global engine resources.
  *
+ * This function sets up static tables and other data structures used by the
+ * `UkEngine` class.  It should be called once during program startup.
  */
 void SetupUnikeyEngine();
 

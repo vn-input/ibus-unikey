@@ -114,10 +114,11 @@ bool CMacroTable::ensureItemCapacity(int minCapacity)
 /**
  * @brief Grow the raw memory buffer to hold at least @p minCapacity bytes.
  *
- * Similar doubling growth strategy as `ensureItemCapacity`.  The buffer holds
+ * Similar doubling growth strategy as `ensureItemCapacity`. The buffer holds
  * all key and text strings concatenated back-to-back.
- * @param minCapacity Description of minCapacity.
- * @return Return value.
+ *
+ * @param minCapacity Minimum number of bytes required.
+ * @return `true` on success.
  */
 bool CMacroTable::ensureMemCapacity(int minCapacity)
 {
@@ -172,10 +173,11 @@ char *MacCompareStartMem;
  * @brief Comparison function used for sorting the macro table.
  *
  * Performs case-insensitive comparison of keys stored in the memory buffer
- * pointed to by `MacCompareStartMem`.  This ordering is used by `qsort`.
- * @param p1 Description of p1.
- * @param p2 Description of p2.
- * @return Return value.
+ * pointed to by `MacCompareStartMem`. This ordering is used by `qsort`.
+ *
+ * @param p1 Pointer to the first `MacroDef` entry.
+ * @param p2 Pointer to the second `MacroDef` entry.
+ * @return Negative, zero, or positive according to sort order.
  */
 int macCompare(const void *p1, const void *p2)
 {
@@ -209,10 +211,11 @@ int macCompare(const void *p1, const void *p2)
  * @brief Comparator used by `bsearch` when looking up a key.
  *
  * Compares a standalone key string (first argument) with the key at a table
- * entry (`ele`).  Uses the same case‑insensitive logic as `macCompare`.
- * @param key Description of key.
- * @param ele Description of ele.
- * @return Return value.
+ * entry (`ele`). Uses the same case‑insensitive logic as `macCompare`.
+ *
+ * @param key Pointer to the lookup key string.
+ * @param ele Pointer to a `MacroDef` table entry.
+ * @return Negative, zero, or positive according to comparison result.
  */
 int macKeyCompare(const void *key, const void *ele)
 {
@@ -321,7 +324,8 @@ bool CMacroTable::readHeader(FILE *f, int & version)
  * @brief Write the version header line into a macro output file.
  *
  * On Windows, prepend a UTF-8 BOM for compatibility with text editors.
- * @param f Description of f.
+ *
+ * @param f Output stream that receives the header line.
  */
 void CMacroTable::writeHeader(FILE *f)
 {
@@ -554,9 +558,10 @@ int CMacroTable::addItem(const void *key, const void *text, int charset)
  *
  * Splits the input at the first colon and delegates to the other `addItem`
  * overload.  Returns -1 on parse failure.
- * @param item Description of item.
- * @param charset Description of charset.
- * @return Return value.
+ *
+ * @param item Single macro definition in `key:text` form.
+ * @param charset Charset identifier used to decode `item`.
+ * @return Index of the new entry on success, or -1 if parsing/conversion fails.
  */
 int CMacroTable::addItem(const char *item, int charset)
 {

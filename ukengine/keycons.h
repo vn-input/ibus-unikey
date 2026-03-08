@@ -4,10 +4,6 @@
  * Contact:
  *   unikey@gmail.com
  *   UniKey project: http://unikey.org
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
  *
  * This library is distributed in the hope that it will be useful,
@@ -21,10 +17,6 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/**
- * @file keycons.h
- * @brief Public declarations for keycons.h.
- */
 // -*- coding:unix; mode:c++; tab-width:4; c-basic-offset:4; indent-tabs-mode:nil -*-
 /*------------------------------------------------------------------------------
 UniKey - Open-source Vietnamese Keyboard

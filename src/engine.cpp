@@ -4,10 +4,6 @@
  * Contact:
  *   unikey@gmail.com
  *   UniKey project: http://unikey.org
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
  *
  * This library is distributed in the hope that it will be useful,
@@ -21,10 +17,6 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/**
- * @file engine.cpp
- * @brief Implementation for engine.cpp.
- */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -466,23 +458,13 @@ static void ibus_unikey_engine_property_activate(IBusEngine* engine,
         unikey->ukopt.spellCheckEnabled = prop_state > 0;
         ibus_unikey_config_set_boolean(prop_name, prop_state > 0);
     }
-/**
- * @brief if.
- *
- * @param CONFIG_AUTORESTORENONVN Description of CONFIG_AUTORESTORENONVN.
- * @return Return value.
- */
+    // handle toggling of the auto-restore-non-VN configuration key
     else if (strcmp(prop_name, CONFIG_AUTORESTORENONVN) == 0)
     {
         unikey->ukopt.autoNonVnRestore = prop_state > 0;
         ibus_unikey_config_set_boolean(prop_name, prop_state > 0);
     }
-/**
- * @brief if.
- *
- * @param CONFIG_MACROENABLED Description of CONFIG_MACROENABLED.
- * @return Return value.
- */
+    // user changed the macro-enabled setting; update engine and config
     else if (strcmp(prop_name, CONFIG_MACROENABLED) == 0)
     {
         unikey->ukopt.macroEnabled = prop_state > 0;
@@ -718,12 +700,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
         return false;
     }
 
-/**
- * @brief if.
- *
- * @param keyval Description of keyval.
- * @return Return value.
- */
+    // ignore control/navigation keys and commit any buffered preedit
     else if (modifiers & IBUS_CONTROL_MASK
              || modifiers & IBUS_MOD1_MASK // alternate mask
              || keyval == IBUS_Control_L
@@ -740,12 +717,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
         return false;
     }
 
-/**
- * @brief if.
- *
- * @param keyval Description of keyval.
- * @return Return value.
- */
+    // ignore pure modifier keys (capslock, shift, etc.)
     else if ((keyval >= IBUS_Caps_Lock && keyval <= IBUS_Hyper_R)
             || (!(modifiers & IBUS_SHIFT_MASK) && (keyval == IBUS_Shift_L || keyval == IBUS_Shift_R))  // when press one shift key
         )
@@ -754,12 +726,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
     }
 
     // capture BackSpace
-/**
- * @brief if.
- *
- * @param keyval Description of keyval.
- * @return Return value.
- */
+    // handle BackSpace key with custom deletion logic
     else if (keyval == IBUS_BackSpace)
     {
         UnikeyBackspacePress();
@@ -802,12 +769,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
         return true;
     } // end capture BackSpace
 
-/**
- * @brief if.
- *
- * @param keyval Description of keyval.
- * @return Return value.
- */
+    // keypad numeric keys: commit and skip processing
     else if (keyval >=IBUS_KP_Multiply && keyval <=IBUS_KP_9)
     {
         ibus_unikey_buffer_commit(engine);
@@ -815,12 +777,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
     }
 
     // capture ascii printable char
-/**
- * @brief if.
- *
- * @param keyval Description of keyval.
- * @return Return value.
- */
+    // printable ASCII (and shift keys): main input flow
     else if ((keyval >= IBUS_space && keyval <=IBUS_asciitilde)
             || keyval == IBUS_Shift_L || keyval == IBUS_Shift_R) // sure this have IBUS_SHIFT_MASK
     {
@@ -882,12 +839,7 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
                 unikey->preeditstr->append((const gchar*)buf, CONVERT_BUF_SIZE - bufSize);
             }
         }
-/**
- * @brief if.
- *
- * @param keyval Description of keyval.
- * @return Return value.
- */
+        // engine did not consume key; append literal character
         else if (keyval != IBUS_Shift_L && keyval != IBUS_Shift_R) // if ukengine not process
         {
             static int n;

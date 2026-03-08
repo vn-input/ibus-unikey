@@ -21,10 +21,6 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/**
- * @file engine.h
- * @brief Public declarations for engine.h.
- */
 #ifndef __ENGINE_H__
 #define __ENGINE_H__
 
@@ -41,19 +37,26 @@
 #define IBUS_TYPE_UNIKEY_ENGINE (ibus_unikey_engine_get_type())
 
 /**
- * @brief ibus_unikey_init.
+ * @brief Initialize the Unikey IBus engine.
  *
- * @param bus Description of bus.
+ * Registers the engine type with the given `IBusBus` instance.  This must be
+ * called before the engine is used by IBus.
+ *
+ * @param bus Pointer to the `IBusBus` that will host the engine.
  */
 void ibus_unikey_init(IBusBus* bus);
 /**
- * @brief ibus_unikey_exit.
+ * @brief Clean up global resources used by the Unikey engine.
  *
+ * Called when the plugin is being unloaded; after this returns the engine
+ * should no longer be referenced.
  */
 void ibus_unikey_exit();
 /**
- * @brief ibus_unikey_engine_get_type.
+ * @brief Return the GType for the Unikey engine object.
  *
+ * Used internally by the IBus type system during registration and object
+ * creation.
  */
 GType ibus_unikey_engine_get_type();
 

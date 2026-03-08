@@ -61,7 +61,9 @@ GtkBuilder* builder;  /**< GTK builder instance used for lookups */
 void init_gtk_builder()
 {
     builder = gtk_builder_new();
-    gtk_builder_add_from_file(builder, PKGDATADIR "/ui/ibus-unikey.ui", NULL);
+    const gchar *override_dir_2 = g_getenv("IBUS_UNIKEY_PKGDATADIR");
+    const gchar *data_dir2 = override_dir_2 ? override_dir_2 : PKGDATADIR;
+    gtk_builder_add_from_file(builder, g_strconcat(data_dir2, "/ui/ibus-unikey.ui", NULL), NULL);
     gtk_builder_connect_signals(builder, NULL);
 
     mwin = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
@@ -96,7 +98,16 @@ int main(int argc, char** argv)
     ibus_unikey_config_init();
 
     gtk_init(&argc, &argv);
-    gtk_window_set_default_icon_from_file(PKGDATADIR "/icons/ibus-unikey.svg", NULL);
+    const gchar *override_dir = g_getenv("IBUS_UNIKEY_PKGDATADIR");
+    const gchar *data_dir = override_dir ? override_dir : PKGDATADIR;
+
+    gtk_window_set_default_icon_from_file(g_strconcat(data_dir, "/icons/ibus-unikey.svg", NULL), NULL);
+
+    /* builder will use the same path variable */
+    if (override_dir) {
+        /* pass override into init_gtk_builder via a global or static? simplest is to
+           set a temporary variable that init_gtk_builder will read */
+    }
 
     init_gtk_builder();
 

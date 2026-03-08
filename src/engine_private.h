@@ -21,10 +21,6 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/**
- * @file engine_private.h
- * @brief Public declarations for engine_private.h.
- */
 #ifndef __ENGINE_PRIVATE_H__
 #define __ENGINE_PRIVATE_H__
 

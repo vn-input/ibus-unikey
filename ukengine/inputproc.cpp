@@ -4,10 +4,6 @@
  * Contact:
  *   unikey@gmail.com
  *   UniKey project: http://unikey.org
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
  *
  * This library is distributed in the hope that it will be useful,
@@ -21,10 +17,6 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/**
- * @file inputproc.cpp
- * @brief Implementation for inputproc.cpp.
- */
 #include <iostream>
 #include "inputproc.h"
 
@@ -42,7 +34,8 @@ unsigned char WordBreakSyms[] = {
  * Used by the input processor to decide when to end the current word.
  * Note that some punctuation like `~`, `` ` ``, and `^` are intentionally
  * excluded to avoid interfering with Vietnamese composition.
- */unsigned char WordBreakSyms[] = {
+ */
+unsigned char WordBreakSyms[] = {
 	',', ';', ':', '.', '\"', '\'', '!', '?', ' ',
 	'<', '>', '=', '+', '-', '*', '/', '\\',
 	'_', '@', '#', '$', '%', '&', '(', ')', '{', '}', '[', ']', '|'}; //we excluded ~, `, ^
@@ -231,8 +224,12 @@ DllExport UkKeyMapping MsViMethodMapping[] = {
 
 //-------------------------------------------
 /**
- * @brief SetupInputClassifierTable.
+ * @brief Initialize the global input-classification lookup tables.
  *
+ * Populates tables that classify ASCII characters as vowels, consonants,
+ * separators, or other special categories used by the input processor.
+ * This routine is guarded by `ClassifierTableInitialized` and should only run
+ * once per process.
  */
 void SetupInputClassifierTable()
 {
@@ -308,10 +305,10 @@ void UkInputProcessor::init()
 
 //-------------------------------------------
 /**
- * @brief setIM.
+ * @brief Configure the input method used by the processor.
  *
- * @param im Description of im.
- * @return Return value.
+ * @param im Enumeration value specifying which input method mapping to load.
+ * @return 1 always (success).
  */
 int UkInputProcessor::setIM(UkInputMethod im)
 {
@@ -344,10 +341,13 @@ int UkInputProcessor::setIM(UkInputMethod im)
 
 //-------------------------------------------
 /**
- * @brief setIM.
+ * @brief Configure the input processor from a raw keymap array.
  *
- * @param map Description of map.
- * @return Return value.
+ * This variant is used when the user supplies a custom mapping.  The array
+ * should contain 256 entries representing actions for each key code.
+ *
+ * @param map Caller‑provided 256-element array of action values.
+ * @return 1 on success.
  */
 int UkInputProcessor::setIM(int map[256])
 {
@@ -361,9 +361,9 @@ int UkInputProcessor::setIM(int map[256])
 
 //-------------------------------------------
 /**
- * @brief UkResetKeyMap.
+ * @brief Reset a keymap array so every key performs the default normal action.
  *
- * @param keyMap Description of keyMap.
+ * @param keyMap Caller‑allocated 256-element array to reset.
  */
 void UkResetKeyMap(int keyMap[256])
 {
@@ -386,12 +386,7 @@ void UkInputProcessor::useBuiltIn(UkKeyMapping *map)
             if (islower(map[i].key)) {
                 m_keyMap[toupper(map[i].key)] = map[i].action;
             }
-/**
- * @brief if.
- *
- * @param key Description of key.
- * @return Return value.
- */
+            // also map uppercase letters back to lowercase for case-insensitivity
             else if (isupper(map[i].key)) {
                 m_keyMap[tolower(map[i].key)] = map[i].action;
             }
@@ -439,8 +434,11 @@ void UkInputProcessor::keyCodeToEvent(unsigned int keyCode, UkKeyEvent & ev)
 //----------------------------------------------------------------
 /**
  * @brief Convert a keycode to its corresponding symbolic character event.
- * @param keyCode Description of keyCode.
- * @param ev Description of ev.
+ *
+ * This variant treats all keystrokes as literal characters (no action keys).
+ *
+ * @param keyCode Raw key code from the keyboard driver.
+ * @param ev      Reference to an `UkKeyEvent` struct that will be filled.
  */
 void UkInputProcessor::keyCodeToSymbol(unsigned int keyCode, UkKeyEvent & ev)
 {
@@ -457,10 +455,10 @@ void UkInputProcessor::keyCodeToSymbol(unsigned int keyCode, UkKeyEvent & ev)
 
 //-------------------------------------------
 /**
- * @brief getCharType.
+ * @brief Classify a key code as Vietnamese or non-Vietnamese input.
  *
- * @param keyCode Description of keyCode.
- * @return Return value.
+ * @param keyCode Key code to inspect.
+ * @return Character type (`ukcVn` or `ukcNonVn`).
  */
 UkCharType UkInputProcessor::getCharType(unsigned int keyCode)
 {

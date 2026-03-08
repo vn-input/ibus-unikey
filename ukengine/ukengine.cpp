@@ -23,7 +23,12 @@
 
 /**
  * @file ukengine.cpp
- * @brief Implementation for ukengine.cpp.
+ * @brief Core Vietnamese input engine implementation.
+ *
+ * This file contains the internal lookup tables, validation helpers, and key
+ * processing routines used to transform raw keystrokes into Vietnamese text,
+ * including tone placement, macro expansion, spell-check-aware restoration,
+ * and charset-specific output generation.
  */
 #include <stdlib.h>
 #include <string.h>
@@ -68,10 +73,13 @@ unsigned char SpecialWesternChars[] = {
 StdVnChar IsoStdVnCharMap[256];
 
 /**
- * @brief IsoToStdVnChar.
+ * @brief Convert an ISO/ASCII key code to the internal standard character code.
  *
- * @param keyCode Description of keyCode.
- * @return Return value.
+ * For byte-sized values the lookup table is used; larger codes are assumed to
+ * already be expressed in the engine's standard character space.
+ *
+ * @param keyCode Input key code or character value.
+ * @return Standardized Vietnamese character code.
  */
 inline StdVnChar IsoToStdVnChar(int keyCode)
 {
@@ -286,9 +294,12 @@ const int VCPairCount = sizeof(VCPairList)/sizeof(VCPair);
 //TODO: auto-complete: e.g. luan -> lua^n
 
 /**
- * @brief int.
+ * @brief Member-function pointer type for key-event handlers.
  *
- * @param ev Description of ev.
+ * Each handler receives the normalized key event and returns non-zero when it
+ * transformed the current composition state.
+ *
+ * @param ev Normalized key event being processed.
  */
 typedef int (UkEngine::* UkKeyProc)(UkKeyEvent & ev);
 
@@ -317,19 +328,19 @@ UkKeyProc UkKeyProcList[vneCount] = {
 
 
 /**
- * @brief lookupVSeq.
+ * @brief Look up a vowel-sequence identifier from up to three lexicon symbols.
  *
- * @param v1 Description of v1.
- * @param v2 Description of v2.
- * @param v3 Description of v3.
+ * @param v1 First vowel symbol.
+ * @param v2 Optional second vowel symbol.
+ * @param v3 Optional third vowel symbol.
  */
 VowelSeq lookupVSeq(VnLexiName v1, VnLexiName v2 = vnl_nonVnChar, VnLexiName v3 = vnl_nonVnChar);
 /**
- * @brief lookupCSeq.
+ * @brief Look up a consonant-sequence identifier from up to three symbols.
  *
- * @param c1 Description of c1.
- * @param c2 Description of c2.
- * @param c3 Description of c3.
+ * @param c1 First consonant symbol.
+ * @param c2 Optional second consonant symbol.
+ * @param c3 Optional third consonant symbol.
  */
 ConSeq lookupCSeq(VnLexiName c1, VnLexiName c2 = vnl_nonVnChar, VnLexiName c3 = vnl_nonVnChar);
 
@@ -337,11 +348,11 @@ bool UkEngine::m_classInit = false;
 
 //------------------------------------------------
 /**
- * @brief tripleVowelCompare.
+ * @brief Compare two vowel-sequence keys for sorting and lookup.
  *
- * @param p1 Description of p1.
- * @param p2 Description of p2.
- * @return Return value.
+ * @param p1 Pointer to the first `VSeqPair`.
+ * @param p2 Pointer to the second `VSeqPair`.
+ * @return Negative, zero, or positive according to lexicographic order.
  */
 int tripleVowelCompare(const void *p1, const void *p2)
 {
@@ -359,11 +370,11 @@ int tripleVowelCompare(const void *p1, const void *p2)
 
 //------------------------------------------------
 /**
- * @brief tripleConCompare.
+ * @brief Compare two consonant-sequence keys for sorting and lookup.
  *
- * @param p1 Description of p1.
- * @param p2 Description of p2.
- * @return Return value.
+ * @param p1 Pointer to the first `CSeqPair`.
+ * @param p2 Pointer to the second `CSeqPair`.
+ * @return Negative, zero, or positive according to lexicographic order.
  */
 int tripleConCompare(const void *p1, const void *p2)
 {
@@ -381,11 +392,11 @@ int tripleConCompare(const void *p1, const void *p2)
 
 //------------------------------------------------
 /**
- * @brief VCPairCompare.
+ * @brief Compare vowel/consonant suffix pairs used by syllable validation.
  *
- * @param p1 Description of p1.
- * @param p2 Description of p2.
- * @return Return value.
+ * @param p1 Pointer to the first `VCPair`.
+ * @param p2 Pointer to the second `VCPair`.
+ * @return Negative, zero, or positive according to sort order.
  */
 int VCPairCompare(const void *p1, const void *p2)
 {
@@ -406,11 +417,11 @@ int VCPairCompare(const void *p1, const void *p2)
 
 //----------------------------------------------------------
 /**
- * @brief isValidCV.
+ * @brief Check whether a leading consonant sequence can precede a vowel sequence.
  *
- * @param c Description of c.
- * @param v Description of v.
- * @return Return value.
+ * @param c Candidate leading consonant sequence.
+ * @param v Candidate vowel sequence.
+ * @return `true` when the combination is allowed by Vietnamese spelling rules.
  */
 bool isValidCV(ConSeq c, VowelSeq v)
 {
@@ -438,11 +449,11 @@ bool isValidCV(ConSeq c, VowelSeq v)
 
 //----------------------------------------------------------
 /**
- * @brief isValidVC.
+ * @brief Check whether a vowel sequence can take a trailing consonant sequence.
  *
- * @param v Description of v.
- * @param c Description of c.
- * @return Return value.
+ * @param v Candidate vowel sequence.
+ * @param c Candidate trailing consonant sequence.
+ * @return `true` when the final combination is valid.
  */
 bool isValidVC(VowelSeq v, ConSeq c)
 {
@@ -468,12 +479,12 @@ bool isValidVC(VowelSeq v, ConSeq c)
 
 //----------------------------------------------------------
 /**
- * @brief isValidCVC.
+ * @brief Validate a full consonant-vowel-consonant syllable structure.
  *
- * @param c1 Description of c1.
- * @param v Description of v.
- * @param c2 Description of c2.
- * @return Return value.
+ * @param c1 Leading consonant sequence.
+ * @param v Middle vowel sequence.
+ * @param c2 Trailing consonant sequence.
+ * @return `true` when the syllable is accepted by the engine rules.
  */
 bool isValidCVC(ConSeq c1, VowelSeq v, ConSeq c2)
 {
@@ -508,8 +519,7 @@ bool isValidCVC(ConSeq c1, VowelSeq v, ConSeq c2)
 
 //------------------------------------------------
 /**
- * @brief engineClassInit.
- *
+ * @brief Initialize lookup tables shared by all `UkEngine` instances.
  */
 void engineClassInit()
 {
@@ -548,12 +558,12 @@ void engineClassInit()
 
 //------------------------------------------------
 /**
- * @brief lookupVSeq.
+ * @brief Resolve a vowel sequence from its component lexicon symbols.
  *
- * @param v1 Description of v1.
- * @param v2 Description of v2.
- * @param v3 Description of v3.
- * @return Return value.
+ * @param v1 First vowel symbol.
+ * @param v2 Optional second vowel symbol.
+ * @param v3 Optional third vowel symbol.
+ * @return Matching `VowelSeq`, or `vs_nil` when the combination is unknown.
  */
 VowelSeq lookupVSeq(VnLexiName v1, VnLexiName v2, VnLexiName v3)
 {
@@ -570,12 +580,12 @@ VowelSeq lookupVSeq(VnLexiName v1, VnLexiName v2, VnLexiName v3)
 
 //------------------------------------------------
 /**
- * @brief lookupCSeq.
+ * @brief Resolve a consonant sequence from its component symbols.
  *
- * @param c1 Description of c1.
- * @param c2 Description of c2.
- * @param c3 Description of c3.
- * @return Return value.
+ * @param c1 First consonant symbol.
+ * @param c2 Optional second consonant symbol.
+ * @param c3 Optional third consonant symbol.
+ * @return Matching `ConSeq`, or `cs_nil` when the combination is unknown.
  */
 ConSeq lookupCSeq(VnLexiName c1, VnLexiName c2, VnLexiName c3)
 {
@@ -592,10 +602,10 @@ ConSeq lookupCSeq(VnLexiName c1, VnLexiName c2, VnLexiName c3)
 
 //------------------------------------------------------------------
 /**
- * @brief processRoof.
+ * @brief Apply or remove a roof diacritic on the current vowel sequence.
  *
- * @param ev Description of ev.
- * @return Return value.
+ * @param ev Key event describing which roof key was pressed.
+ * @return Non-zero when the event was handled by the composition engine.
  */
 int UkEngine::processRoof(UkKeyEvent & ev)
 {
@@ -662,11 +672,7 @@ int UkEngine::processRoof(UkKeyEvent & ev)
 
         if (VSeqList[vs].len == 3)
             newVs = lookupVSeq(m_buffer[vStart].vnSym, m_buffer[vStart+1].vnSym, m_buffer[vStart+2].vnSym);
-/**
- * @brief if.
- *
- * @param len Description of len.
- */
+        // two-character vowel sequence when removing a roof
         else if (VSeqList[vs].len == 2)
             newVs = lookupVSeq(m_buffer[vStart].vnSym, m_buffer[vStart+1].vnSym);
         else
@@ -747,10 +753,10 @@ int UkEngine::processRoof(UkKeyEvent & ev)
 // can only be called from processHook
 //------------------------------------------------------------------
 /**
- * @brief processHookWithUO.
+ * @brief Handle hook/bowl toggles for the special `uo` family of vowels.
  *
- * @param ev Description of ev.
- * @return Return value.
+ * @param ev Hook-related key event.
+ * @return Non-zero when the sequence was updated.
  */
 int UkEngine::processHookWithUO(UkKeyEvent & ev)
 {
@@ -907,10 +913,10 @@ int UkEngine::processHookWithUO(UkKeyEvent & ev)
 
 //------------------------------------------------------------------
 /**
- * @brief processHook.
+ * @brief Apply or remove hook and bowl marks on the active vowel sequence.
  *
- * @param ev Description of ev.
- * @return Return value.
+ * @param ev Key event describing the requested mark.
+ * @return Non-zero when the event changed the composition.
  */
 int UkEngine::processHook(UkKeyEvent & ev)
 {
@@ -975,11 +981,7 @@ int UkEngine::processHook(UkKeyEvent & ev)
 
         if (VSeqList[vs].len == 3)
             newVs = lookupVSeq(m_buffer[vStart].vnSym, m_buffer[vStart+1].vnSym, m_buffer[vStart+2].vnSym);
-/**
- * @brief if.
- *
- * @param len Description of len.
- */
+        // two-character vowel sequence when removing a hook/bowl
         else if (VSeqList[vs].len == 2)
             newVs = lookupVSeq(m_buffer[vStart].vnSym, m_buffer[vStart+1].vnSym);
         else
@@ -1065,11 +1067,11 @@ int UkEngine::processHook(UkKeyEvent & ev)
 
 //----------------------------------------------------------
 /**
- * @brief getTonePosition.
+ * @brief Determine which character in a vowel sequence should carry the tone.
  *
- * @param vs Description of vs.
- * @param terminated Description of terminated.
- * @return Return value.
+ * @param vs Vowel sequence being analyzed.
+ * @param terminated `true` when the syllable already ended with a consonant or separator.
+ * @return Zero-based offset of the tone-bearing character inside the sequence.
  */
 int UkEngine::getTonePosition(VowelSeq vs, bool terminated)
 {
@@ -1097,10 +1099,10 @@ int UkEngine::getTonePosition(VowelSeq vs, bool terminated)
 
 //----------------------------------------------------------
 /**
- * @brief processTone.
+ * @brief Apply, replace, or remove a tone mark on the current syllable.
  *
- * @param ev Description of ev.
- * @return Return value.
+ * @param ev Tone-mark key event.
+ * @return Non-zero when the tone logic handled the event.
  */
 int UkEngine::processTone(UkKeyEvent & ev)
 {
@@ -1164,10 +1166,10 @@ int UkEngine::processTone(UkKeyEvent & ev)
 
 //----------------------------------------------------------
 /**
- * @brief processDd.
+ * @brief Toggle the `d`/`đ` transformation for the current word position.
  *
- * @param ev Description of ev.
- * @return Return value.
+ * @param ev Key event corresponding to the `d` trigger.
+ * @return Non-zero when the transformation was applied or reverted.
  */
 int UkEngine::processDd(UkKeyEvent & ev)
 {
@@ -1227,10 +1229,10 @@ int UkEngine::processDd(UkKeyEvent & ev)
 
 //----------------------------------------------------------
 /**
- * @brief changeCase.
+ * @brief Flip a Vietnamese lexicon symbol between lowercase and uppercase.
  *
- * @param x Description of x.
- * @return Return value.
+ * @param x Symbol to convert.
+ * @return Same symbol in the opposite case, or unchanged for non-Vietnamese values.
  */
 VnLexiName changeCase(VnLexiName x)
 {
@@ -1243,10 +1245,10 @@ VnLexiName changeCase(VnLexiName x)
 
 //----------------------------------------------------------
 /**
- * @brief vnToLower.
+ * @brief Normalize a Vietnamese lexicon symbol to lowercase.
  *
- * @param x Description of x.
- * @return Return value.
+ * @param x Symbol to normalize.
+ * @return Lowercase equivalent, or unchanged for non-Vietnamese values.
  */
 inline VnLexiName vnToLower(VnLexiName x)
 {
@@ -1259,10 +1261,10 @@ inline VnLexiName vnToLower(VnLexiName x)
 
 //----------------------------------------------------------
 /**
- * @brief processMapChar.
+ * @brief Process a character that may map to a Vietnamese symbol or action.
  *
- * @param ev Description of ev.
- * @return Return value.
+ * @param ev Event to append and possibly reinterpret using map-char rules.
+ * @return Non-zero when the mapped processing changed engine state.
  */
 int UkEngine::processMapChar(UkKeyEvent & ev)
 {
@@ -1345,10 +1347,10 @@ int UkEngine::processMapChar(UkKeyEvent & ev)
 
 //----------------------------------------------------------
 /**
- * @brief processTelexW.
+ * @brief Handle the Telex-specific `w` key, which may act as a hook key or mapped letter.
  *
- * @param ev Description of ev.
- * @return Return value.
+ * @param ev Key event for `w` or `W`.
+ * @return Non-zero when the event was consumed by Telex processing.
  */
 int UkEngine::processTelexW(UkKeyEvent & ev)
 {
@@ -1398,10 +1400,10 @@ int UkEngine::processTelexW(UkKeyEvent & ev)
 
 //----------------------------------------------------------
 /**
- * @brief checkEscapeVIQR.
+ * @brief Detect VIQR escape sequences that force literal punctuation output.
  *
- * @param ev Description of ev.
- * @return Return value.
+ * @param ev Punctuation key event being tested for escape handling.
+ * @return Non-zero when a backslash escape was emitted instead of composition.
  */
 int UkEngine::checkEscapeVIQR(UkKeyEvent & ev)
 {
@@ -1429,12 +1431,7 @@ int UkEngine::checkEscapeVIQR(UkKeyEvent & ev)
             break;
         }
     }
-/**
- * @brief if.
- *
- * @param form Description of form.
- * @return Return value.
- */
+    // entry is in a non‑Vietnamese form; apply special escape rules
     else if (entry.form == vnw_nonVn) {
         unsigned char ch = toupper(entry.keyCode);
         switch (ev.keyCode) {
@@ -1484,10 +1481,10 @@ int UkEngine::checkEscapeVIQR(UkKeyEvent & ev)
 
 //----------------------------------------------------------
 /**
- * @brief processAppend.
+ * @brief Append a normalized key event into the current composition buffer.
  *
- * @param ev Description of ev.
- * @return Return value.
+ * @param ev Event to append or dispatch based on character class.
+ * @return Non-zero when appending produced visible output changes.
  */
 int UkEngine::processAppend(UkKeyEvent & ev)
 {
@@ -1544,10 +1541,10 @@ int UkEngine::processAppend(UkKeyEvent & ev)
 
 //----------------------------------------------------------
 /**
- * @brief appendVowel.
+ * @brief Append a vowel and update vowel-sequence and tone metadata.
  *
- * @param ev Description of ev.
- * @return Return value.
+ * @param ev Vowel key event to merge into the current word.
+ * @return Non-zero when the append requires output updates.
  */
 int UkEngine::appendVowel(UkKeyEvent & ev)
 {
@@ -1611,11 +1608,7 @@ int UkEngine::appendVowel(UkKeyEvent & ev)
         else {
             if (VSeqList[vs].len == 3)
                 newVs = vs_nil;
-/**
- * @brief if.
- *
- * @param len Description of len.
- */
+            // two-length sequence: include candidate symbol in lookup
             else if (VSeqList[vs].len == 2)
                 newVs = lookupVSeq(VSeqList[vs].v[0], VSeqList[vs].v[1], canSym);
             else
@@ -1713,10 +1706,10 @@ int UkEngine::appendVowel(UkKeyEvent & ev)
 
 //----------------------------------------------------------
 /**
- * @brief appendConsonnant.
+ * @brief Append a consonant and update syllable structure metadata.
  *
- * @param ev Description of ev.
- * @return Return value.
+ * @param ev Consonant key event to merge into the current word.
+ * @return Non-zero when the append changes emitted text.
  */
 int UkEngine::appendConsonnant(UkKeyEvent & ev)
 {
@@ -1790,12 +1783,7 @@ int UkEngine::appendConsonnant(UkKeyEvent & ev)
                 prev.vseq = vs_uhoh;
                 complexEvent = true;
             }
-/**
- * @brief if.
- *
- * @param vs Description of vs.
- * @return Return value.
- */
+            // special case: previous vowel sequence was 'uoh'
             else if (vs == vs_uoh) {
                 markChange(m_current-2);
                 m_buffer[m_current-2].vnSym = vnl_uh;
@@ -1850,11 +1838,7 @@ int UkEngine::appendConsonnant(UkKeyEvent & ev)
         cs = prev.cseq;
         if (CSeqList[cs].len == 3)
             newCs = cs_nil;
-/**
- * @brief if.
- *
- * @param len Description of len.
- */
+        // two-character consonant sequence: include lowerSym in lookup
         else if (CSeqList[cs].len == 2)
             newCs = lookupCSeq(CSeqList[cs].c[0], CSeqList[cs].c[1], lowerSym);
         else
@@ -1885,12 +1869,7 @@ int UkEngine::appendConsonnant(UkKeyEvent & ev)
                 entry.c2Offset = -1;
                 entry.vOffset = -1;
             }
-/**
- * @brief if.
- *
- * @param form Description of form.
- * @return Return value.
- */
+            // previous form was vowel+consonant: set current offsets accordingly
             else if (prev.form == vnw_vc) {
                 entry.form = vnw_vc;
                 entry.c1Offset = -1;
@@ -1919,10 +1898,10 @@ int UkEngine::appendConsonnant(UkKeyEvent & ev)
 
 //----------------------------------------------------------
 /**
- * @brief processEscChar.
+ * @brief Mark the next key so it is inserted literally instead of being transformed.
  *
- * @param ev Description of ev.
- * @return Return value.
+ * @param ev Escape key event.
+ * @return Result of appending the escape-triggering character.
  */
 int UkEngine::processEscChar(UkKeyEvent & ev)
 {
@@ -1935,9 +1914,9 @@ int UkEngine::processEscChar(UkKeyEvent & ev)
 
 //----------------------------------------------------------
 /**
- * @brief pass.
+ * @brief Feed one key through the append path without extra conversion logic.
  *
- * @param keyCode Description of keyCode.
+ * @param keyCode Raw key code to store in the internal buffer.
  */
 void UkEngine::pass(int keyCode)
 {
@@ -1951,10 +1930,10 @@ void UkEngine::pass(int keyCode)
 // The new event is supposed to be put into m_buffer already
 //---------------------------------------------
 /**
- * @brief processNoSpellCheck.
+ * @brief Reinterpret the current word as literal Vietnamese input when spell-check is bypassed.
  *
- * @param ev Description of ev.
- * @return Return value.
+ * @param ev Event that caused the spell-check fallback.
+ * @return Non-zero when the fallback produced output changes.
  */
 int UkEngine::processNoSpellCheck(UkKeyEvent & ev)
 {
@@ -1982,14 +1961,14 @@ int UkEngine::processNoSpellCheck(UkKeyEvent & ev)
 }
 //----------------------------------------------------------
 /**
- * @brief process.
+ * @brief Process one raw key code through the full UniKey composition pipeline.
  *
- * @param keyCode Description of keyCode.
- * @param backs Description of backs.
- * @param outBuf Description of outBuf.
- * @param outSize Description of outSize.
- * @param outType Description of outType.
- * @return Return value.
+ * @param keyCode Raw input key code.
+ * @param backs Output count of backspaces required before inserting replacement text.
+ * @param outBuf Buffer that receives generated output bytes.
+ * @param outSize On entry, capacity of `outBuf`; on return, bytes written.
+ * @param outType Output classification describing the meaning of `outBuf`.
+ * @return Non-zero when the engine handled the key and produced state/output updates.
  */
 int UkEngine::process(unsigned int keyCode, int & backs, unsigned char *outBuf, int & outSize, UkOutputType & outType)
 {
@@ -2076,23 +2055,21 @@ int UkEngine::process(unsigned int keyCode, int & backs, unsigned char *outBuf, 
 //           [out] bytes written to buffer
 //----------------------------------------------------------
 /**
- * @brief writeOutput.
+ * @brief Encode the changed portion of the composition buffer into the target charset.
  *
- * @param outBuf Description of outBuf.
- * @param outSize Description of outSize.
- * @return Return value.
+ * @param outBuf Destination buffer for encoded output bytes.
+ * @param outSize On entry, available space; on return, bytes produced.
+ * @return Zero on success, or a conversion/output error code.
  */
 int UkEngine::writeOutput(unsigned char *outBuf, int & outSize)
 {
     StdVnChar stdChar;
     int i, bytesWritten;
     int ret = 1;
-/**
- * @brief os.
- *
- * @param outBuf Description of outBuf.
- * @param outSize Description of outSize.
- */
+
+    /**
+     * Buffered output stream backed directly by the caller-provided byte buffer.
+     */
     StringBOStream os(outBuf, outSize);
     VnCharset *pCharset = VnCharsetLibObj.getVnCharset(m_pCtrl->charsetId);
     pCharset->startOutput();
@@ -2123,11 +2100,13 @@ int UkEngine::writeOutput(unsigned char *outBuf, int & outSize)
 // go back from last to first
 //---------------------------------------------
 /**
- * @brief getSeqSteps.
+ * @brief Count how many output character positions a buffer slice occupies.
  *
- * @param first Description of first.
- * @param last Description of last.
- * @return Return value.
+ * Used to compute backspace counts when replacing already-emitted text.
+ *
+ * @param first Index of the first buffer entry in the sequence.
+ * @param last Index of the last buffer entry in the sequence.
+ * @return Number of output positions corresponding to that range.
  */
 int UkEngine::getSeqSteps(int first, int last)
 {
@@ -2140,10 +2119,10 @@ int UkEngine::getSeqSteps(int first, int last)
         m_pCtrl->charsetId == CONV_CHARSET_UNICODE)
         return (last - first +  1);
 
-/**
- * @brief os.
- *
- */
+
+    /**
+     * Counting-only output stream used to measure encoded length.
+     */
     StringBOStream os(0, 0);
     int i, bytesWritten;
 
@@ -2175,9 +2154,9 @@ int UkEngine::getSeqSteps(int first, int last)
 
 //---------------------------------------------
 /**
- * @brief markChange.
+ * @brief Extend the changed range so output can be regenerated from `pos` onward.
  *
- * @param pos Description of pos.
+ * @param pos Earliest modified buffer position.
  */
 void UkEngine::markChange(int pos)
 {
@@ -2192,8 +2171,7 @@ void UkEngine::markChange(int pos)
 // character buffer (m_buffer) and key stroke buffer in synch
 //----------------------------------------------------------------
 /**
- * @brief synchKeyStrokeBuffer.
- *
+ * @brief Keep the raw keystroke history aligned with the composition buffer after deletion.
  */
 void UkEngine::synchKeyStrokeBuffer()
 {
@@ -2212,13 +2190,13 @@ void UkEngine::synchKeyStrokeBuffer()
 
 //---------------------------------------------
 /**
- * @brief processBackspace.
+ * @brief Handle backspace by deleting or rebalancing the current composition.
  *
- * @param backs Description of backs.
- * @param outBuf Description of outBuf.
- * @param outSize Description of outSize.
- * @param outType Description of outType.
- * @return Return value.
+ * @param backs Output count of physical backspaces to send to the application.
+ * @param outBuf Buffer that receives replacement bytes when a recomposition is needed.
+ * @param outSize On entry, available space; on return, bytes written.
+ * @param outType Output classification for the generated data.
+ * @return Non-zero when backspace triggered a visible recomposition.
  */
 int UkEngine::processBackspace(int & backs, unsigned char *outBuf, int & outSize, UkOutputType & outType)
 {
@@ -2281,8 +2259,7 @@ int UkEngine::processBackspace(int & backs, unsigned char *outBuf, int & outSize
 
 //------------------------------------------------
 /**
- * @brief reset.
- *
+ * @brief Clear composition and keystroke state for the current session.
  */
 void UkEngine::reset()
 {
@@ -2294,8 +2271,7 @@ void UkEngine::reset()
 
 //------------------------------------------------
 /**
- * @brief resetKeyBuf.
- *
+ * @brief Drop the remembered raw keystroke history.
  */
 void UkEngine::resetKeyBuf()
 {
@@ -2325,8 +2301,7 @@ UkEngine::UkEngine()
 // make sure there are at least 10 entries available
 //----------------------------------------------------
 /**
- * @brief prepareBuffer.
- *
+ * @brief Reclaim space in the composition and keystroke buffers before appending more data.
  */
 void UkEngine::prepareBuffer()
 {
@@ -2361,10 +2336,10 @@ enum VnCaseType {VnCaseNoChange, VnCaseAllCapital, VnCaseAllSmall};
 
 //----------------------------------------------------
 /**
- * @brief macroMatch.
+ * @brief Expand the most recent word if it matches a user-defined macro.
  *
- * @param ev Description of ev.
- * @return Return value.
+ * @param ev Word-ending event that triggers macro lookup.
+ * @return Non-zero when a macro expansion was emitted.
  */
 int UkEngine::macroMatch(UkKeyEvent & ev)
 {
@@ -2443,12 +2418,7 @@ int UkEngine::macroMatch(UkKeyEvent & ev)
     if (IS_STD_VN_LOWER(*pKeyStart)) {
         macroCase = VnCaseAllSmall;
     }
-/**
- * @brief if.
- *
- * @param pKeyStart Description of pKeyStart.
- * @return Return value.
- */
+    // first character uppercase – determine overall case of the macro
     else if (IS_STD_VN_UPPER(*pKeyStart)) {
         macroCase = VnCaseAllCapital;
         for (i=1; pKeyStart[i]; i++) {
@@ -2468,11 +2438,7 @@ int UkEngine::macroMatch(UkKeyEvent & ev)
     {
         if (macroCase == VnCaseAllCapital)
             macroText[i] = StdVnToUpper(pMacText[i]);
-/**
- * @brief if.
- *
- * @param macroCase Description of macroCase.
- */
+        // convert to lowercase if macro is all small
         else if (macroCase == VnCaseAllSmall)
             macroText[i] = StdVnToLower(pMacText[i]);
         else
@@ -2512,13 +2478,13 @@ int UkEngine::macroMatch(UkKeyEvent & ev)
 
 //----------------------------------------------------
 /**
- * @brief restoreKeyStrokes.
+ * @brief Replay original keystrokes for the last word when conversion should be undone.
  *
- * @param backs Description of backs.
- * @param outBuf Description of outBuf.
- * @param outSize Description of outSize.
- * @param outType Description of outType.
- * @return Return value.
+ * @param backs Output number of backspaces needed before replaying the raw keys.
+ * @param outBuf Buffer receiving the restored keystrokes.
+ * @param outSize On entry, available space; on return, bytes written.
+ * @param outType Output classification for the restored data.
+ * @return Non-zero when restoration succeeded.
  */
 int UkEngine::restoreKeyStrokes(int & backs, unsigned char *outBuf, int & outSize, UkOutputType & outType)
 {
@@ -2574,8 +2540,7 @@ int UkEngine::restoreKeyStrokes(int & backs, unsigned char *outBuf, int & outSiz
 
 //--------------------------------------------------
 /**
- * @brief setSingleMode.
- *
+ * @brief Force subsequent processing into single-key mode.
  */
 void UkEngine::setSingleMode()
 {
@@ -2584,8 +2549,7 @@ void UkEngine::setSingleMode()
 
 //--------------------------------------------------
 /**
- * @brief SetupUnikeyEngine.
- *
+ * @brief Initialize global lookup tables required by the UniKey engine runtime.
  */
 void SetupUnikeyEngine()
 {
@@ -2611,9 +2575,9 @@ void SetupUnikeyEngine()
 
 //--------------------------------------------------
 /**
- * @brief atWordBeginning.
+ * @brief Report whether the engine is currently positioned at a word boundary.
  *
- * @return Return value.
+ * @return `true` when no active word is being composed.
  */
 bool UkEngine::atWordBeginning()
 {
@@ -2626,10 +2590,10 @@ bool UkEngine::atWordBeginning()
 // restore key strokes if auto-restore is enabled
 //--------------------------------------------------
 /**
- * @brief processWordEnd.
+ * @brief Finalize the current word when a separator key is entered.
  *
- * @param ev Description of ev.
- * @return Return value.
+ * @param ev Word-break event such as space or punctuation.
+ * @return Non-zero when finalization emitted output or macro expansion.
  */
 int UkEngine::processWordEnd(UkKeyEvent & ev)
 {
@@ -2679,9 +2643,9 @@ int UkEngine::processWordEnd(UkKeyEvent & ev)
 // the engine can restore key strokes if it is indeed not a Vietnamese word
 //---------------------------------------------------------------------------
 /**
- * @brief lastWordIsNonVn.
+ * @brief Decide whether the most recent word should be treated as non-Vietnamese.
  *
- * @return Return value.
+ * @return `true` when the buffered word violates Vietnamese spelling/composition rules.
  */
 bool UkEngine::lastWordIsNonVn()
 {
@@ -2728,9 +2692,9 @@ bool UkEngine::lastWordIsNonVn()
 // Test if last word has a Vietnamese mark, that is tones, decorators
 //---------------------------------------------------------------------------
 /**
- * @brief lastWordHasVnMark.
+ * @brief Check whether the current word contains any Vietnamese-specific mark.
  *
- * @return Return value.
+ * @return `true` when the word includes tones or decorated base letters.
  */
 bool UkEngine::lastWordHasVnMark()
 {

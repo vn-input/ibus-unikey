@@ -21,10 +21,6 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/**
- * @file usrkeymap.cpp
- * @brief Implementation for usrkeymap.cpp.
- */
 #include <iostream>
 #include <string.h>
 #include <stdio.h>
@@ -35,15 +31,16 @@ using namespace std;
 
 
 /**
- * @brief getLabelIndex.
+ * @brief Return the label-table index associated with an action code.
  *
- * @param action Description of action.
+ * @param action Event code whose index is sought.
+ * @return Index into `UkEvLabelList`, or -1 if not found.
  */
 int getLabelIndex(int action);
 /**
- * @brief initKeyMap.
+ * @brief Fill a key map array with the default UniKey bindings.
  *
- * @param keyMap Description of keyMap.
+ * @param keyMap 256-element array to initialize.
  */
 void initKeyMap(int keyMap[256]);
 
@@ -94,12 +91,15 @@ const int UkEvLabelCount = sizeof(UkEvLabelList)/sizeof(UkEventLabelPair);
 
 //--------------------------------------------------
 /**
- * @brief parseNameValue.
+ * @brief Parse one `name = value` line from a keymap file.
  *
- * @param line Description of line.
- * @param name Description of name.
- * @param value Description of value.
- * @return Return value.
+ * Strips trailing comments and surrounding whitespace, then returns pointers
+ * into the original line buffer.
+ *
+ * @param line C string containing the line to parse; modified in-place.
+ * @param name Output pointer set to the beginning of the name.
+ * @param value Output pointer set to the beginning of the value.
+ * @return 1 on success, 0 on failure (malformed line).
  */
 static int parseNameValue(char *line, char **name, char **value)
 {
@@ -151,11 +151,11 @@ static int parseNameValue(char *line, char **name, char **value)
 
 //-----------------------------------------------------
 /**
- * @brief UkLoadKeyMap.
+ * @brief Load a user keymap file into the flat 256-entry action table.
  *
- * @param fileName Description of fileName.
- * @param keyMap Description of keyMap.
- * @return Return value.
+ * @param fileName Path to the key map file to read.
+ * @param keyMap Caller‑allocated 256-element array to receive mappings.
+ * @return 1 on success, 0 if loading failed.
  */
 DllExport int UkLoadKeyMap(const char *fileName, int keyMap[256])
 {
@@ -176,12 +176,12 @@ DllExport int UkLoadKeyMap(const char *fileName, int keyMap[256])
 
 //------------------------------------------------------------------
 /**
- * @brief UkLoadKeyOrderMap.
+ * @brief Load key mappings while preserving the order found in the file.
  *
- * @param fileName Description of fileName.
- * @param pMap Description of pMap.
- * @param pMapCount Description of pMapCount.
- * @return Return value.
+ * @param fileName Path to the key map file.
+ * @param pMap Caller‑allocated buffer for `UkKeyMapPair` entries.
+ * @param pMapCount Output location for the number of entries read.
+ * @return 1 on success, 0 on failure.
  */
 DllExport int UkLoadKeyOrderMap(const char *fileName, UkKeyMapPair *pMap, int *pMapCount)
 {
@@ -259,9 +259,9 @@ DllExport int UkLoadKeyOrderMap(const char *fileName, UkKeyMapPair *pMap, int *p
 
 //-------------------------------------------
 /**
- * @brief initKeyMap.
+ * @brief Reset every entry in a keymap array to the no-action default.
  *
- * @param keyMap Description of keyMap.
+ * @param keyMap Caller-provided 256-element array to clear.
  */
 void initKeyMap(int keyMap[256])
 {
@@ -274,12 +274,12 @@ const char *UkKeyMapHeader =
     "; This is UniKey user-defined key mapping file, generated from UniKey (Windows)\n\n";
 
 /**
- * @brief UkStoreKeyOrderMap.
+ * @brief Write an ordered keymap back to disk in UniKey text format.
  *
- * @param fileName Description of fileName.
- * @param pMap Description of pMap.
- * @param mapCount Description of mapCount.
- * @return Return value.
+ * @param fileName Destination filename for the key map.
+ * @param pMap Array of `UkKeyMapPair` entries to store.
+ * @param mapCount Number of entries in @p pMap.
+ * @return 1 on success, 0 on failure.
  */
 DllExport int UkStoreKeyOrderMap(const char *fileName, UkKeyMapPair *pMap, int mapCount)
 {
@@ -307,10 +307,10 @@ DllExport int UkStoreKeyOrderMap(const char *fileName, UkKeyMapPair *pMap, int m
 }
 
 /**
- * @brief getLabelIndex.
+ * @brief Find the label-table slot corresponding to an action code.
  *
- * @param event Description of event.
- * @return Return value.
+ * @param event Event code to look up.
+ * @return Index in `UkEvLabelList` or -1 if not present.
  */
 int getLabelIndex(int event)
 {

@@ -21,10 +21,6 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/**
- * @file charset.cpp
- * @brief Implementation for charset.cpp.
- */
 // -*- coding:unix; mode:c++; tab-width:4; c-basic-offset:4; indent-tabs-mode:nil -*-
 /*------------------------------------------------------------------------------
 VnConv: Vietnamese Encoding Converter Library
@@ -227,11 +223,16 @@ int SingleByteCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outL
 
 //-------------------------------------------
 /**
- * @brief wideCharCompare.
+ * @brief Compare two packed Unicode lookup entries by their low-word codepoint.
  *
- * @param ele1 First element to compare.
- * @param ele2 Second element to compare.
- * @return Return value.
+ * Each array element stores the Unicode code point in the low word and the
+ * corresponding standard-character index in the high word. This comparator is
+ * used with `qsort` and `bsearch` when building and querying Unicode lookup
+ * tables.
+ *
+ * @param ele1 Pointer to the first packed `UKDWORD` entry.
+ * @param ele2 Pointer to the second packed `UKDWORD` entry.
+ * @return Negative, zero, or positive according to the ordering relation.
  */
 int wideCharCompare(const void *ele1, const void *ele2)
 {
@@ -325,11 +326,11 @@ int UnicodeCharset::elementSize()
 ////////////////////////////////////////
 //-------------------------------------------
 /**
- * @brief uniCompInfoCompare.
+ * @brief Compare two composite-Unicode lookup records by code point.
  *
- * @param ele1 First element to compare.
- * @param ele2 Second element to compare.
- * @return Return value.
+ * @param ele1 First `UniCompCharInfo` element.
+ * @param ele2 Second `UniCompCharInfo` element.
+ * @return Negative, zero, or positive according to sort order.
  */
 int uniCompInfoCompare(const void *ele1, const void *ele2)
 {
@@ -584,10 +585,10 @@ int UnicodeUTF8Charset::putChar(ByteOutStream & os, StdVnChar stdChar, int & out
 // Unicode character reference &#D;   //
 ////////////////////////////////////////
 /**
- * @brief hexDigitValue.
+ * @brief Convert one hexadecimal digit character to its numeric value.
  *
- * @param digit Hex digit character to convert to its numeric value.
- * @return Return value.
+ * @param digit ASCII hex digit (`0-9`, `a-f`, or `A-F`).
+ * @return Integer value in the range 0-15.
  */
 int hexDigitValue(unsigned char digit)
 {
@@ -775,8 +776,7 @@ int UnicodeHexCharset::putChar(ByteOutStream & os, StdVnChar stdChar, int & outL
 // Class UnicodeCStringCharset  /
 /////////////////////////////////
 /**
- * @brief startInput.
- *
+ * @brief Reset per-stream parsing state before reading C-style Unicode escapes.
  */
 void UnicodeCStringCharset::startInput()
 {
