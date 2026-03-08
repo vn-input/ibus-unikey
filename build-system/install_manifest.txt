@@ -1,7 +1,0 @@
-/usr/libexec/ibus-engine-unikey
-/usr/share/ibus/component/unikey.xml
-/usr/share/glib-2.0/schemas/org.freedesktop.ibus.engine.unikey.gschema.xml
-/usr/libexec/ibus-setup-unikey
-/usr/share/ibus-unikey/ui/ibus-unikey.ui
-/usr/share/ibus-unikey/icons/ibus-unikey.svg
-/usr/share/locale/vi/LC_MESSAGES/ibus-unikey.mo
