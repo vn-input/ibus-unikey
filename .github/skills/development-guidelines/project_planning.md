@@ -10,14 +10,16 @@ it when planning features or large changes.
 Whenever you start on a new area of work (UI change, core logic update,
 setup utility modification, etc.) follow these steps:
 
-1. **Do not create a `project_planning` directory in the project root or
-   anywhere under `$PROJECT_DIR`.** All planning notes belong inside the
-   `.github/skills/development-guidelines` tree so the AI assistant can find
-   them. Make sure the `project_planning` directory exists under
-   `.github/skills/development-guidelines`; create it if it does not:
+1. Create a `project_planning` directory at the top level of the project
+   (under `$PROJECT_DIR`). This directory will be included in the repository and
+   pushed along with other changes. Example:
    ```sh
-   mkdir -p .github/skills/development-guidelines/project_planning
+   mkdir -p project_planning
    ```
+   You may optionally also maintain planning notes under
+   `.github/skills/development-guidelines/project_planning` for the AI
+   assistant’s benefit, but the primary workspace is now the top‑level
+   `project_planning`.
 
 2. Inside `project_planning` create a subdirectory that reflects the category of
 the task, e.g. `UI`, `Setup`, `Core`, `Macro`, etc. You can use lowercase if you
@@ -56,6 +58,8 @@ can be consulted during implementation, review, or later discussion.
 > **Remember to add and commit the new directories/files to git and push them**
 > to the repository along with your other changes so that collaborators (and the
 > AI assistant) can access the planning notes.
-Including this guideline in the workflows ensures that the AI assistant and
+>
+> The top‑level `project_planning` directory is part of the project; ensure any
+> notes placed there are committed and pushed.Including this guideline in the workflows ensures that the AI assistant and
 future contributors know where planning notes live and how they should be
 organized.
