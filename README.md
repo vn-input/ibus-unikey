@@ -52,6 +52,8 @@ Các thay đổi chính đã được thực hiện trong nhánh làm việc nà
  	   macOS text substitutions plist) và xuất khẩu sang các định dạng này.
  	 - Chức năng có sẵn trong hộp thoại macro; lựa chọn định dạng dựa trên phần
  	   mở rộng tên tệp (`.yml`/`.yaml`/`.plist`).
+ 	 - Dialog import/export ghi nhớ thư mục dùng gần nhất qua `GSettings`, nên
+ 	   lần mở kế tiếp sẽ quay lại đúng vị trí trước đó.
  	 - Tích hợp với `macro_file_io` để tự động chuyển đổi và xử lý trùng lặp.
 
 5. **Tối ưu hiệu năng macro list lớn**
@@ -92,6 +94,16 @@ Các thay đổi chính đã được thực hiện trong nhánh làm việc nà
 
 Chọn định dạng dựa trên phần mở rộng tệp khi lưu hoặc nhập. Các macro được
 chuyển đổi sang bảng nội bộ với cùng quy tắc dedupe như khi load file gốc.
+
+**Remembered import/export locations**
+
+- Thư mục import gần nhất được lưu trong `GSettings` key
+	`macro-last-import-dir`.
+- Thư mục export gần nhất được lưu trong `GSettings` key
+	`macro-last-export-dir`.
+- Khi mở file chooser, ibus-unikey đặt thư mục hiện hành theo giá trị đã lưu và
+	thêm các thư mục import/export đã nhớ làm shortcut trong sidebar nếu còn tồn tại.
+- Không có file `config.yaml` riêng cho tính năng này.
 
 ### Core files
 

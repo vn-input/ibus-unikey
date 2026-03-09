@@ -28,6 +28,7 @@
 #include <gdk/gdkkeysyms.h>
 
 #include "mactab.h"
+#include "macro_dialog_state.h"
 #include "macro_file_io.h"
 #include "unikey_config.h"
 
@@ -837,11 +838,14 @@ void on_btn_macro_import_clicked(GtkButton* button, gpointer data)
                                        dgettext("gtk30", "_Cancel"), GTK_RESPONSE_CANCEL,
                                        dgettext("gtk30", "_Open"), GTK_RESPONSE_OK,
                                        NULL);
-    add_macro_file_filters(GTK_FILE_CHOOSER(file));
+    GtkFileChooser* chooser = GTK_FILE_CHOOSER(file);
+    add_macro_file_filters(chooser);
+    macro_dialog_apply_import_folder(chooser);
 
     if (gtk_dialog_run(GTK_DIALOG(file)) == GTK_RESPONSE_OK)
     {
-        auto fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file));
+        auto fn = gtk_file_chooser_get_filename(chooser);
+        macro_dialog_remember_import_file(fn);
         CMacroTable macro;
         GError* error = NULL;
         const gboolean is_loaded = macro_table_load_any_format(fn, &macro, &error);
@@ -903,8 +907,10 @@ void on_btn_macro_export_clicked(GtkButton* button, gpointer data)
                                        dgettext("gtk30", "_Cancel"), GTK_RESPONSE_CANCEL,
                                        dgettext("gtk30", "_Save"), GTK_RESPONSE_OK,
                                        NULL);
-    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(file), TRUE);
-    add_macro_file_filters(GTK_FILE_CHOOSER(file));
+    GtkFileChooser* chooser = GTK_FILE_CHOOSER(file);
+    gtk_file_chooser_set_do_overwrite_confirmation(chooser, TRUE);
+    add_macro_file_filters(chooser);
+    macro_dialog_apply_export_folder(chooser);
 
     if (gtk_dialog_run(GTK_DIALOG(file)) == GTK_RESPONSE_OK)
     {
@@ -928,7 +934,8 @@ void on_btn_macro_export_clicked(GtkButton* button, gpointer data)
             b = gtk_tree_model_iter_next(model, &iter);
         }
 
-        auto fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file));
+        auto fn = gtk_file_chooser_get_filename(chooser);
+        macro_dialog_remember_export_file(fn);
         GError* error = NULL;
         if (!macro_table_write_any_format(fn, &macro, &error))
         {

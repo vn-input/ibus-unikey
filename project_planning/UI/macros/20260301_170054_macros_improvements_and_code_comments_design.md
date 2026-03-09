@@ -100,6 +100,7 @@ Files:
 Responsibility:
 - Load macro data when the editor opens.
 - Support add, edit, delete, clear, import, export, sort, and count.
+- Remember last import/export folders through GSettings-backed chooser state.
 - Persist the edited table only when the dialog returns `GTK_RESPONSE_OK`.
 
 ### 5.4 External format adapters
@@ -118,10 +119,14 @@ Responsibility:
 Files:
 - `tools/macro_probe.cpp`
 - `tools/stress_macro_test.sh`
+- `tests/UI/macros/macro_dialog_state_test.cpp`
+- `tests/UI/macros/unikey_macro.yaml`
+- `tests/UI/macros/README.md`
 
 Responsibility:
 - Provide lightweight inspection and stress validation of macro files and large
   macro tables.
+- Verify the GSettings-backed remembered import/export folder behavior.
 
 ## 6. End-to-end data flow
 
@@ -259,6 +264,8 @@ Primary implementation commits:
 
 Files changed:
 - `setup/main.cpp`
+- `setup/macro_dialog_state.h`
+- `setup/macro_dialog_state.cpp`
 - `setup/signal_handlers.h`
 - `setup/signal_handlers.cpp`
 - `setup/ibus-unikey.ui`
@@ -300,10 +307,22 @@ performance on large macro sets.
 
 #### Import/export
 - Import uses file chooser + `macro_table_load_any_format()`.
+- Import chooser restores the last saved import directory from GSettings.
 - Import temporarily removes the sentinel row, appends imported macros, then
   restores the sentinel row.
+- Export chooser restores the last saved export directory from GSettings.
+- Both chooser dialogs add remembered import/export directories as GTK sidebar
+  shortcuts when those folders still exist.
 - Export rebuilds a temporary `CMacroTable` from visible rows and routes through
   `macro_table_write_any_format()`.
+
+#### Chooser state persistence
+- Remembered chooser folders are stored in GSettings, not in a separate YAML or
+  JSON config file.
+- The current keys are `macro-last-import-dir` and `macro-last-export-dir`.
+- Empty values are treated as unset.
+- The feature intentionally reuses GTK file chooser shortcuts instead of
+  introducing a custom favorites-management UI.
 
 ### Why this structure was chosen
 
@@ -442,6 +461,9 @@ Any recreation or extension of this implementation must preserve these rules:
 11. Double-click and Enter open the shared Add/Edit dialog, not inline cell
   editing.
 12. The dialog replacement control must support large multi-line text.
+13. Import/export choosers restore the last remembered folder from GSettings.
+14. Remembered chooser folders are optional and empty-string defaults are
+    treated as unset.
 
 ## 10. File-by-file recreation checklist
 
@@ -479,6 +501,11 @@ Update `setup/main.cpp`, `setup/signal_handlers.h`, and
 - maintain a visible macro count label,
 - force cell renderers into inert mode so row activation opens the dialog.
 
+Add `setup/macro_dialog_state.h` and `setup/macro_dialog_state.cpp` to:
+- persist last import/export folders with GSettings,
+- restore chooser current folders from those settings,
+- expose remembered import/export folders as GTK shortcut entries when valid.
+
 ### 10.4 UI definition
 
 Update `setup/ibus-unikey.ui` to:
@@ -506,6 +533,14 @@ Update `setup/CMakeLists.txt` to include `macro_file_io.cpp` in the setup binary
 Add tooling files:
 - `tools/macro_probe.cpp`
 - `tools/stress_macro_test.sh`
+
+Add test/build files:
+- `tests/CMakeLists.txt`
+- `tests/UI/CMakeLists.txt`
+- `tests/UI/macros/CMakeLists.txt`
+- `tests/UI/macros/macro_dialog_state_test.cpp`
+- `tests/UI/macros/unikey_macro.yaml`
+- `tests/UI/macros/README.md`
 
 ### 10.7 Documentation
 

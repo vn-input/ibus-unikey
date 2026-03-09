@@ -26,6 +26,9 @@ The branch introduced a larger macro-editor upgrade centered on four themes:
 3. **Import/export became a first-class workflow**
    - `setup/macro_file_io.{h,cpp}` and related handlers added multi-format load
      and write helpers, plus review/debug tooling in `tools/`.
+   - The import/export choosers now also remember their last-used directories
+     via GSettings and expose those remembered folders back in the chooser
+     sidebar as shortcuts.
 
 4. **The codebase was heavily re-commented**
    - Many follow-up commits were documentation-focused. They matter because the
@@ -84,6 +87,8 @@ Why this matters:
 ### 3. Import/export path
 
 Primary files:
+- `setup/macro_dialog_state.h`
+- `setup/macro_dialog_state.cpp`
 - `setup/macro_file_io.h`
 - `setup/macro_file_io.cpp`
 - `setup/signal_handlers.cpp`
@@ -95,6 +100,8 @@ Key functions:
 Current operational role:
 - import handlers load external macro definitions into `CMacroTable`
 - export handlers serialize the current macro table to supported formats
+- chooser-state helpers restore the last import/export folder from GSettings
+- chooser-state helpers add remembered folders as GTK shortcut entries when valid
 - errors are surfaced through `GError**`, which is the right extension point
   for richer UX around drag/drop or format-specific validation later
 
@@ -176,6 +183,10 @@ From a maintenance perspective, the branch changed these developer-facing areas:
 - `setup/ibus-unikey.ui`
   - macro editor UI layout and interaction surface changed
 
+- `setup/macro_dialog_state.{h,cpp}`
+  - chooser remembered-location behavior is centralized instead of being folded
+    directly into the button handlers
+
 - `setup/signal_handlers.{h,cpp}`
   - macro dialog open/save flow expanded
   - editing, sorting, counting, import, and export callbacks became more central
@@ -246,6 +257,7 @@ When debugging or reviewing a macro change, check these invariants first:
 - bulk reload still detaches the model during rebuilds
 - UTF-8 display conversion still mirrors internal encoding correctly
 - import/export still round-trips through `CMacroTable`
+- import/export choosers still restore the last GSettings-backed folder
 - save still happens only on dialog confirmation
 
 ## Git traceability

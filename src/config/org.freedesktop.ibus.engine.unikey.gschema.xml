@@ -59,5 +59,15 @@
       <summary>Standalone W as ư (Telex only)</summary>
       <description></description>
     </key>
+    <key name="macro-last-import-dir" type="s">
+      <default>''</default>
+      <summary>Last macro import directory</summary>
+      <description>Remembers the last folder used by the macro import dialog</description>
+    </key>
+    <key name="macro-last-export-dir" type="s">
+      <default>''</default>
+      <summary>Last macro export directory</summary>
+      <description>Remembers the last folder used by the macro export dialog</description>
+    </key>
   </schema>
 </schemalist>

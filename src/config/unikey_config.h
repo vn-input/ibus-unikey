@@ -58,6 +58,8 @@
 #define CONFIG_FREEMARKING       "free-marking"
 #define CONFIG_MACROENABLED      "macro-enabled"
 #define CONFIG_STANDALONEW       "standalone-w-as-uw"
+#define CONFIG_MACRO_LASTIMPORTDIR "macro-last-import-dir"
+#define CONFIG_MACRO_LASTEXPORTDIR "macro-last-export-dir"
 /** @} */
 
 /**

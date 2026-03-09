@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 3.5)
 project (ibus-unikey)
 
+enable_testing()
+
 cmake_policy(SET CMP0054 NEW)
 
 add_compile_options(-std=c++11 -Werror)
@@ -33,6 +35,7 @@ include_directories(
 add_subdirectory(ukengine)
 add_subdirectory(src)
 add_subdirectory(setup)
+add_subdirectory(tests)
 add_subdirectory(data)
 add_subdirectory(po)
 

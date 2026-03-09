@@ -1,0 +1,7 @@
+matches:
+  - trigger: "@@"
+    replace: "hoangduytran1960@googlemail.com"
+  - trigger: "0hdng"
+    replace: "không hoạt động"
+  - trigger: "4z"
+    replace: "tứ giác"
