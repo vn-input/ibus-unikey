@@ -24,6 +24,12 @@ IBus-Unikey IME
 
 Các thay đổi chính đã được thực hiện trong nhánh làm việc này:
 
+* Macro dialog now supports a rich-text, scrollable replacement field so
+  corporate users can enter much larger replacement texts without being
+  constrained by a single-line entry. The underlying engine text limit has also
+  been raised accordingly.
+
+
 1. **Macro storage không còn giới hạn 1024 entries**
 	 - `CMacroTable` chuyển từ mảng tĩnh sang cấp phát động.
 	 - Tự động tăng dung lượng bằng chiến lược nhân đôi.
@@ -33,10 +39,12 @@ Các thay đổi chính đã được thực hiện trong nhánh làm việc nà
 	 - Entry xuất hiện **sau** trong file sẽ ghi đè entry trước.
 
 3. **Macro dialog CRUD/UI nâng cấp**
-	 - Thêm `Add` / `Remove`.
-	 - Dialog thêm macro riêng (Replace / With).
+	 - Thêm `Add` / `Remove`, và dùng lại cùng hộp thoại cho việc chỉnh sửa.
+	 - Dialog thêm/chỉnh sửa mở qua double-click; không còn chỉnh sửa inline.
+	 - Replace field là văn bản nhiều dòng, scrollable, phù hợp với các macro lớn.
 	 - Sort theo cột bằng click header.
-	 - Sau khi thêm, danh sách được sort, tự cuộn tới item mới và highlight.
+	 - Sau khi thêm hoặc lưu thay đổi, danh sách được sort, tự cuộn tới item mới
+	   và highlight.
 	 - Khi đổi sort, giao diện tự cuộn về item đang chọn (hoặc dòng đầu nếu chưa chọn).
 
 4. **File import/export hỗ trợ**
