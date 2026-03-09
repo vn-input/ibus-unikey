@@ -7,11 +7,12 @@ This directory contains focused tests and fixtures for macro setup UI behavior.
 Current automated coverage focuses on remembered import/export locations stored
 through GSettings:
 
+- when no saved location exists, both choosers default to `$HOME/Documents`
 - import remembers the parent directory of the selected file
 - export remembers the parent directory of the selected file
 - import/export state is stored independently
 - the latest selected directory overwrites the previous saved value
-- empty defaults are treated as unset
+- missing or invalid saved directories fall back to `$HOME/Documents`
 
 ## Files
 

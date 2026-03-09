@@ -14,6 +14,52 @@
 #include "unikey_config.h"
 
 /**
+ * @brief Default folder name used when no remembered chooser folder exists.
+ */
+#define DEFAULT_IMPORT_EXPORT_DIR "Documents"
+
+/**
+ * @brief Build the default chooser directory under the current HOME.
+ *
+ * The directory is created on demand so import/export can always start from a
+ * valid folder even on a fresh profile.
+ *
+ * @return Newly allocated absolute path.
+ */
+static gchar* get_default_import_export_dir()
+{
+    gchar* default_dir = g_build_filename(g_get_home_dir(), DEFAULT_IMPORT_EXPORT_DIR, NULL);
+    g_mkdir_with_parents(default_dir, 0700);
+    return default_dir;
+}
+
+/**
+ * @brief Return a remembered chooser directory or seed the default one.
+ *
+ * @param key GSettings key to read/write.
+ * @return Newly allocated absolute directory path.
+ */
+static gchar* get_saved_dir_or_default(const gchar* key)
+{
+    bool has_settings_key = ibus_unikey_config_has_key(key);
+
+    gchar* saved_dir = NULL;
+    gboolean has_saved_dir = has_settings_key && ibus_unikey_config_get_string(key, &saved_dir);
+    bool is_missing_dir = (has_saved_dir == FALSE || saved_dir == NULL || saved_dir[0] == '\0');
+    bool is_existing_dir = (!is_missing_dir) && g_file_test(saved_dir, G_FILE_TEST_IS_DIR);
+    if (is_existing_dir) {
+        return saved_dir;
+    }
+
+    g_free(saved_dir);
+    gchar* default_dir = get_default_import_export_dir();
+    if (has_settings_key) {
+        ibus_unikey_config_set_string(key, default_dir);
+    }
+    return default_dir;
+}
+
+/**
  * @brief Read a saved chooser directory and treat empty strings as unset.
  *
  * @param key GSettings key to read.
@@ -22,6 +68,10 @@
  */
 static gboolean get_saved_dir(const gchar* key, gchar** out_dir)
 {
+    if (!ibus_unikey_config_has_key(key)) {
+        return FALSE;
+    }
+
     gchar* saved_dir = NULL;
     gboolean has_saved_dir = ibus_unikey_config_get_string(key, &saved_dir);
     bool is_missing_dir = (has_saved_dir == FALSE || saved_dir == NULL || saved_dir[0] == '\0');
@@ -109,11 +159,7 @@ static void apply_saved_folder(GtkFileChooser* chooser, const gchar* key)
 {
     add_saved_shortcuts(chooser);
 
-    gchar* saved_dir = NULL;
-    gboolean has_saved_dir = get_saved_dir(key, &saved_dir);
-    if (!has_saved_dir) {
-        return;
-    }
+    gchar* saved_dir = get_saved_dir_or_default(key);
 
     bool is_existing_dir = g_file_test(saved_dir, G_FILE_TEST_IS_DIR);
     if (is_existing_dir) {
@@ -135,16 +181,12 @@ void macro_dialog_remember_export_file(const gchar* filename)
 
 gchar* macro_dialog_get_last_import_dir(void)
 {
-    gchar* saved_dir = NULL;
-    gboolean has_saved_dir = get_saved_dir(CONFIG_MACRO_LASTIMPORTDIR, &saved_dir);
-    return has_saved_dir ? saved_dir : NULL;
+    return get_saved_dir_or_default(CONFIG_MACRO_LASTIMPORTDIR);
 }
 
 gchar* macro_dialog_get_last_export_dir(void)
 {
-    gchar* saved_dir = NULL;
-    gboolean has_saved_dir = get_saved_dir(CONFIG_MACRO_LASTEXPORTDIR, &saved_dir);
-    return has_saved_dir ? saved_dir : NULL;
+    return get_saved_dir_or_default(CONFIG_MACRO_LASTEXPORTDIR);
 }
 
 void macro_dialog_apply_import_folder(GtkFileChooser* chooser)

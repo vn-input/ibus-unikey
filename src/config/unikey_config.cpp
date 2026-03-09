@@ -34,6 +34,21 @@
 static GSettings* settings;
 
 /**
+ * @brief Look up the ibus-unikey schema from the current schema source.
+ *
+ * @return Referenced schema on success, otherwise `NULL`.
+ */
+static GSettingsSchema* lookup_unikey_schema()
+{
+    GSettingsSchemaSource* source = g_settings_schema_source_get_default();
+    if (source == NULL) {
+        return NULL;
+    }
+
+    return g_settings_schema_source_lookup(source, UNIKEY_GSCHEMA_ID, TRUE);
+}
+
+/**
  * @brief Initialize the configuration subsystem.
  *
  * This allocates a new GSettings object using the predefined schema id.
@@ -80,6 +95,18 @@ void ibus_unikey_config_on_changed(void(*cb)(gchar *, gpointer), gpointer user_d
     g_signal_connect(settings, "changed", G_CALLBACK(settings_changed_wrap), data);
 }
 
+gboolean ibus_unikey_config_has_key(const gchar* name)
+{
+    GSettingsSchema* schema = lookup_unikey_schema();
+    if (schema == NULL) {
+        return FALSE;
+    }
+
+    gboolean has_key = g_settings_schema_has_key(schema, name);
+    g_settings_schema_unref(schema);
+    return has_key;
+}
+
 /**
  * @brief Read a string value from the settings.
  *
@@ -91,6 +118,10 @@ void ibus_unikey_config_on_changed(void(*cb)(gchar *, gpointer), gpointer user_d
  */
 gboolean ibus_unikey_config_get_string(const gchar* name, gchar** result)
 {
+    if (!ibus_unikey_config_has_key(name)) {
+        return false;
+    }
+
     GVariant *value = NULL;
     value = g_settings_get_value(settings, name);
     if (value)
@@ -109,6 +140,10 @@ gboolean ibus_unikey_config_get_string(const gchar* name, gchar** result)
  */
 void ibus_unikey_config_set_string(const gchar* name, const gchar* value)
 {
+    if (!ibus_unikey_config_has_key(name)) {
+        return;
+    }
+
     g_settings_set_value(settings, name, g_variant_new_string(value));
 }
 
@@ -120,6 +155,10 @@ void ibus_unikey_config_set_string(const gchar* name, const gchar* value)
  */
 gboolean ibus_unikey_config_get_boolean(const gchar* name, gboolean* result)
 {
+    if (!ibus_unikey_config_has_key(name)) {
+        return false;
+    }
+
     GVariant *value = NULL;
     value = g_settings_get_value(settings, name);
     if (value)
@@ -138,6 +177,10 @@ gboolean ibus_unikey_config_get_boolean(const gchar* name, gboolean* result)
  */
 void ibus_unikey_config_set_boolean(const gchar* name, gboolean value)
 {
+    if (!ibus_unikey_config_has_key(name)) {
+        return;
+    }
+
     g_settings_set_value(settings, name, g_variant_new_boolean(value));
 }
 

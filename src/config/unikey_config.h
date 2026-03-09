@@ -129,6 +129,13 @@ gboolean ibus_unikey_config_get_string(const gchar* name, gchar** result);
 void ibus_unikey_config_set_string(const gchar* name, const gchar* value);
 
 /**
+ * @brief Check whether the active ibus-unikey schema defines a given key.
+ * @param name Setting key.
+ * @return TRUE when the key exists in the schema, otherwise FALSE.
+ */
+gboolean ibus_unikey_config_has_key(const gchar* name);
+
+/**
  * @brief Read a boolean setting.
  * @param name Setting key.
  * @param[out] result Receives boolean value on success.
