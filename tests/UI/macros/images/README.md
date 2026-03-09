@@ -12,6 +12,17 @@ Thư mục này được tạo sẵn để chứa:
 - `macro-import-chooser-last-dir.png`
 - `macro-export-chooser-last-dir.png`
 
+## Ảnh hiện có
+
+- `main-settings-window.png`
+- `macro-dialog-main.png`
+- `macro-dialog-add.png`
+- `macro-dialog-edit.png`
+- `macro-chooser-last-working-dir-example-1.png`
+- `macro-chooser-last-working-dir-example-2.png`
+- `macro-chooser-example-3.png`
+- `macro-chooser-example-4.png`
+
 ## Cách dùng
 
 Sau khi thêm ảnh vào đây, cập nhật file:

@@ -3,6 +3,7 @@ pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
 
 add_executable(ibus-setup-unikey
     main.cpp
+    macro_export_filename.cpp
     macro_dialog_state.cpp
     signal_handlers.cpp
     macro_utils.cpp

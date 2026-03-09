@@ -23,6 +23,7 @@ Thư mục này chứa tài liệu phục vụ review PR cho toàn bộ thay đ�
 ### Ảnh minh họa
 
 - [Thư mục ảnh](../images/README.md)
+- Ảnh dialog và chooser đã chèn sẵn trong [tài liệu review tiếng Việt](20260309_macro_feature_review_vi.md)
 
 ## Gợi ý cho reviewer
 
@@ -30,4 +31,5 @@ Mở file [20260309_macro_feature_review_vi.md](20260309_macro_feature_review_vi
 - danh sách tính năng đã làm,
 - test case chi tiết cho từng tính năng,
 - lệnh chạy kiểm thử,
-- liên kết nhanh tới dữ liệu test.
+- liên kết nhanh tới dữ liệu test,
+- gallery ảnh minh họa cho macro dialog và file chooser.

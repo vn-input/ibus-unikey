@@ -26,8 +26,10 @@
 #include <cstring>
 #include <libintl.h>
 #include <gdk/gdkkeysyms.h>
+#include <glib/gstdio.h>
 
 #include "mactab.h"
+#include "macro_export_filename.h"
 #include "macro_dialog_state.h"
 #include "macro_file_io.h"
 #include "unikey_config.h"
@@ -99,6 +101,41 @@ static void update_column_headers(void);
  * @param chooser GTK file chooser to configure.
  */
 static void add_macro_file_filters(GtkFileChooser* chooser);
+
+/**
+ * @brief Get the preferred export extension from the selected file filter.
+ *
+ * @param chooser GTK file chooser being used for export.
+ * @return Extension including the leading dot, or `NULL` when none is defined.
+ */
+static const gchar* get_selected_macro_export_extension(GtkFileChooser* chooser);
+
+/**
+ * @brief Select the `.txt` export filter by default.
+ *
+ * @param chooser GTK file chooser used for export.
+ */
+static void set_default_macro_export_filter(GtkFileChooser* chooser);
+
+/**
+ * @brief Ask whether a mismatched filename extension should keep the chosen export type.
+ *
+ * @param typed_filename Filename entered by the user before completion.
+ * @param export_filename Final filename after appending the selected extension.
+ * @param selected_extension Chosen extension including the leading dot.
+ * @return `TRUE` when export should proceed, otherwise `FALSE`.
+ */
+static gboolean confirm_macro_export_extension_conflict(const gchar* typed_filename,
+                                                        const gchar* export_filename,
+                                                        const gchar* selected_extension);
+
+/**
+ * @brief Ask whether an auto-completed export path may overwrite an existing file.
+ *
+ * @param filename Final export filename after appending the selected extension.
+ * @return `TRUE` when overwrite should proceed, otherwise `FALSE`.
+ */
+static gboolean confirm_macro_export_overwrite(const gchar* filename);
 
 /**
  * @brief Display a descriptive error dialog for macro file operations.
@@ -177,6 +214,10 @@ static int current_sort_column = COL_KEY;                 /**< which column is c
  * @brief Default placeholder value inserted when a new key is added.
  */
 #define MACRO_DEFAULT_VALUE _("(replace text)")
+#define MACRO_FILE_FILTER_EXTENSION_KEY "unikey-macro-file-extension"
+#define MACRO_TEXT_FILE_EXTENSION ".txt"
+#define MACRO_YAML_FILE_EXTENSION ".yaml"
+#define MACRO_PLIST_FILE_EXTENSION ".plist"
 
 static gboolean run_macro_editor_dialog(const gchar* initial_key,
                                         const gchar* initial_value,
@@ -364,23 +405,116 @@ static void add_macro_file_filters(GtkFileChooser* chooser)
     GtkFileFilter* filter_native = gtk_file_filter_new();
     gtk_file_filter_set_name(filter_native, _("UniKey text macro files"));
     gtk_file_filter_add_pattern(filter_native, "*.txt");
+    g_object_set_data(G_OBJECT(filter_native),
+                      MACRO_FILE_FILTER_EXTENSION_KEY,
+                      const_cast<gchar*>(MACRO_TEXT_FILE_EXTENSION));
     gtk_file_chooser_add_filter(chooser, filter_native);
 
     GtkFileFilter* filter_yaml = gtk_file_filter_new();
     gtk_file_filter_set_name(filter_yaml, _("YAML files"));
     gtk_file_filter_add_pattern(filter_yaml, "*.yml");
     gtk_file_filter_add_pattern(filter_yaml, "*.yaml");
+    g_object_set_data(G_OBJECT(filter_yaml),
+                      MACRO_FILE_FILTER_EXTENSION_KEY,
+                      const_cast<gchar*>(MACRO_YAML_FILE_EXTENSION));
     gtk_file_chooser_add_filter(chooser, filter_yaml);
 
     GtkFileFilter* filter_plist = gtk_file_filter_new();
     gtk_file_filter_set_name(filter_plist, _("macOS plist files"));
     gtk_file_filter_add_pattern(filter_plist, "*.plist");
+    g_object_set_data(G_OBJECT(filter_plist),
+                      MACRO_FILE_FILTER_EXTENSION_KEY,
+                      const_cast<gchar*>(MACRO_PLIST_FILE_EXTENSION));
     gtk_file_chooser_add_filter(chooser, filter_plist);
 
     GtkFileFilter* filter_all = gtk_file_filter_new();
     gtk_file_filter_set_name(filter_all, dgettext("gtk30", "All Files"));
     gtk_file_filter_add_pattern(filter_all, "*");
     gtk_file_chooser_add_filter(chooser, filter_all);
+}
+
+static const gchar* get_selected_macro_export_extension(GtkFileChooser* chooser)
+{
+    GtkFileFilter* filter = gtk_file_chooser_get_filter(chooser);
+    if (filter == NULL) {
+        return NULL;
+    }
+
+    return static_cast<const gchar*>(
+        g_object_get_data(G_OBJECT(filter), MACRO_FILE_FILTER_EXTENSION_KEY));
+}
+
+static void set_default_macro_export_filter(GtkFileChooser* chooser)
+{
+    GSList* filters = gtk_file_chooser_list_filters(chooser);
+    for (GSList* item = filters; item != NULL; item = item->next) {
+        GtkFileFilter* filter = GTK_FILE_FILTER(item->data);
+        const gchar* extension = static_cast<const gchar*>(
+            g_object_get_data(G_OBJECT(filter), MACRO_FILE_FILTER_EXTENSION_KEY));
+        const gboolean is_text_filter = (g_strcmp0(extension, MACRO_TEXT_FILE_EXTENSION) == 0);
+        if (is_text_filter) {
+            gtk_file_chooser_set_filter(chooser, filter);
+            break;
+        }
+    }
+    g_slist_free(filters);
+}
+
+static gboolean confirm_macro_export_extension_conflict(const gchar* typed_filename,
+                                                        const gchar* export_filename,
+                                                        const gchar* selected_extension)
+{
+    GtkWidget* dialog = gtk_message_dialog_new(GTK_WINDOW(dlgMacro),
+                                               GTK_DIALOG_MODAL,
+                                               GTK_MESSAGE_WARNING,
+                                               GTK_BUTTONS_NONE,
+                                               "%s",
+                                               _("Filename extension does not match the selected file type"));
+    gtk_dialog_add_buttons(GTK_DIALOG(dialog),
+                           dgettext("gtk30", "_Cancel"), GTK_RESPONSE_CANCEL,
+                           _("Use Selected Type"), GTK_RESPONSE_OK,
+                           NULL);
+    gtk_window_set_title(GTK_WINDOW(dialog), _("Confirm Export Type"));
+    gtk_message_dialog_format_secondary_text(
+        GTK_MESSAGE_DIALOG(dialog),
+        _("You entered:\n%s\n\nbut selected file type:\n%s\n\nUniKey can continue with the completed filename below, or you can cancel and change it:\n%s"),
+        typed_filename != NULL ? typed_filename : "",
+        selected_extension != NULL ? selected_extension : "",
+        export_filename != NULL ? export_filename : "");
+
+    gboolean should_use_selected_type = (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK);
+    gtk_widget_destroy(dialog);
+    return should_use_selected_type;
+}
+
+static gboolean confirm_macro_export_overwrite(const gchar* filename)
+{
+    GtkWidget* dialog = gtk_message_dialog_new(GTK_WINDOW(dlgMacro),
+                                               GTK_DIALOG_MODAL,
+                                               GTK_MESSAGE_QUESTION,
+                                               GTK_BUTTONS_NONE,
+                                               "%s",
+                                               _("Replace existing export file?"));
+    gtk_message_dialog_format_secondary_text(
+        GTK_MESSAGE_DIALOG(dialog),
+        "%s",
+        _("The selected file type completed the filename with an extension, and that file already exists. Replace it?"));
+    gtk_dialog_add_buttons(GTK_DIALOG(dialog),
+                           dgettext("gtk30", "_Cancel"), GTK_RESPONSE_CANCEL,
+                           dgettext("gtk30", "_Replace"), GTK_RESPONSE_OK,
+                           NULL);
+    gtk_window_set_title(GTK_WINDOW(dialog), _("Confirm Export Overwrite"));
+
+    gchar* basename = g_path_get_basename(filename);
+    gtk_message_dialog_format_secondary_text(
+        GTK_MESSAGE_DIALOG(dialog),
+        _("The export path was completed as:\n%s\n\nReplace the existing file?"),
+        basename != NULL ? basename : filename);
+    g_free(basename);
+
+    gboolean should_replace = (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK);
+    gtk_widget_destroy(dialog);
+    return should_replace;
 }
 
 /**
@@ -910,10 +1044,49 @@ void on_btn_macro_export_clicked(GtkButton* button, gpointer data)
     GtkFileChooser* chooser = GTK_FILE_CHOOSER(file);
     gtk_file_chooser_set_do_overwrite_confirmation(chooser, TRUE);
     add_macro_file_filters(chooser);
+    set_default_macro_export_filter(chooser);
     macro_dialog_apply_export_folder(chooser);
 
-    if (gtk_dialog_run(GTK_DIALOG(file)) == GTK_RESPONSE_OK)
+    while (gtk_dialog_run(GTK_DIALOG(file)) == GTK_RESPONSE_OK)
     {
+        gchar* selected_filename = gtk_file_chooser_get_filename(chooser);
+        const gchar* selected_extension = get_selected_macro_export_extension(chooser);
+        const gboolean has_extension_conflict =
+            macro_export_filename_has_extension_conflict(selected_filename, selected_extension);
+        gchar* export_filename = macro_export_filename_complete(selected_filename,
+                                                                selected_extension);
+        const gboolean has_completed_extension =
+            (g_strcmp0(selected_filename, export_filename) != 0);
+        const gboolean is_existing_completed_path =
+            has_completed_extension && g_file_test(export_filename, G_FILE_TEST_EXISTS);
+
+        if (has_extension_conflict
+            && !confirm_macro_export_extension_conflict(selected_filename,
+                                                        export_filename,
+                                                        selected_extension)) {
+            gchar* selected_dir = g_path_get_dirname(selected_filename);
+            gchar* selected_base = g_path_get_basename(selected_filename);
+            gtk_file_chooser_set_current_folder(chooser, selected_dir);
+            gtk_file_chooser_set_current_name(chooser, selected_base);
+            g_free(selected_dir);
+            g_free(selected_base);
+            g_free(selected_filename);
+            g_free(export_filename);
+            continue;
+        }
+
+        if (is_existing_completed_path && !confirm_macro_export_overwrite(export_filename)) {
+            gchar* export_dir = g_path_get_dirname(export_filename);
+            gchar* export_base = g_path_get_basename(export_filename);
+            gtk_file_chooser_set_current_folder(chooser, export_dir);
+            gtk_file_chooser_set_current_name(chooser, export_base);
+            g_free(export_dir);
+            g_free(export_base);
+            g_free(selected_filename);
+            g_free(export_filename);
+            continue;
+        }
+
         CMacroTable macro;
         macro.init();
 
@@ -934,17 +1107,20 @@ void on_btn_macro_export_clicked(GtkButton* button, gpointer data)
             b = gtk_tree_model_iter_next(model, &iter);
         }
 
-        auto fn = gtk_file_chooser_get_filename(chooser);
-        macro_dialog_remember_export_file(fn);
+        macro_dialog_remember_export_file(export_filename);
         GError* error = NULL;
-        if (!macro_table_write_any_format(fn, &macro, &error))
+        if (!macro_table_write_any_format(export_filename, &macro, &error))
         {
             show_macro_file_error_dialog(_("Failed to export macros."), error);
-            g_free(fn);
+            g_free(selected_filename);
+            g_free(export_filename);
             gtk_widget_destroy(file);
             return;
         }
-        g_free(fn);
+
+        g_free(selected_filename);
+        g_free(export_filename);
+        break;
     }
 
     gtk_widget_destroy(file);

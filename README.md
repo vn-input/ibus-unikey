@@ -97,12 +97,10 @@ chuyển đổi sang bảng nội bộ với cùng quy tắc dedupe như khi loa
 
 **Remembered import/export locations**
 
-- Thư mục import gần nhất được lưu trong `GSettings` key
-	`macro-last-import-dir`.
-- Thư mục export gần nhất được lưu trong `GSettings` key
-	`macro-last-export-dir`.
-- Khi mở file chooser, ibus-unikey đặt thư mục hiện hành theo giá trị đã lưu và
-	thêm các thư mục import/export đã nhớ làm shortcut trong sidebar nếu còn tồn tại.
+- Thư mục làm việc gần nhất của import/export được lưu trong `GSettings` key
+	`macro-last-working-dir`.
+- Khi mở file chooser, ibus-unikey đặt thư mục hiện hành theo giá trị đã lưu,
+	hoặc fallback về thư mục mặc định nếu chưa có giá trị hợp lệ.
 - Không có file `config.yaml` riêng cho tính năng này.
 
 ### Core files

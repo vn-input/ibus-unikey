@@ -319,10 +319,10 @@ performance on large macro sets.
 #### Chooser state persistence
 - Remembered chooser folders are stored in GSettings, not in a separate YAML or
   JSON config file.
-- The current keys are `macro-last-import-dir` and `macro-last-export-dir`.
+- The current key is `macro-last-working-dir`, shared by both import and export dialogs.
 - Empty values are treated as unset.
-- The feature intentionally reuses GTK file chooser shortcuts instead of
-  introducing a custom favorites-management UI.
+- The feature intentionally keeps the chooser behavior minimal: reopen the last
+  working directory or fall back to the default directory.
 
 ### Why this structure was chosen
 

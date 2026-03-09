@@ -20,8 +20,7 @@ static gchar* create_existing_dir(const gchar* first, const gchar* second)
 
 static void reset_saved_dirs()
 {
-    ibus_unikey_config_set_string(CONFIG_MACRO_LASTIMPORTDIR, "");
-    ibus_unikey_config_set_string(CONFIG_MACRO_LASTEXPORTDIR, "");
+    ibus_unikey_config_set_string(CONFIG_MACRO_LASTWORKINGDIR, "");
 }
 
 static void test_import_dir_defaults_to_documents()
@@ -36,7 +35,7 @@ static void test_import_dir_defaults_to_documents()
     g_assert_true(g_file_test(saved_dir, G_FILE_TEST_IS_DIR));
 
     gchar* persisted_dir = NULL;
-    g_assert_true(ibus_unikey_config_get_string(CONFIG_MACRO_LASTIMPORTDIR, &persisted_dir));
+    g_assert_true(ibus_unikey_config_get_string(CONFIG_MACRO_LASTWORKINGDIR, &persisted_dir));
     g_assert_cmpstr(persisted_dir, ==, expected_dir);
 
     g_free(persisted_dir);
@@ -56,7 +55,7 @@ static void test_export_dir_defaults_to_documents()
     g_assert_true(g_file_test(saved_dir, G_FILE_TEST_IS_DIR));
 
     gchar* persisted_dir = NULL;
-    g_assert_true(ibus_unikey_config_get_string(CONFIG_MACRO_LASTEXPORTDIR, &persisted_dir));
+    g_assert_true(ibus_unikey_config_get_string(CONFIG_MACRO_LASTWORKINGDIR, &persisted_dir));
     g_assert_cmpstr(persisted_dir, ==, expected_dir);
 
     g_free(persisted_dir);
@@ -120,7 +119,7 @@ static void test_last_value_overwrites_previous_dir()
     g_free(saved_dir);
 }
 
-static void test_import_and_export_dirs_are_separate()
+static void test_import_and_export_share_same_last_working_dir()
 {
     reset_saved_dirs();
 
@@ -137,13 +136,13 @@ static void test_import_and_export_dirs_are_separate()
 
     g_assert_nonnull(import_dir);
     g_assert_nonnull(export_dir);
-    g_assert_cmpstr(import_dir, ==, import_dir_expected);
+    g_assert_cmpstr(import_dir, ==, export_dir_expected);
     g_assert_cmpstr(export_dir, ==, export_dir_expected);
 
     g_free(import_file);
     g_free(export_file);
-    g_free(import_dir_expected);
     g_free(export_dir_expected);
+    g_free(import_dir_expected);
     g_free(import_dir);
     g_free(export_dir);
 }
@@ -168,7 +167,7 @@ int main(int argc, char** argv)
     g_test_add_func("/ui/macros/remember-import-parent", test_remember_import_file_stores_parent_dir);
     g_test_add_func("/ui/macros/remember-export-parent", test_remember_export_file_stores_parent_dir);
     g_test_add_func("/ui/macros/import-overwrites-previous", test_last_value_overwrites_previous_dir);
-    g_test_add_func("/ui/macros/import-export-separate", test_import_and_export_dirs_are_separate);
+    g_test_add_func("/ui/macros/import-export-share-last-working-dir", test_import_and_export_share_same_last_working_dir);
 
     return g_test_run();
 }

@@ -24,6 +24,7 @@ add_definitions(
     -DPACKAGE_BUGREPORT="https://github.com/vn-input/ibus-unikey/issues"
     -DLOCALEDIR="${LOCALEDIR}"
     -DPKGDATADIR="${PKGDATADIR}"
+    -DUNIKEY_GSETTINGS_DIR="${CMAKE_INSTALL_FULL_DATADIR}/glib-2.0/schemas"
     -DLIBEXECDIR="${LIBEXECDIR}"
 )
 

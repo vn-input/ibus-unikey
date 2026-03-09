@@ -38,14 +38,75 @@ static GSettings* settings;
  *
  * @return Referenced schema on success, otherwise `NULL`.
  */
-static GSettingsSchema* lookup_unikey_schema()
+static GSettingsSchema* lookup_unikey_schema_from_source(GSettingsSchemaSource* source,
+                                                         gboolean recursive)
 {
-    GSettingsSchemaSource* source = g_settings_schema_source_get_default();
     if (source == NULL) {
         return NULL;
     }
 
-    return g_settings_schema_source_lookup(source, UNIKEY_GSCHEMA_ID, TRUE);
+    return g_settings_schema_source_lookup(source, UNIKEY_GSCHEMA_ID, recursive);
+}
+
+/**
+ * @brief Load the ibus-unikey schema from an explicit compiled-schema directory.
+ *
+ * @param schema_dir Directory containing `gschemas.compiled`.
+ * @return Referenced schema on success, otherwise `NULL`.
+ */
+static GSettingsSchema* lookup_unikey_schema_from_directory(const gchar* schema_dir)
+{
+    const gboolean has_schema_dir = (schema_dir != NULL && schema_dir[0] != '\0');
+    if (!has_schema_dir) {
+        return NULL;
+    }
+
+    GError* error = NULL;
+    GSettingsSchemaSource* source = g_settings_schema_source_new_from_directory(
+        schema_dir,
+        NULL,
+        FALSE,
+        &error);
+    if (source == NULL) {
+        if (error != NULL) {
+            g_error_free(error);
+        }
+        return NULL;
+    }
+
+    GSettingsSchema* schema = lookup_unikey_schema_from_source(source, FALSE);
+    g_settings_schema_source_unref(source);
+    return schema;
+}
+
+/**
+ * @brief Choose the single schema directory ibus-unikey should use.
+ *
+ * Tests may override this with `GSETTINGS_SCHEMA_DIR`. Installed builds fall
+ * back to the schema directory computed from the install prefix.
+ *
+ * @return Absolute schema directory path.
+ */
+static const gchar* get_preferred_schema_dir()
+{
+    const gchar* explicit_schema_dir = g_getenv("GSETTINGS_SCHEMA_DIR");
+    const gboolean has_explicit_schema_dir =
+        (explicit_schema_dir != NULL && explicit_schema_dir[0] != '\0');
+    if (has_explicit_schema_dir) {
+        return explicit_schema_dir;
+    }
+
+    return UNIKEY_GSETTINGS_DIR;
+}
+
+/**
+ * @brief Load the ibus-unikey schema from the one configured schema directory.
+ *
+ * @return Referenced best-match schema on success, otherwise `NULL`.
+ */
+static GSettingsSchema* lookup_unikey_schema()
+{
+    return lookup_unikey_schema_from_directory(get_preferred_schema_dir());
 }
 
 /**
@@ -55,6 +116,13 @@ static GSettingsSchema* lookup_unikey_schema()
  */
 void ibus_unikey_config_init()
 {
+    GSettingsSchema* schema = lookup_unikey_schema();
+    if (schema != NULL) {
+        settings = g_settings_new_full(schema, NULL, NULL);
+        g_settings_schema_unref(schema);
+        return;
+    }
+
     settings = g_settings_new(UNIKEY_GSCHEMA_ID);
 }
 

@@ -48,13 +48,13 @@ gchar* macro_dialog_get_last_import_dir(void);
 gchar* macro_dialog_get_last_export_dir(void);
 
 /**
- * @brief Apply the remembered import directory and shortcuts to a chooser.
+ * @brief Apply the remembered import directory to a chooser.
  * @param chooser File chooser widget to initialize.
  */
 void macro_dialog_apply_import_folder(GtkFileChooser* chooser);
 
 /**
- * @brief Apply the remembered export directory and shortcuts to a chooser.
+ * @brief Apply the remembered export directory to a chooser.
  * @param chooser File chooser widget to initialize.
  */
 void macro_dialog_apply_export_folder(GtkFileChooser* chooser);

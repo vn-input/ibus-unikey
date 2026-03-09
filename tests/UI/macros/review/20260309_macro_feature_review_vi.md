@@ -368,13 +368,12 @@ Tài liệu này giúp reviewer xem nhanh:
 ### Mô tả
 
 - Không dùng `config.yaml` riêng.
-- Dùng `GSettings` keys:
-  - `macro-last-import-dir`
-  - `macro-last-export-dir`
+- Dùng `GSettings` key dùng chung:
+  - `macro-last-working-dir`
 - Nếu chưa có giá trị hoặc giá trị cũ không còn hợp lệ, ứng dụng tự fallback về
   thư mục mặc định `$HOME/Documents`.
 - Khi mở lại file chooser, ứng dụng đưa người dùng về thư mục lần trước.
-- Nếu thư mục còn tồn tại, chooser cũng thêm chúng vào shortcut/sidebar.
+- Không thêm shortcut/sidebar tùy biến; chooser chỉ mở đúng thư mục đã nhớ.
 
 ### Test case đề xuất
 
@@ -391,12 +390,12 @@ Tài liệu này giúp reviewer xem nhanh:
 **TC10.0 — Mặc định về Documents khi chưa có key**
 
 **Bước thực hiện**
-1. Dùng profile người dùng mới hoặc reset hai key GSettings liên quan.
+1. Dùng profile người dùng mới hoặc reset key GSettings liên quan.
 2. Mở `Import...` hoặc `Export...` lần đầu.
 
 **Kỳ vọng**
 - Dialog bắt đầu ở `$HOME/Documents`.
-- Hai key GSettings được seed về thư mục mặc định này.
+- Key GSettings được seed về thư mục mặc định này.
 
 **TC10.2 — Nhớ thư mục export**
 
@@ -408,7 +407,7 @@ Tài liệu này giúp reviewer xem nhanh:
 **Kỳ vọng**
 - Chooser mở lại đúng thư mục export lần trước.
 
-**TC10.3 — Import/export giữ riêng từng thư mục**
+**TC10.3 — Import/export dùng chung thư mục làm việc gần nhất**
 
 **Bước thực hiện**
 1. Import từ thư mục A.
@@ -416,9 +415,9 @@ Tài liệu này giúp reviewer xem nhanh:
 3. Mở lại `Import...` rồi `Export...`.
 
 **Kỳ vọng**
-- `Import...` quay về A.
+- `Import...` quay về B.
 - `Export...` quay về B.
-- Không bị ghi đè lẫn nhau.
+- Cả hai dialog đều dùng cùng thư mục làm việc gần nhất.
 
 **TC10.4 — Shortcut sidebar xuất hiện khi thư mục còn tồn tại**
 
@@ -500,14 +499,29 @@ ctest --test-dir build --output-on-failure
 
 ## 6. Ảnh minh họa
 
-Hiện tại thư mục [images](../images/README.md) đã được tạo để chứa ảnh review nếu cần bổ sung sau.
+Thư mục [images](../images/README.md) hiện đã có một số ảnh minh họa phục vụ review nhanh.
 
-Trong lần chuẩn bị tài liệu này, ảnh chụp màn hình **không bắt buộc** vì:
-- các bước review có thể tái hiện trực tiếp rất rõ,
-- dữ liệu test đã có sẵn trong repo,
-- đã có unit test tự động cho phần remembered folders.
+### 6.1 Ảnh dialog macro
 
-Nếu reviewer hoặc maintainer muốn thêm ảnh/GIF sau này, chỉ cần đặt file vào thư mục `tests/UI/macros/images/` và chèn link Markdown vào đây.
+- Màn hình settings chính: [main-settings-window.png](../images/main-settings-window.png)
+- Dialog macro tổng quan: [macro-dialog-main.png](../images/macro-dialog-main.png)
+- Dialog thêm macro: [macro-dialog-add.png](../images/macro-dialog-add.png)
+- Dialog sửa macro: [macro-dialog-edit.png](../images/macro-dialog-edit.png)
+
+### 6.2 Ảnh file chooser / remembered last working dir
+
+- Ví dụ chooser sau khi đã nhớ thư mục làm việc:
+  - [macro-chooser-last-working-dir-example-1.png](../images/macro-chooser-last-working-dir-example-1.png)
+  - [macro-chooser-last-working-dir-example-2.png](../images/macro-chooser-last-working-dir-example-2.png)
+- Ảnh bổ sung cho luồng chooser:
+  - [macro-chooser-example-3.png](../images/macro-chooser-example-3.png)
+  - [macro-chooser-example-4.png](../images/macro-chooser-example-4.png)
+
+### 6.3 Cách reviewer dùng ảnh
+
+- Dùng nhóm ảnh dialog macro để đối chiếu bố cục Add/Edit và vùng nhập text nhiều dòng.
+- Dùng nhóm ảnh chooser để đối chiếu hành vi nhớ thư mục làm việc gần nhất giữa import và export.
+- Nếu cần ảnh/GIF khác sau này, chỉ cần đặt thêm file vào `tests/UI/macros/images/` và chèn link Markdown vào đây.
 
 ---
 

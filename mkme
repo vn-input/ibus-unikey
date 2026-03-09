@@ -1,9 +1,10 @@
 #!/bin/bash -x
+BUILD_DIR="build"
 cd ~/download/ibus-unikey
-rm -rf build-system
-cmake -S . -B build-system \
+rm -rf "$BUILD_DIR"
+cmake -S . -B "$BUILD_DIR" \
   -DCMAKE_INSTALL_PREFIX=/usr \
   -DCMAKE_INSTALL_LIBEXECDIR=libexec \
   -DLIBEXECDIR=/usr/libexec
-cmake --build build-system -j$(nproc)
-sudo cmake --install build-system
+cmake --build "$BUILD_DIR" -j$(nproc)
+sudo cmake --install "$BUILD_DIR"
