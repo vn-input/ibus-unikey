@@ -107,6 +107,66 @@ static void add_macro_file_filters(GtkFileChooser* chooser);
  */
 static void show_macro_file_error_dialog(const gchar* title, GError* error);
 
+/**
+ * @brief Open the shared macro editor dialog and return the saved values.
+ *
+ * @param initial_key Initial key to prefill, or `NULL` for add mode.
+ * @param initial_value Initial replacement text to prefill, or `NULL`.
+ * @param out_key Returned newly allocated key when saved.
+ * @param out_value Returned newly allocated value when saved.
+ * @return `TRUE` when the user confirmed the dialog, otherwise `FALSE`.
+ */
+static gboolean run_macro_editor_dialog(const gchar* initial_key,
+                                        const gchar* initial_value,
+                                        gchar** out_key,
+                                        gchar** out_value);
+
+/**
+ * @brief Insert or replace a macro row, then reselect and center it.
+ *
+ * @param original_key Existing row key being edited, or `NULL` for add mode.
+ * @param new_key Final key to store.
+ * @param new_value Final value to store.
+ */
+static void save_macro_entry(const gchar* original_key,
+                             const gchar* new_key,
+                             const gchar* new_value);
+
+/**
+ * @brief Remove the trailing sentinel row if it is present.
+ *
+ * @param store Macro list store.
+ */
+static void remove_null_placeholder_row(GtkListStore* store);
+
+/**
+ * @brief Locate a macro row by key using case-insensitive comparison.
+ *
+ * @param model Tree model to search.
+ * @param key Key to match.
+ * @param out_iter Destination iterator on success.
+ * @return `TRUE` when a non-sentinel row matches, otherwise `FALSE`.
+ */
+static gboolean find_macro_iter_by_key(GtkTreeModel* model,
+                                       const gchar* key,
+                                       GtkTreeIter* out_iter);
+
+/**
+ * @brief Select and center the row whose key matches @p key.
+ *
+ * @param key Macro key to reveal.
+ */
+static void select_and_scroll_to_macro_key(const gchar* key);
+
+/**
+ * @brief Copy text into a bounded NUL-terminated string.
+ *
+ * @param text Source text.
+ * @param max_len Maximum destination length including terminator.
+ * @return Newly allocated bounded string.
+ */
+static gchar* duplicate_bounded_text(const gchar* text, gsize max_len);
+
 // Sort state for columns
 static GtkSortType sort_key_order = GTK_SORT_ASCENDING;   /**< current sort order for key column */
 static GtkSortType sort_value_order = GTK_SORT_ASCENDING; /**< current sort order for value column */
@@ -116,6 +176,174 @@ static int current_sort_column = COL_KEY;                 /**< which column is c
  * @brief Default placeholder value inserted when a new key is added.
  */
 #define MACRO_DEFAULT_VALUE _("(replace text)")
+
+static gboolean run_macro_editor_dialog(const gchar* initial_key,
+                                        const gchar* initial_value,
+                                        gchar** out_key,
+                                        gchar** out_value)
+{
+    GtkDialog* edit_dialog = GTK_DIALOG(gtk_builder_get_object(builder, "add_macro_dialog"));
+    GtkEntry* entry_key = GTK_ENTRY(gtk_builder_get_object(builder, "entry_macro_key"));
+    GtkTextView* value_view = GTK_TEXT_VIEW(gtk_builder_get_object(builder, "textview_macro_value"));
+
+    if (edit_dialog == NULL || entry_key == NULL || value_view == NULL) {
+        g_warning("Macro editor dialog widgets not found");
+        return FALSE;
+    }
+
+    GtkTextBuffer* value_buffer = gtk_text_view_get_buffer(value_view);
+    bool is_edit_mode = (initial_key != NULL && g_strcmp0(initial_key, STR_NULL_ITEM) != 0);
+
+    gtk_window_set_title(GTK_WINDOW(edit_dialog), is_edit_mode ? _("Edit Macro") : _("Add Macro"));
+    gtk_window_set_transient_for(GTK_WINDOW(edit_dialog), GTK_WINDOW(dlgMacro));
+
+    gtk_entry_set_text(entry_key, initial_key != NULL ? initial_key : "");
+    gtk_text_buffer_set_text(value_buffer, initial_value != NULL ? initial_value : "", -1);
+
+    gtk_widget_show_all(GTK_WIDGET(edit_dialog));
+    gtk_widget_grab_focus(GTK_WIDGET(entry_key));
+
+    int response = gtk_dialog_run(edit_dialog);
+    gtk_widget_hide(GTK_WIDGET(edit_dialog));
+    if (response != GTK_RESPONSE_OK) {
+        return FALSE;
+    }
+
+    const gchar* raw_key = gtk_entry_get_text(entry_key);
+    if (raw_key == NULL || strlen(raw_key) == 0) {
+        return FALSE;
+    }
+
+    GtkTextIter start_iter;
+    GtkTextIter end_iter;
+    gtk_text_buffer_get_bounds(value_buffer, &start_iter, &end_iter);
+    gchar* raw_value = gtk_text_buffer_get_text(value_buffer, &start_iter, &end_iter, FALSE);
+
+    *out_key = duplicate_bounded_text(raw_key, MAX_MACRO_KEY_LEN);
+    *out_value = duplicate_bounded_text(raw_value, MAX_MACRO_TEXT_LEN);
+    g_free(raw_value);
+    return TRUE;
+}
+
+static gchar* duplicate_bounded_text(const gchar* text, gsize max_len)
+{
+    if (text == NULL) {
+        return g_strdup("");
+    }
+
+    gchar* copy = static_cast<gchar*>(g_malloc(max_len));
+    strncpy(copy, text, max_len - 1);
+    copy[max_len - 1] = '\0';
+    return copy;
+}
+
+static void remove_null_placeholder_row(GtkListStore* store)
+{
+    GtkTreeIter iter;
+    int child_count = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(store), NULL);
+    if (child_count <= 0) {
+        return;
+    }
+
+    gtk_tree_model_iter_nth_child(GTK_TREE_MODEL(store), &iter, NULL, child_count - 1);
+    gchar* last_key = NULL;
+    gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, COL_KEY, &last_key, -1);
+
+    bool is_null_placeholder = (g_strcmp0(last_key, STR_NULL_ITEM) == 0);
+    if (is_null_placeholder) {
+        gtk_list_store_remove(store, &iter);
+    }
+
+    g_free(last_key);
+}
+
+static gboolean find_macro_iter_by_key(GtkTreeModel* model,
+                                       const gchar* key,
+                                       GtkTreeIter* out_iter)
+{
+    if (model == NULL || key == NULL) {
+        return FALSE;
+    }
+
+    GtkTreeIter iter;
+    gboolean has_row = gtk_tree_model_get_iter_first(model, &iter);
+    while (has_row) {
+        gchar* iter_key = NULL;
+        gtk_tree_model_get(model, &iter, COL_KEY, &iter_key, -1);
+
+        bool is_real_row = (iter_key != NULL && g_strcmp0(iter_key, STR_NULL_ITEM) != 0);
+        bool is_match = is_real_row && strcasecmp(iter_key, key) == 0;
+        g_free(iter_key);
+
+        if (is_match) {
+            *out_iter = iter;
+            return TRUE;
+        }
+
+        has_row = gtk_tree_model_iter_next(model, &iter);
+    }
+
+    return FALSE;
+}
+
+static void select_and_scroll_to_macro_key(const gchar* key)
+{
+    auto model = gtk_tree_view_get_model(tree_macro);
+    if (model == NULL || key == NULL) {
+        return;
+    }
+
+    GtkTreeIter iter;
+    gboolean found = find_macro_iter_by_key(model, key, &iter);
+    if (!found) {
+        return;
+    }
+
+    GtkTreePath* path = gtk_tree_model_get_path(model, &iter);
+    gtk_tree_view_set_cursor(tree_macro, path, NULL, FALSE);
+    gtk_tree_view_scroll_to_cell(tree_macro, path, NULL, TRUE, 0.5, 0.0);
+    gtk_widget_grab_focus(GTK_WIDGET(tree_macro));
+    gtk_tree_path_free(path);
+}
+
+static void save_macro_entry(const gchar* original_key,
+                             const gchar* new_key,
+                             const gchar* new_value)
+{
+    auto store = GTK_LIST_STORE(gtk_tree_view_get_model(tree_macro));
+    auto model = GTK_TREE_MODEL(store);
+
+    remove_null_placeholder_row(store);
+
+    if (original_key != NULL) {
+        GtkTreeIter original_iter;
+        bool has_original_row = find_macro_iter_by_key(model, original_key, &original_iter);
+        if (has_original_row) {
+            gtk_list_store_remove(store, &original_iter);
+        }
+    }
+
+    GtkTreeIter conflicting_iter;
+    bool has_conflicting_row = find_macro_iter_by_key(model, new_key, &conflicting_iter);
+    if (has_conflicting_row) {
+        gtk_list_store_remove(store, &conflicting_iter);
+    }
+
+    GtkTreeIter new_iter;
+    gtk_list_store_append(store, &new_iter);
+    gtk_list_store_set(store, &new_iter, COL_KEY, new_key, COL_VALUE, new_value, -1);
+
+    list_store_add_null_item(store);
+    sort_list_store(current_sort_column,
+        current_sort_column == COL_KEY ? sort_key_order : sort_value_order);
+
+    while (gtk_events_pending()) {
+        gtk_main_iteration();
+    }
+
+    select_and_scroll_to_macro_key(new_key);
+    update_macro_count_label();
+}
 
 /**
  * @brief Install file chooser filters for native text, YAML, plist, and generic files.
@@ -908,115 +1136,46 @@ void on_column_value_clicked(GtkTreeViewColumn* column, gpointer user_data)
  */
 void on_btn_macro_add_clicked(GtkButton* button, gpointer user_data)
 {
-    GtkDialog* add_dialog = GTK_DIALOG(gtk_builder_get_object(builder, "add_macro_dialog"));
-    GtkEntry* entry_key = GTK_ENTRY(gtk_builder_get_object(builder, "entry_macro_key"));
-    GtkEntry* entry_value = GTK_ENTRY(gtk_builder_get_object(builder, "entry_macro_value"));
-
-    if (add_dialog == NULL || entry_key == NULL || entry_value == NULL) {
-        g_warning("Add macro dialog widgets not found");
+    gchar* new_key = NULL;
+    gchar* new_value = NULL;
+    bool should_save = run_macro_editor_dialog(NULL, NULL, &new_key, &new_value);
+    if (!should_save) {
         return;
     }
 
-    // Clear entries and set parent
-    gtk_entry_set_text(entry_key, "");
-    gtk_entry_set_text(entry_value, "");
-    gtk_window_set_transient_for(GTK_WINDOW(add_dialog), GTK_WINDOW(dlgMacro));
-    gtk_widget_show_all(GTK_WIDGET(add_dialog));
+    save_macro_entry(NULL, new_key, new_value);
+    g_free(new_key);
+    g_free(new_value);
+}
 
-    int response = gtk_dialog_run(add_dialog);
-    gtk_widget_hide(GTK_WIDGET(add_dialog));
-
-    if (response == GTK_RESPONSE_OK) {
-        const gchar* new_key = gtk_entry_get_text(entry_key);
-        const gchar* new_value = gtk_entry_get_text(entry_value);
-
-        // Validate: both fields must have content
-        if (strlen(new_key) == 0) {
-            return;
-        }
-
-        // Truncate to max lengths
-        gchar key_buf[MAX_MACRO_KEY_LEN];
-        gchar value_buf[MAX_MACRO_TEXT_LEN];
-        strncpy(key_buf, new_key, MAX_MACRO_KEY_LEN - 1);
-        key_buf[MAX_MACRO_KEY_LEN - 1] = '\0';
-        strncpy(value_buf, new_value, MAX_MACRO_TEXT_LEN - 1);
-        value_buf[MAX_MACRO_TEXT_LEN - 1] = '\0';
-
-        auto store = GTK_LIST_STORE(gtk_tree_view_get_model(tree_macro));
-
-        // Check for duplicate
-        if (list_store_check_exists(store, key_buf)) {
-            GtkWidget* msg = gtk_message_dialog_new(GTK_WINDOW(dlgMacro),
-                GTK_DIALOG_MODAL,
-                GTK_MESSAGE_WARNING,
-                GTK_BUTTONS_OK,
-                _("Macro '%s' already exists."), key_buf);
-            gtk_dialog_run(GTK_DIALOG(msg));
-            gtk_widget_destroy(msg);
-            return;
-        }
-
-        // Remove the null placeholder row
-        GtkTreeIter iter;
-        int n = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(store), NULL);
-        if (n > 0) {
-            gtk_tree_model_iter_nth_child(GTK_TREE_MODEL(store), &iter, NULL, n - 1);
-            gchar* last_key;
-            gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, COL_KEY, &last_key, -1);
-            if (g_strcmp0(last_key, STR_NULL_ITEM) == 0) {
-                gtk_list_store_remove(store, &iter);
-            }
-            g_free(last_key);
-        }
-
-        // Add new item
-        GtkTreeIter new_iter;
-        gtk_list_store_append(store, &new_iter);
-        gtk_list_store_set(store, &new_iter, COL_KEY, key_buf, COL_VALUE, value_buf, -1);
-
-        // Add null item back
-        list_store_add_null_item(store);
-
-        // Re-sort to put the item in the right place
-        sort_list_store(current_sort_column,
-            current_sort_column == COL_KEY ? sort_key_order : sort_value_order);
-
-        // Process pending events to ensure sort is reflected in UI
-        while (gtk_events_pending())
-            gtk_main_iteration();
-
-        // Find the new item and scroll to it
-        GtkTreeIter find_iter;
-        gboolean found = FALSE;
-        if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &find_iter)) {
-            do {
-                gchar* iter_key;
-                gtk_tree_model_get(GTK_TREE_MODEL(store), &find_iter, COL_KEY, &iter_key, -1);
-                if (g_strcmp0(iter_key, key_buf) == 0) {
-                    found = TRUE;
-                    g_free(iter_key);
-                    break;
-                }
-                g_free(iter_key);
-            } while (gtk_tree_model_iter_next(GTK_TREE_MODEL(store), &find_iter));
-        }
-
-        if (found) {
-            GtkTreePath* path = gtk_tree_model_get_path(GTK_TREE_MODEL(store), &find_iter);
-
-            // Use set_cursor which selects, scrolls, and focuses in one operation
-            gtk_tree_view_set_cursor(tree_macro, path, NULL, FALSE);
-
-            // Scroll to center the new item so user can see surrounding entries
-            gtk_tree_view_scroll_to_cell(tree_macro, path, NULL, TRUE, 0.5, 0.0);
-
-            // Grab focus on tree view to make selection highlight visible
-            gtk_widget_grab_focus(GTK_WIDGET(tree_macro));
-
-            gtk_tree_path_free(path);
-        }
-
-        update_macro_count_label();
+void on_macro_row_activated(GtkTreeView* tree_view,
+                            GtkTreePath* path,
+                            GtkTreeViewColumn* column,
+                            gpointer user_data)
+{
+    GtkTreeIter iter;
+    auto model = gtk_tree_view_get_model(tree_view);
+    bool has_row = gtk_tree_model_get_iter(model, &iter, path);
+    if (!has_row) {
+        return;
     }
+
+    gchar* key = NULL;
+    gchar* value = NULL;
+    gtk_tree_model_get(model, &iter, COL_KEY, &key, COL_VALUE, &value, -1);
+
+    const gchar* initial_key = (g_strcmp0(key, STR_NULL_ITEM) == 0) ? NULL : key;
+    const gchar* initial_value = (g_strcmp0(key, STR_NULL_ITEM) == 0) ? NULL : value;
+
+    gchar* saved_key = NULL;
+    gchar* saved_value = NULL;
+    bool should_save = run_macro_editor_dialog(initial_key, initial_value, &saved_key, &saved_value);
+    if (should_save) {
+        save_macro_entry(initial_key, saved_key, saved_value);
+    }
+
+    g_free(saved_key);
+    g_free(saved_value);
+    g_free(key);
+    g_free(value);
 }

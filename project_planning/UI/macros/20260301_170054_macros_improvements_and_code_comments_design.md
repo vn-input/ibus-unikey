@@ -86,7 +86,8 @@ Responsibility:
 - Convert `CMacroTable` data into a `GtkListStore` for editing.
 - Convert edited `GtkListStore` rows back into `CMacroTable`.
 - Preserve case-insensitive uniqueness in the UI append path.
-- Maintain the trailing sentinel row `STR_NULL_ITEM` used for inline adds.
+- Maintain the trailing sentinel row `STR_NULL_ITEM` used as the add-entry
+  affordance in the tree view.
 
 ### 5.3 Dialog behavior and user actions
 
@@ -98,7 +99,7 @@ Files:
 
 Responsibility:
 - Load macro data when the editor opens.
-- Support add, delete, clear, import, export, inline edit, sort, and count.
+- Support add, edit, delete, clear, import, export, sort, and count.
 - Persist the edited table only when the dialog returns `GTK_RESPONSE_OK`.
 
 ### 5.4 External format adapters
@@ -144,9 +145,8 @@ Flow:
 ### 6.2 Edit in the dialog
 
 Supported landed edit operations:
-- inline key edit (`on_cell_key_edited()`)
-- inline value edit (`on_cell_value_edited()`)
-- add (`on_btn_macro_add_clicked()`)
+- add via shared editor dialog (`on_btn_macro_add_clicked()`)
+- edit via row activation / double-click / Enter (`on_macro_row_activated()`)
 - delete selected row (`on_btn_macro_del_clicked()`)
 - clear all (`on_btn_macro_clear_clicked()`)
 - sort by key/value column header (`on_column_key_clicked()`,
@@ -182,6 +182,8 @@ engine table suitable for fast lookup even with large macro sets.
 ### Landed behavior
 
 - Storage grows dynamically through internal capacity helpers.
+- Macro replacement text capacity is raised to `MAX_MACRO_TEXT_LEN = 8192` for
+  larger corporate-style expansions.
 - `loadFromFile()` clears existing state, parses lines, and converts input into
   internal encoding.
 - After reading, the table is sorted with `qsort()`.
@@ -233,21 +235,19 @@ handling.
   the sentinel row.
 - `unikey_store_to_macro()` rebuilds `CMacroTable` from visible rows while
   skipping the sentinel row.
-- `list_store_add_null_item()` guarantees that the final row is the editable
+- `list_store_add_null_item()` guarantees that the final row is the add-entry
   placeholder.
 
 ### Important shipped rule
 
-The setup UI append/import path currently uses **KeepExisting** semantics:
-- existing keys already present in the tree are preserved,
-- duplicate incoming keys are skipped,
-- duplicate checks are case-insensitive.
-
-This differs from engine-level `CMacroTable` load semantics.
+The setup UI now has two distinct duplicate policies:
+- dialog add/edit save uses **dictionary/upsert semantics**,
+- import append uses **KeepExisting** semantics,
+- all duplicate checks remain case-insensitive.
 
 ### Why this structure was chosen
 
-- UI editing needs a stable placeholder row for inline creation.
+- UI editing needs a stable placeholder row for row-activated creation.
 - Conversion between internal encoding and UTF-8 should live in one place.
 - Import into an existing UI list should not silently overwrite current visible
   edits in the landed implementation.
@@ -277,9 +277,21 @@ performance on large macro sets.
 - Macro count label is updated after load and after mutating actions.
 
 #### Add/delete/clear
-- Add uses a dedicated modal dialog and validates duplicates before insertion.
+- Add and edit both use the same modal dialog.
+- Saving a dialog entry behaves like a dictionary upsert: the edited or newly
+  entered key replaces any existing visible row with the same case-insensitive
+  key.
+- After save, the modified entry is reselected and scrolled into view.
 - Delete removes the selected row unless it is the sentinel.
 - Clear resets the store to a single sentinel row.
+
+#### Editing interaction
+- Double-clicking a row or pressing Enter opens the shared Add/Edit dialog.
+- The trailing sentinel row opens that same dialog in add mode.
+- Inline cell editing is disabled both in the UI definition and in widget
+  initialization code.
+- The replacement field in the dialog is a scrollable multi-line text view
+  rather than a single-line entry.
 
 #### Sorting
 - Sorting is handled with `GtkTreeSortable` and a custom comparison function.
@@ -384,17 +396,20 @@ Primary code:
 - `ukengine/mactab.cpp` → `loadFromFile()`
 - `ukengine/mactab.cpp` → `removeDuplicates()`
 
-### 8.2 Setup UI append/import policy
+### 8.2 Setup UI save/import policies
 
 Layer:
-- `GtkListStore` append path
+- `GtkListStore` dialog-save and import paths
 
 Semantics:
-- existing visible keys win,
-- incoming duplicate keys are skipped,
-- duplicate detection is case-insensitive.
+- dialog save: last saved visible value wins for that key,
+- import append: existing visible keys win,
+- duplicate detection is case-insensitive in both paths.
 
 Primary code:
+- `setup/signal_handlers.cpp` → `save_macro_entry()`
+- `setup/signal_handlers.cpp` → `on_btn_macro_add_clicked()`
+- `setup/signal_handlers.cpp` → `on_macro_row_activated()`
 - `setup/macro_utils.cpp` → `list_store_append()`
 - `setup/macro_utils.cpp` → `list_store_check_exists()`
 - `setup/signal_handlers.cpp` → `on_btn_macro_import_clicked()`
@@ -404,7 +419,8 @@ Primary code:
 Developers must decide which policy they want before adding a new ingest path.
 Current shipped behavior is:
 - full engine load → last occurrence wins,
-- append into existing setup list → keep existing entry.
+- dialog save into setup list → saved entry wins,
+- import append into existing setup list → keep existing entry.
 
 Future merge-mode work should not be mixed into this landed design document.
 That work lives in the separate drag/drop design note.
@@ -423,6 +439,9 @@ Any recreation or extension of this implementation must preserve these rules:
 8. UTF-8 is used for UI display and persisted export output.
 9. Save happens only when the dialog is accepted.
 10. Bulk UI rebuilds detach the model during mass updates.
+11. Double-click and Enter open the shared Add/Edit dialog, not inline cell
+  editing.
+12. The dialog replacement control must support large multi-line text.
 
 ## 10. File-by-file recreation checklist
 
@@ -433,6 +452,7 @@ Use this section to recreate the landed feature set in another branch.
 Update `ukengine/mactab.h` and `ukengine/mactab.cpp` to:
 - use dynamic allocation helpers for macro entries and backing memory,
 - remove fixed macro-count limits,
+- allow larger macro replacement bodies,
 - sort loaded macros after file read,
 - implement duplicate collapse with last-occurrence-wins semantics,
 - keep `writeToFile()` emitting canonical UTF-8 `key:value` lines.
@@ -445,7 +465,7 @@ Update `setup/macro_utils.h` and `setup/macro_utils.cpp` to:
 - add case-insensitive duplicate checking for the UI list,
 - use fast append for empty-store rebuilds,
 - use duplicate-skipping append for imports into a populated list,
-- always restore the sentinel row after rebuild/import.
+- always restore the sentinel row after rebuild/import/save.
 
 ### 10.3 Setup dialog flow
 
@@ -454,9 +474,10 @@ Update `setup/main.cpp`, `setup/signal_handlers.h`, and
 - load the macro dialog widgets from `setup/ibus-unikey.ui`,
 - expose `dlgMacro`, `tree_macro`, and `builder` for signal handlers,
 - implement load-edit-save logic in `on_btn_macroedit_clicked()`,
-- add handlers for add/delete/clear/import/export,
+- add handlers for shared dialog add/edit/delete/clear/import/export,
 - add custom sortable behavior that keeps the sentinel last,
-- maintain a visible macro count label.
+- maintain a visible macro count label,
+- force cell renderers into inert mode so row activation opens the dialog.
 
 ### 10.4 UI definition
 
@@ -464,8 +485,11 @@ Update `setup/ibus-unikey.ui` to:
 - include the macro dialog,
 - include the add-macro subdialog,
 - expose named widgets expected by signal handlers,
+- use a shared Save action for add/edit,
+- use a scrollable multi-line replacement text control,
 - provide clickable key/value columns for sorting,
-- include a label for macro count.
+- include a label for macro count,
+- wire row activation to open the shared dialog.
 
 ### 10.5 Format adapters
 

@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // macro table constants
 #define MAX_MACRO_KEY_LEN 16
 //#define MAX_MACRO_TEXT_LEN 256
-#define MAX_MACRO_TEXT_LEN 1024
+#define MAX_MACRO_TEXT_LEN 8192
 #define MAX_MACRO_ITEMS 1024
 #define MAX_MACRO_LINE (MAX_MACRO_TEXT_LEN + MAX_MACRO_KEY_LEN)
 

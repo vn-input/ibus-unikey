@@ -125,6 +125,7 @@
                         <property name="model">list_macro</property>
                         <property name="search_column">0</property>
                         <property name="enable_search">True</property>
+                        <signal name="row-activated" handler="on_macro_row_activated" swapped="no"/>
                         <child internal-child="selection">
                           <object class="GtkTreeSelection" id="treeSelection"/>
                         </child>
@@ -140,8 +141,7 @@
                             <signal name="clicked" handler="on_column_key_clicked" swapped="no"/>
                             <child>
                               <object class="GtkCellRendererText" id="cellrenderertext_key">
-                                <property name="editable">True</property>
-                                <signal name="edited" handler="on_cell_key_edited" swapped="no"/>
+                                <property name="editable">False</property>
                               </object>
                               <attributes>
                                 <attribute name="text">0</attribute>
@@ -160,8 +160,9 @@
                             <signal name="clicked" handler="on_column_value_clicked" swapped="no"/>
                             <child>
                               <object class="GtkCellRendererText" id="cellrenderertext_value">
-                                <property name="editable">True</property>
-                                <signal name="edited" handler="on_cell_value_edited" swapped="no"/>
+                                <property name="editable">False</property>
+                                <property name="single_paragraph_mode">True</property>
+                                <property name="ellipsize">end</property>
                               </object>
                               <attributes>
                                 <attribute name="text">1</attribute>
@@ -335,6 +336,8 @@
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Add Macro</property>
     <property name="modal">True</property>
+    <property name="default_width">720</property>
+    <property name="default_height">420</property>
     <property name="window_position">center-on-parent</property>
     <property name="type_hint">dialog</property>
     <property name="skip_taskbar_hint">True</property>
@@ -367,7 +370,7 @@
             </child>
             <child>
               <object class="GtkButton" id="btn_add_ok">
-                <property name="label">gtk-add</property>
+                <property name="label">gtk-save</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
@@ -432,13 +435,27 @@
               </packing>
             </child>
             <child>
-              <object class="GtkEntry" id="entry_macro_value">
+              <object class="GtkScrolledWindow" id="scroll_macro_value">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="hexpand">True</property>
-                <property name="width_chars">40</property>
-                <property name="placeholder_text" translatable="yes">Replacement text</property>
-                <property name="activates_default">True</property>
+                <property name="vexpand">True</property>
+                <property name="shadow_type">in</property>
+                <property name="min_content_height">220</property>
+                <property name="hscrollbar_policy">automatic</property>
+                <property name="vscrollbar_policy">automatic</property>
+                <child>
+                  <object class="GtkTextView" id="textview_macro_value">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="wrap_mode">word-char</property>
+                    <property name="accepts_tab">True</property>
+                    <property name="left_margin">6</property>
+                    <property name="right_margin">6</property>
+                    <property name="top_margin">6</property>
+                    <property name="bottom_margin">6</property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -447,7 +464,7 @@
             </child>
           </object>
           <packing>
-            <property name="expand">False</property>
+            <property name="expand">True</property>
             <property name="fill">True</property>
             <property name="position">1</property>
           </packing>

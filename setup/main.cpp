@@ -71,6 +71,22 @@ void init_gtk_builder()
     gtk_window_set_transient_for(GTK_WINDOW(dlgMacro), GTK_WINDOW(mwin));
 
     tree_macro = GTK_TREE_VIEW(gtk_builder_get_object(builder, "tree_macro"));
+    gtk_tree_view_set_activate_on_single_click(tree_macro, FALSE);
+
+    GtkCellRenderer* key_renderer = GTK_CELL_RENDERER(gtk_builder_get_object(builder, "cellrenderertext_key"));
+    GtkCellRenderer* value_renderer = GTK_CELL_RENDERER(gtk_builder_get_object(builder, "cellrenderertext_value"));
+    if (key_renderer != NULL) {
+        g_object_set(key_renderer,
+                     "editable", FALSE,
+                     "mode", GTK_CELL_RENDERER_MODE_INERT,
+                     NULL);
+    }
+    if (value_renderer != NULL) {
+        g_object_set(value_renderer,
+                     "editable", FALSE,
+                     "mode", GTK_CELL_RENDERER_MODE_INERT,
+                     NULL);
+    }
 
     // Note: builder is kept global so signal handlers can access widgets
 }

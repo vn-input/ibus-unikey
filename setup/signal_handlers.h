@@ -173,6 +173,23 @@ extern "C"
     G_MODULE_EXPORT void on_btn_macro_add_clicked(GtkButton *button, gpointer user_data);
 
     /**
+     * @brief Open the shared macro editor dialog for the activated row.
+     *
+     * Double-clicking or pressing Enter on a macro row opens the same dialog
+     * used for adding entries, prefilled with the current key/value.
+     * Activating the sentinel row opens the dialog in add mode.
+     *
+     * @param tree_view The macro tree view.
+     * @param path Tree path of the activated row.
+     * @param column Activated column (unused).
+     * @param user_data Unused pointer.
+     */
+    G_MODULE_EXPORT void on_macro_row_activated(GtkTreeView *tree_view,
+                     GtkTreePath *path,
+                     GtkTreeViewColumn *column,
+                     gpointer user_data);
+
+    /**
      * @brief Delete button clicked in macro dialog.
      *
      * Removes the currently selected macro from the table.
