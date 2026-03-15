@@ -124,8 +124,9 @@ gboolean ibus_unikey_config_get_string(const gchar* name, gchar** result);
  * @brief Write a string setting.
  * @param name Setting key.
  * @param value UTF-8 string value.
+ * @return TRUE if write succeeded, FALSE otherwise.
  */
-void ibus_unikey_config_set_string(const gchar* name, const gchar* value);
+gboolean ibus_unikey_config_set_string(const gchar* name, const gchar* value);
 
 /**
  * @brief Check whether the active ibus-unikey schema defines a given key.
@@ -146,7 +147,8 @@ gboolean ibus_unikey_config_get_boolean(const gchar* name, gboolean* result);
  * @brief Write a boolean setting.
  * @param name Setting key.
  * @param value Boolean value.
+ * @return TRUE if write succeeded, FALSE otherwise.
  */
-void ibus_unikey_config_set_boolean(const gchar* name, gboolean value);
+gboolean ibus_unikey_config_set_boolean(const gchar* name, gboolean value);
 
 #endif

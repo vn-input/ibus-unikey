@@ -42,6 +42,7 @@
 #include <gtk/gtk.h>
 
 #include "unikey_config.h"
+#include "app_context.h"
 
 #define _(string) gettext(string)
 
@@ -58,12 +59,20 @@ GtkBuilder* builder;  /**< GTK builder instance used for lookups */
  * function also establishes the macro dialog as transient for the main
  * window and initializes the `tree_macro` pointer.
  */
-void init_gtk_builder()
+gboolean init_gtk_builder()
 {
     builder = gtk_builder_new();
     const gchar *override_dir_2 = g_getenv("IBUS_UNIKEY_PKGDATADIR");
     const gchar *data_dir2 = override_dir_2 ? override_dir_2 : PKGDATADIR;
-    gtk_builder_add_from_file(builder, g_strconcat(data_dir2, "/ui/ibus-unikey.ui", NULL), NULL);
+    gchar *ui_path = g_strconcat(data_dir2, "/ui/ibus-unikey.ui", NULL);
+    GError *error = NULL;
+    if (!gtk_builder_add_from_file(builder, ui_path, &error)) {
+        g_warning("Failed to load UI file '%s': %s", ui_path, error->message);
+        g_error_free(error);
+        g_free(ui_path);
+        return FALSE;
+    }
+    g_free(ui_path);
     gtk_builder_connect_signals(builder, NULL);
 
     mwin = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
@@ -72,6 +81,9 @@ void init_gtk_builder()
 
     tree_macro = GTK_TREE_VIEW(gtk_builder_get_object(builder, "tree_macro"));
     gtk_tree_view_set_activate_on_single_click(tree_macro, FALSE);
+
+    // Initialize the centralized app context
+    app_context_init(builder, mwin, dlgMacro, tree_macro);
 
     GtkCellRenderer* key_renderer = GTK_CELL_RENDERER(gtk_builder_get_object(builder, "cellrenderertext_key"));
     GtkCellRenderer* value_renderer = GTK_CELL_RENDERER(gtk_builder_get_object(builder, "cellrenderertext_value"));
@@ -89,6 +101,7 @@ void init_gtk_builder()
     }
 
     // Note: builder is kept global so signal handlers can access widgets
+    return TRUE;
 }
 
 /**
@@ -117,7 +130,9 @@ int main(int argc, char** argv)
     const gchar *override_dir = g_getenv("IBUS_UNIKEY_PKGDATADIR");
     const gchar *data_dir = override_dir ? override_dir : PKGDATADIR;
 
-    gtk_window_set_default_icon_from_file(g_strconcat(data_dir, "/icons/ibus-unikey.svg", NULL), NULL);
+    gchar *icon_path = g_strconcat(data_dir, "/icons/ibus-unikey.svg", NULL);
+    gtk_window_set_default_icon_from_file(icon_path, NULL);
+    g_free(icon_path);
 
     /* builder will use the same path variable */
     if (override_dir) {
@@ -125,7 +140,10 @@ int main(int argc, char** argv)
            set a temporary variable that init_gtk_builder will read */
     }
 
-    init_gtk_builder();
+    if (!init_gtk_builder()) {
+        g_critical("Failed to initialize GTK builder - cannot proceed");
+        return 1;
+    }
 
     gtk_widget_show_all(mwin);
     gtk_main();

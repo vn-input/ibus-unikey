@@ -28,11 +28,6 @@ add_definitions(
     -DLIBEXECDIR="${LIBEXECDIR}"
 )
 
-include_directories(
-    ${PROJECT_SOURCE_DIR}/ukengine
-    ${PROJECT_SOURCE_DIR}/src/config
-)
-
 add_subdirectory(ukengine)
 add_subdirectory(src)
 add_subdirectory(setup)

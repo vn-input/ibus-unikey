@@ -2,7 +2,16 @@ FIND_PACKAGE(PkgConfig)
 PKG_CHECK_MODULES(GIO REQUIRED gio-2.0)
 
 add_library(unikey-config STATIC unikey_config.cpp)
-TARGET_INCLUDE_DIRECTORIES(unikey-config PUBLIC ${GIO_INCLUDE_DIRS})
+target_include_directories(unikey-config
+	PUBLIC
+		${GIO_INCLUDE_DIRS}
+		${PROJECT_SOURCE_DIR}/include/config
+)
+
+target_link_libraries(unikey-config
+	PUBLIC
+		ukengine
+)
 
 include(GSettings)
 add_schemas(unikey-config ${CMAKE_CURRENT_SOURCE_DIR} "${CMAKE_INSTALL_PREFIX}")
