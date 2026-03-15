@@ -203,16 +203,26 @@ gboolean ibus_unikey_config_get_string(const gchar* name, gchar** result)
 
 /**
  * @brief Store a UTF-8 string into the settings.
+ *
+ * Logs a warning if the write operation fails (e.g., due to backend error
+ * or permission issues).
+ *
  * @param name Key name.
  * @param value UTF-8 string value.
+ * @return TRUE if write succeeded, FALSE otherwise.
  */
-void ibus_unikey_config_set_string(const gchar* name, const gchar* value)
+gboolean ibus_unikey_config_set_string(const gchar* name, const gchar* value)
 {
     if (!ibus_unikey_config_has_key(name)) {
-        return;
+        g_warning("ibus-unikey config: attempted to set unknown key '%s'", name);
+        return FALSE;
     }
 
-    g_settings_set_value(settings, name, g_variant_new_string(value));
+    gboolean success = g_settings_set_value(settings, name, g_variant_new_string(value));
+    if (!success) {
+        g_warning("ibus-unikey config: failed to write string key '%s'", name);
+    }
+    return success;
 }
 
 /**
@@ -240,15 +250,25 @@ gboolean ibus_unikey_config_get_boolean(const gchar* name, gboolean* result)
 
 /**
  * @brief Write a boolean value to the settings.
+ *
+ * Logs a warning if the write operation fails (e.g., due to backend error
+ * or permission issues).
+ *
  * @param name Key name.
  * @param value Boolean value to store.
+ * @return TRUE if write succeeded, FALSE otherwise.
  */
-void ibus_unikey_config_set_boolean(const gchar* name, gboolean value)
+gboolean ibus_unikey_config_set_boolean(const gchar* name, gboolean value)
 {
     if (!ibus_unikey_config_has_key(name)) {
-        return;
+        g_warning("ibus-unikey config: attempted to set unknown key '%s'", name);
+        return FALSE;
     }
 
-    g_settings_set_value(settings, name, g_variant_new_boolean(value));
+    gboolean success = g_settings_set_value(settings, name, g_variant_new_boolean(value));
+    if (!success) {
+        g_warning("ibus-unikey config: failed to write boolean key '%s'", name);
+    }
+    return success;
 }
 

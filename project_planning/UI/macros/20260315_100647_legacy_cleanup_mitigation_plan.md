@@ -1,11 +1,45 @@
 # Legacy cleanup mitigation plan
 
 Branch context: `feature/macro-unlimited-crud-sort`
+Cleanup branch: `feature/legacy-cleanup-phase1`
 Related maintainer note: `project_planning/UI/macros/20260301_170054_macros_improvements_and_code_comments.md`
 Related design notes:
 - `project_planning/UI/macros/20260301_170054_macros_improvements_and_code_comments_design.md`
 - `project_planning/UI/macros/20260308_203348_drag_drop_merge_design.md`
 - `project_planning/UI/macros/code_structure.md`
+
+## Implementation Status
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| 0 | Baseline capture | ✅ Completed |
+| 1 | Test scaffolding | ✅ Completed |
+| 2 | Centralize constants | ✅ Completed |
+| 3 | Decompose ukengine.cpp | ⏸️ Deferred (high-risk) |
+| 4 | Decompose setup callbacks | ⏸️ Deferred (complex) |
+| 5 | Contain global state | ✅ Completed |
+| 6 | Error handling | ✅ Completed |
+| 7 | Documentation | ✅ Completed |
+| 8 | Macro dialog UX | 🔜 Not started |
+
+### Completed Work Summary
+
+**Phase 0-2** (commit `0c0b019`):
+- Verified baseline: 3 tests passing
+- Created `tests/ukengine/` with 2 test executables
+- Created `ukengine/uk_shared_constants.h` with canonical `UK_WORD_BREAK_SYMS`
+- Fixed drift bug in `src/engine.cpp` (incorrectly treated ~, `, ^ as word breaks)
+- Renamed `ClassifierTableInitialized` → `is_classifier_table_initialized`
+
+**Phase 5-6** (current work):
+- Created `setup/app_context.h/cpp` to contain global UI state
+- Added error handling to `ibus_unikey_config_set_string/boolean()` with return values
+- Added error handling to `init_gtk_builder()` with failure path
+- Fixed memory leak in icon path handling
+
+**Deferred Work**:
+- Phase 3 (ukengine.cpp decomposition): Internal static functions with complex dependencies
+- Phase 4 (signal_handlers.cpp split): 1364-line file requires careful surgery
 
 ## Purpose
 
