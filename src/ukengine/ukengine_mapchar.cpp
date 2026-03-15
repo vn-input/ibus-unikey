@@ -51,6 +51,13 @@ using namespace std;
 #include "ukengine_tables.h"
 #include "ukengine_utils.h"
 
+//----------------------------------------------------------
+/**
+ * @brief Process a character that may map to a Vietnamese symbol or action.
+ *
+ * @param ev Event to append and possibly reinterpret using map-char rules.
+ * @return Non-zero when the mapped processing changed engine state.
+ */
 int UkEngine::processMapChar(UkKeyEvent & ev)
 {
     int capsLockOn = 0;
