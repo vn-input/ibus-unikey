@@ -15,12 +15,12 @@ Related design notes:
 | 0 | Baseline capture | ✅ Completed |
 | 1 | Test scaffolding | ✅ Completed |
 | 2 | Centralize constants | ✅ Completed |
-| 3 | Decompose ukengine.cpp | 🔜 Planned (must land before Phase 8) |
-| 4 | Decompose setup callbacks | 🔜 Planned (must land before Phase 8) |
+| 3 | Decompose ukengine.cpp | ✅ Completed |
+| 4 | Decompose setup callbacks | ✅ Completed |
 | 5 | Contain global state | ✅ Completed |
 | 6 | Error handling | ✅ Completed |
 | 7 | Documentation | ✅ Completed |
-| 8 | Macro dialog UX | 🔜 Not started |
+| 8 | Macro dialog UX | � In progress |
 
 ### Completed Work Summary
 
@@ -37,9 +37,9 @@ Related design notes:
 - Added error handling to `init_gtk_builder()` with failure path
 - Fixed memory leak in icon path handling
 
-**Next structural work (must complete before Phase 8)**:
-- Phase 3: split `src/ukengine/ukengine.cpp` (2714 lines) into responsibility-focused modules with no behavior change.
-- Phase 4: split `src/setup/signal_handlers.cpp` (1365 lines) into handler modules while preserving exported GTK callback names.
+**Next structural work (Phase 8 macro dialog UX)**:
+- Begin implementing the macro dialog UX improvements described in Phase 8 (post-cleanup) while preserving existing macro behavior.
+- Prioritize small, incremental UI improvements that can be rigorously tested (e.g., improved macro import/export feedback, more robust list sorting/filtering, better dialog state restoration).
 
 ## Purpose
 
@@ -1798,3 +1798,6 @@ This mitigation effort can be considered successful when:
 3. extract the first internal helper set from `ukengine.cpp`;
 4. decompose `on_btn_macro_export_clicked()` into focused helpers;
 5. add follow-up notes once the first cleanup phase lands.
+==============
+20260315_214947
+==============
