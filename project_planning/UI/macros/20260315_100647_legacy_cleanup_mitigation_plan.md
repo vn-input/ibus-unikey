@@ -15,8 +15,8 @@ Related design notes:
 | 0 | Baseline capture | ✅ Completed |
 | 1 | Test scaffolding | ✅ Completed |
 | 2 | Centralize constants | ✅ Completed |
-| 3 | Decompose ukengine.cpp | ⏸️ Deferred (high-risk) |
-| 4 | Decompose setup callbacks | ⏸️ Deferred (complex) |
+| 3 | Decompose ukengine.cpp | 🔜 Planned (must land before Phase 8) |
+| 4 | Decompose setup callbacks | 🔜 Planned (must land before Phase 8) |
 | 5 | Contain global state | ✅ Completed |
 | 6 | Error handling | ✅ Completed |
 | 7 | Documentation | ✅ Completed |
@@ -37,9 +37,9 @@ Related design notes:
 - Added error handling to `init_gtk_builder()` with failure path
 - Fixed memory leak in icon path handling
 
-**Deferred Work**:
-- Phase 3 (ukengine.cpp decomposition): Internal static functions with complex dependencies
-- Phase 4 (signal_handlers.cpp split): 1364-line file requires careful surgery
+**Next structural work (must complete before Phase 8)**:
+- Phase 3: split `src/ukengine/ukengine.cpp` (2714 lines) into responsibility-focused modules with no behavior change.
+- Phase 4: split `src/setup/signal_handlers.cpp` (1365 lines) into handler modules while preserving exported GTK callback names.
 
 ## Purpose
 
@@ -1564,6 +1564,69 @@ reverse-engineering the refactor.
 - planning notes match the code structure that actually landed;
 - a new contributor can identify where engine, setup, config, and test
   responsibilities now live.
+
+### Phase 3-4 execution plan (pre-Phase 8): split monolithic engine + setup handlers
+
+This plan must land before any Phase 8 dialog UX updates.
+
+#### Objectives
+
+- Reduce merge/conflict risk by splitting two monolithic files without changing behavior:
+  - `src/ukengine/ukengine.cpp` (engine core)
+  - `src/setup/signal_handlers.cpp` (setup UI callbacks)
+- Keep public interfaces stable:
+  - no signature changes in `include/ukengine/ukengine.h`
+  - preserve exported GTK callback names declared in `include/setup/signal_handlers.h`
+  - preserve validation API exposed by `include/ukengine/uk_validation.h`
+
+#### Constraints
+
+- Pure move/split only (no functional changes; avoid cleanups mixed into this work).
+- Verification gate after each phase: build + run the existing test suite.
+
+#### Phase 3 (ukengine): two-step split
+
+**Step 3.1 (lowest risk): chunk-include split (still one translation unit)**
+
+- Create `src/ukengine/ukengine_*.inc` chunks and replace the body of `src/ukengine/ukengine.cpp`
+  with `#include` statements so compilation remains a single translation unit.
+- Chunk seams (anchors):
+  - tables + init + lookup + validation (up to `UkEngine::processRoof`)
+  - marks/tones/diacritics (`processRoof/processHook/processTone/...`)
+  - append/mapping/escape (`processMapChar/checkEscapeVIQR/processAppend/...`)
+  - core/output/backspace (`process/writeOutput/processBackspace/...`)
+  - macros/restore/finalize (`macroMatch/restoreKeyStrokes/processWordEnd/...`)
+
+**Step 3.2: convert chunks into real `.cpp` modules**
+
+- Introduce one private internal header for shared tables/types (implementation only).
+- Add new `.cpp` files to `ukengine/CMakeLists.txt` and remove the monolith from the library sources.
+- Keep `isValidCV/isValidVC/isValidCVC` non-`static` and defined once to match `include/ukengine/uk_validation.h`.
+
+#### Phase 4 (setup): two-step split
+
+**Step 4.1 (lowest risk): chunk-include split (still one translation unit)**
+
+- Create `src/setup/signal_handlers_*.inc` chunks and include them from `src/setup/signal_handlers.cpp`.
+
+**Step 4.2: convert chunks into real `.cpp` modules**
+
+- Split into:
+  - window lifecycle handlers
+  - config/persistence handlers
+  - macro dialog handlers/helpers
+- Preserve GTK symbol visibility for builder callbacks (`G_MODULE_EXPORT` + `extern "C"`).
+- Add a tiny private header for shared UI globals currently declared as `extern`.
+- Update `setup/CMakeLists.txt` to compile the new handler files.
+
+#### Verification checklist
+
+- After Step 3.1 and Step 4.1:
+  - `cmake -S . -B build`
+  - `cmake --build build -j`
+  - `ctest --test-dir build --output-on-failure`
+- After Step 3.2 and Step 4.2: same checks.
+- Manual smoke test (recommended): run `ibus-setup-unikey`, open macro dialog, import/export, sort columns, toggle settings, close.
 
 ### Phase 8 (post-cleanup): Macro dialog UX enhancements
 

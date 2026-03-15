@@ -11,7 +11,7 @@ add_executable(test-inputproc-classification
 
 target_include_directories(test-inputproc-classification PRIVATE
     ${GLIB_TEST_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/ukengine
+    ${PROJECT_SOURCE_DIR}/include/ukengine
 )
 
 target_link_libraries(test-inputproc-classification
@@ -31,7 +31,7 @@ add_executable(test-inputproc-wordbreak
 
 target_include_directories(test-inputproc-wordbreak PRIVATE
     ${GLIB_TEST_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/ukengine
+    ${PROJECT_SOURCE_DIR}/include/ukengine
 )
 
 target_link_libraries(test-inputproc-wordbreak
