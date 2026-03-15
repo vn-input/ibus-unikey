@@ -64,5 +64,35 @@
       <summary>Last macro working directory</summary>
       <description>Remembers the last folder used by the macro import or export dialog</description>
     </key>
+    <key name="macro-list-sort" type="s">
+      <default>'key:asc'</default>
+      <summary>Macro list sort state</summary>
+      <description>Remember the column and order used to sort the macro table ("key" or "value" with asc/desc).</description>
+    </key>
+    <key name="macro-search-text" type="s">
+      <default>''</default>
+      <summary>Macro dialog search text</summary>
+      <description>Remembers the last search text entered in the macro dialog.</description>
+    </key>
+    <key name="macro-selected-key" type="s">
+      <default>''</default>
+      <summary>Selected macro key</summary>
+      <description>Remembers the most recently selected macro key in the macro dialog.</description>
+    </key>
+    <key name="macro-dialog-size" type="s">
+      <default>'700x450'</default>
+      <summary>Macro dialog size</summary>
+      <description>Remembers the last width and height of the macro dialog as WIDTHxHEIGHT.</description>
+    </key>
+    <key name="macro-dialog-position" type="s">
+      <default>''</default>
+      <summary>Macro dialog position</summary>
+      <description>Remembers the last X,Y position of the macro dialog when supported by the windowing system.</description>
+    </key>
+    <key name="macro-export-format" type="s">
+      <default>'.txt'</default>
+      <summary>Macro export format</summary>
+      <description>Remembers the preferred export file extension used by the macro export dialog.</description>
+    </key>
   </schema>
 </schemalist>

@@ -49,6 +49,7 @@
     </child>
     <property name="skip_taskbar_hint">True</property>
     <signal name="delete-event" handler="on_macro_dialog_delete" swapped="no"/>
+    <signal name="configure-event" handler="on_macro_dialog_configure_event" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox2">
         <property name="can_focus">False</property>
@@ -115,6 +116,19 @@
                 <property name="orientation">vertical</property>
                 <property name="spacing">4</property>
                 <child>
+                  <object class="GtkSearchEntry" id="entry_macro_search">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="placeholder_text" translatable="yes">Search macros</property>
+                    <signal name="changed" handler="on_macro_search_changed" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkScrolledWindow" id="scrollMacros">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -127,7 +141,9 @@
                         <property name="enable_search">True</property>
                         <signal name="row-activated" handler="on_macro_row_activated" swapped="no"/>
                         <child internal-child="selection">
-                          <object class="GtkTreeSelection" id="treeSelection"/>
+                          <object class="GtkTreeSelection" id="treeSelection">
+                            <signal name="changed" handler="on_macro_selection_changed" swapped="no"/>
+                          </object>
                         </child>
                         <child>
                           <object class="GtkTreeViewColumn" id="treeviewcolumn1">
@@ -176,7 +192,7 @@
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
-                    <property name="position">0</property>
+                    <property name="position">1</property>
                   </packing>
                 </child>
                 <child>
@@ -234,7 +250,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">1</property>
+                    <property name="position">2</property>
                   </packing>
                 </child>
               </object>

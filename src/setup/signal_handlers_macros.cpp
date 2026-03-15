@@ -73,6 +73,14 @@ extern GtkBuilder* builder;
  * placeholder row, and updates the label text with correct pluralization.
  */
 static void update_macro_count_label(void);
+static GtkEntry* get_macro_search_entry(void);
+static gboolean macro_row_matches_search(const gchar* key,
+                                         const gchar* value,
+                                         const gchar* search_text);
+static gboolean find_first_macro_iter_by_search(GtkTreeModel* model,
+                                                const gchar* search_text,
+                                                GtkTreeIter* out_iter);
+static void apply_macro_search_selection(void);
 
 /**
  * @brief Sort the macro list by the requested column and order.
@@ -117,6 +125,7 @@ static const gchar* get_selected_macro_export_extension(GtkFileChooser* chooser)
  * @param chooser GTK file chooser used for export.
  */
 static void set_default_macro_export_filter(GtkFileChooser* chooser);
+static void set_default_macro_export_name(GtkFileChooser* chooser);
 
 /**
  * @brief Ask whether a mismatched filename extension should keep the chosen export type.
@@ -145,6 +154,7 @@ static gboolean confirm_macro_export_overwrite(const gchar* filename);
  * @param error Detailed error object to display and free.
  */
 static void show_macro_file_error_dialog(const gchar* title, GError* error);
+static void show_macro_export_success_dialog(const gchar* filename, int exported_count);
 
 /**
  * @brief Open the shared macro editor dialog and return the saved values.
@@ -329,6 +339,98 @@ static gboolean find_macro_iter_by_key(GtkTreeModel* model,
     return FALSE;
 }
 
+static GtkEntry* get_macro_search_entry(void)
+{
+    return GTK_ENTRY(gtk_builder_get_object(builder, "entry_macro_search"));
+}
+
+static gboolean macro_row_matches_search(const gchar* key,
+                                         const gchar* value,
+                                         const gchar* search_text)
+{
+    bool has_search_text = (search_text != NULL && search_text[0] != '\0');
+    if (!has_search_text) {
+        return TRUE;
+    }
+
+    bool is_placeholder_row = (g_strcmp0(key, STR_NULL_ITEM) == 0);
+    if (is_placeholder_row) {
+        return FALSE;
+    }
+
+    gchar* lowered_search = g_utf8_strdown(search_text, -1);
+    gchar* lowered_key = g_utf8_strdown(key != NULL ? key : "", -1);
+    gchar* lowered_value = g_utf8_strdown(value != NULL ? value : "", -1);
+    gboolean is_match = (g_strstr_len(lowered_key, -1, lowered_search) != NULL)
+        || (g_strstr_len(lowered_value, -1, lowered_search) != NULL);
+    g_free(lowered_search);
+    g_free(lowered_key);
+    g_free(lowered_value);
+    return is_match;
+}
+
+static gboolean find_first_macro_iter_by_search(GtkTreeModel* model,
+                                                const gchar* search_text,
+                                                GtkTreeIter* out_iter)
+{
+    if (model == NULL) {
+        return FALSE;
+    }
+
+    GtkTreeIter iter;
+    gboolean has_row = gtk_tree_model_get_iter_first(model, &iter);
+    while (has_row) {
+        gchar* key = NULL;
+        gchar* value = NULL;
+        gtk_tree_model_get(model, &iter, COL_KEY, &key, COL_VALUE, &value, -1);
+        gboolean is_match = macro_row_matches_search(key, value, search_text);
+        g_free(key);
+        g_free(value);
+
+        if (is_match) {
+            *out_iter = iter;
+            return TRUE;
+        }
+
+        has_row = gtk_tree_model_iter_next(model, &iter);
+    }
+
+    return FALSE;
+}
+
+static void apply_macro_search_selection(void)
+{
+    GtkEntry* search_entry = get_macro_search_entry();
+    GtkTreeModel* model = gtk_tree_view_get_model(tree_macro);
+    if (search_entry == NULL || model == NULL) {
+        return;
+    }
+
+    const gchar* search_text = gtk_entry_get_text(search_entry);
+    bool has_search_text = (search_text != NULL && search_text[0] != '\0');
+    if (!has_search_text) {
+        gchar* selected_key = macro_dialog_get_selected_key();
+        bool has_selected_key = (selected_key != NULL && selected_key[0] != '\0');
+        if (has_selected_key) {
+            select_and_scroll_to_macro_key(selected_key);
+        }
+        g_free(selected_key);
+        return;
+    }
+
+    GtkTreeIter iter;
+    gboolean found = find_first_macro_iter_by_search(model, search_text, &iter);
+    if (!found) {
+        return;
+    }
+
+    GtkTreePath* path = gtk_tree_model_get_path(model, &iter);
+    gtk_tree_view_set_cursor(tree_macro, path, NULL, FALSE);
+    gtk_tree_view_scroll_to_cell(tree_macro, path, NULL, TRUE, 0.5, 0.0);
+    gtk_widget_grab_focus(GTK_WIDGET(tree_macro));
+    gtk_tree_path_free(path);
+}
+
 static void select_and_scroll_to_macro_key(const gchar* key)
 {
     auto model = gtk_tree_view_get_model(tree_macro);
@@ -447,18 +549,38 @@ static const gchar* get_selected_macro_export_extension(GtkFileChooser* chooser)
 
 static void set_default_macro_export_filter(GtkFileChooser* chooser)
 {
+    gchar* saved_extension = macro_dialog_get_export_format();
+    const gchar* preferred_extension =
+        (saved_extension != NULL && saved_extension[0] != '\0')
+            ? saved_extension
+            : MACRO_TEXT_FILE_EXTENSION;
+
     GSList* filters = gtk_file_chooser_list_filters(chooser);
     for (GSList* item = filters; item != NULL; item = item->next) {
         GtkFileFilter* filter = GTK_FILE_FILTER(item->data);
         const gchar* extension = static_cast<const gchar*>(
             g_object_get_data(G_OBJECT(filter), MACRO_FILE_FILTER_EXTENSION_KEY));
-        const gboolean is_text_filter = (g_strcmp0(extension, MACRO_TEXT_FILE_EXTENSION) == 0);
-        if (is_text_filter) {
+        const gboolean is_preferred_filter = (g_strcmp0(extension, preferred_extension) == 0);
+        if (is_preferred_filter) {
             gtk_file_chooser_set_filter(chooser, filter);
             break;
         }
     }
     g_slist_free(filters);
+    g_free(saved_extension);
+}
+
+static void set_default_macro_export_name(GtkFileChooser* chooser)
+{
+    gchar* saved_extension = macro_dialog_get_export_format();
+    const gchar* preferred_extension =
+        (saved_extension != NULL && saved_extension[0] != '\0')
+            ? saved_extension
+            : MACRO_TEXT_FILE_EXTENSION;
+    gchar* default_name = g_strconcat("macro", preferred_extension, NULL);
+    gtk_file_chooser_set_current_name(chooser, default_name);
+    g_free(default_name);
+    g_free(saved_extension);
 }
 
 static gboolean confirm_macro_export_extension_conflict(const gchar* typed_filename,
@@ -545,6 +667,23 @@ static void show_macro_file_error_dialog(const gchar* title, GError* error)
     }
 }
 
+static void show_macro_export_success_dialog(const gchar* filename, int exported_count)
+{
+    GtkWidget* dialog = gtk_message_dialog_new(GTK_WINDOW(dlgMacro),
+                                               GTK_DIALOG_MODAL,
+                                               GTK_MESSAGE_INFO,
+                                               GTK_BUTTONS_OK,
+                                               "%s",
+                                               _("Macros exported successfully."));
+    gtk_window_set_title(GTK_WINDOW(dialog), _("Export complete"));
+    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog),
+                                             _("Exported %d macro(s) to:\n%s"),
+                                             exported_count,
+                                             filename != NULL ? filename : "");
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+}
+
 /**
  * @brief Handle key presses on the main window.
  *
@@ -576,6 +715,8 @@ gboolean on_main_window_key_press_event(GtkWidget *widget, GdkEventKey *event, g
 
 void on_btn_macroedit_clicked(GtkButton* btn, gpointer user_data)
 {
+    macro_dialog_apply_window_geometry(GTK_WINDOW(dlgMacro));
+
     gchar* macrofile = get_macro_file();
 
     CMacroTable macro;
@@ -594,14 +735,57 @@ void on_btn_macroedit_clicked(GtkButton* btn, gpointer user_data)
     gtk_tree_view_set_model(tree_macro, GTK_TREE_MODEL(store));
     g_object_unref(store);
 
-    // Initial sort and count update
-    sort_list_store(COL_KEY, GTK_SORT_ASCENDING);
-    sort_key_order = GTK_SORT_ASCENDING;
-    current_sort_column = COL_KEY;
+    GtkEntry* search_entry = get_macro_search_entry();
+    if (search_entry != NULL) {
+        gchar* saved_search_text = macro_dialog_get_search_text();
+        gtk_entry_set_text(search_entry, saved_search_text != NULL ? saved_search_text : "");
+        g_free(saved_search_text);
+    }
+
+    // Restore sort state from previous session (default: key asc)
+    // Stored as '<column>:<order>' such as 'key:asc' or 'value:desc'.
+    gchar* sort_state = NULL;
+    if (ibus_unikey_config_get_string(CONFIG_MACRO_LIST_SORT, &sort_state)) {
+        gchar** parts = g_strsplit(sort_state, ":", 2);
+        if (parts != NULL && parts[0] != NULL) {
+            if (g_strcmp0(parts[0], "value") == 0) {
+                current_sort_column = COL_VALUE;
+            } else {
+                current_sort_column = COL_KEY;
+            }
+            GtkSortType order = GTK_SORT_ASCENDING;
+            if (parts[1] != NULL && g_strcmp0(parts[1], "desc") == 0) {
+                order = GTK_SORT_DESCENDING;
+            }
+            if (current_sort_column == COL_KEY) {
+                sort_key_order = order;
+            } else {
+                sort_value_order = order;
+            }
+            sort_list_store(current_sort_column, order);
+        }
+        g_strfreev(parts);
+        g_free(sort_state);
+    } else {
+        // default to key ascending
+        sort_list_store(COL_KEY, GTK_SORT_ASCENDING);
+        sort_key_order = GTK_SORT_ASCENDING;
+        current_sort_column = COL_KEY;
+    }
+
     update_column_headers();
     update_macro_count_label();
+
+    gchar* saved_selected_key = macro_dialog_get_selected_key();
+    bool has_saved_selected_key = (saved_selected_key != NULL && saved_selected_key[0] != '\0');
+    if (has_saved_selected_key) {
+        select_and_scroll_to_macro_key(saved_selected_key);
+    }
+    g_free(saved_selected_key);
+    apply_macro_search_selection();
     
     int ret = gtk_dialog_run(GTK_DIALOG(dlgMacro));
+    macro_dialog_remember_window_geometry(GTK_WINDOW(dlgMacro));
     if (ret == GTK_RESPONSE_OK)
     {
         unikey_store_to_macro(store, &macro);
@@ -631,8 +815,15 @@ void on_btn_macroedit_clicked(GtkButton* btn, gpointer user_data)
  */
 gboolean on_macro_dialog_delete(GtkWidget* wid, GdkEvent* ev, gpointer user_data)
 {
+    macro_dialog_remember_window_geometry(GTK_WINDOW(dlgMacro));
     gtk_widget_hide(dlgMacro);
     return true;
+}
+
+gboolean on_macro_dialog_configure_event(GtkWidget* wid, GdkEvent* event, gpointer user_data)
+{
+    macro_dialog_remember_window_geometry(GTK_WINDOW(wid));
+    return FALSE;
 }
 
 /**
@@ -643,7 +834,35 @@ gboolean on_macro_dialog_delete(GtkWidget* wid, GdkEvent* ev, gpointer user_data
  */
 void macro_dialog_hide(GtkButton* btn, gpointer user_data)
 {
+    macro_dialog_remember_window_geometry(GTK_WINDOW(dlgMacro));
     gtk_widget_hide(dlgMacro);
+}
+
+void on_macro_search_changed(GtkEditable* editable, gpointer user_data)
+{
+    GtkEntry* search_entry = GTK_ENTRY(editable);
+    const gchar* search_text = gtk_entry_get_text(search_entry);
+    macro_dialog_remember_search_text(search_text);
+    apply_macro_search_selection();
+    update_macro_count_label();
+}
+
+void on_macro_selection_changed(GtkTreeSelection* selection, gpointer user_data)
+{
+    GtkTreeIter iter;
+    GtkTreeModel* model = NULL;
+    gboolean has_selection = gtk_tree_selection_get_selected(selection, &model, &iter);
+    if (!has_selection || model == NULL) {
+        return;
+    }
+
+    gchar* key = NULL;
+    gtk_tree_model_get(model, &iter, COL_KEY, &key, -1);
+    bool is_real_row = (key != NULL && g_strcmp0(key, STR_NULL_ITEM) != 0);
+    if (is_real_row) {
+        macro_dialog_remember_selected_key(key);
+    }
+    g_free(key);
 }
 
 /**
@@ -838,6 +1057,7 @@ void on_btn_macro_import_clicked(GtkButton* button, gpointer data)
         sort_list_store(current_sort_column,
             current_sort_column == COL_KEY ? sort_key_order : sort_value_order);
         update_macro_count_label();
+        apply_macro_search_selection();
     }
 
     gtk_widget_destroy(file);
@@ -864,6 +1084,7 @@ void on_btn_macro_export_clicked(GtkButton* button, gpointer data)
     gtk_file_chooser_set_do_overwrite_confirmation(chooser, TRUE);
     add_macro_file_filters(chooser);
     set_default_macro_export_filter(chooser);
+    set_default_macro_export_name(chooser);
     macro_dialog_apply_export_folder(chooser);
 
     while (gtk_dialog_run(GTK_DIALOG(file)) == GTK_RESPONSE_OK)
@@ -908,6 +1129,7 @@ void on_btn_macro_export_clicked(GtkButton* button, gpointer data)
 
         CMacroTable macro;
         macro.init();
+        int exported_count = 0;
 
         auto model = GTK_TREE_MODEL(gtk_tree_view_get_model(tree_macro));
 
@@ -920,6 +1142,7 @@ void on_btn_macro_export_clicked(GtkButton* button, gpointer data)
             if (strcasecmp(key, STR_NULL_ITEM) != 0)
             {
                 macro.addItem(key, value, CONV_CHARSET_XUTF8);
+                exported_count++;
             }
             g_free(key);
             g_free(value);
@@ -927,6 +1150,7 @@ void on_btn_macro_export_clicked(GtkButton* button, gpointer data)
         }
 
         macro_dialog_remember_export_file(export_filename);
+    macro_dialog_remember_export_format(selected_extension != NULL ? selected_extension : MACRO_TEXT_FILE_EXTENSION);
         GError* error = NULL;
         if (!macro_table_write_any_format(export_filename, &macro, &error))
         {
@@ -936,6 +1160,8 @@ void on_btn_macro_export_clicked(GtkButton* button, gpointer data)
             gtk_widget_destroy(file);
             return;
         }
+
+        show_macro_export_success_dialog(export_filename, exported_count);
 
         g_free(selected_filename);
         g_free(export_filename);
@@ -959,11 +1185,38 @@ static void update_macro_count_label(void)
     auto model = gtk_tree_view_get_model(tree_macro);
     if (model == NULL) return;
 
-    int count = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(model), NULL);
-    // Subtract 1 for the null item placeholder
-    if (count > 0) count--;
+    int count = 0;
+    int matched_count = 0;
+    GtkTreeIter iter;
+    GtkEntry* search_entry = get_macro_search_entry();
+    const gchar* search_text = search_entry != NULL ? gtk_entry_get_text(search_entry) : "";
+    bool has_search_text = (search_text != NULL && search_text[0] != '\0');
 
-    gchar* text = g_strdup_printf(ngettext("%d macro", "%d macros", count), count);
+    gboolean has_row = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(model), &iter);
+    while (has_row) {
+        gchar* key = NULL;
+        gchar* value = NULL;
+        gtk_tree_model_get(model, &iter, COL_KEY, &key, COL_VALUE, &value, -1);
+        bool is_real_row = (key != NULL && g_strcmp0(key, STR_NULL_ITEM) != 0);
+        if (is_real_row) {
+            count++;
+            if (macro_row_matches_search(key, value, search_text)) {
+                matched_count++;
+            }
+        }
+        g_free(key);
+        g_free(value);
+        has_row = gtk_tree_model_iter_next(model, &iter);
+    }
+
+    gchar* text = NULL;
+    if (has_search_text) {
+        text = g_strdup_printf(ngettext("%d macro • %d match", "%d macros • %d matches", count),
+                               count,
+                               matched_count);
+    } else {
+        text = g_strdup_printf(ngettext("%d macro", "%d macros", count), count);
+    }
     gtk_label_set_text(lbl, text);
     g_free(text);
 }
@@ -1104,6 +1357,8 @@ void on_column_key_clicked(GtkTreeViewColumn* column, gpointer user_data)
     sort_list_store(COL_KEY, sort_key_order);
     update_column_headers();
     scroll_to_selection_or_top();
+    ibus_unikey_config_set_string(CONFIG_MACRO_LIST_SORT,
+                                  (sort_key_order == GTK_SORT_ASCENDING) ? "key:asc" : "key:desc");
 }
 
 /**
@@ -1124,6 +1379,8 @@ void on_column_value_clicked(GtkTreeViewColumn* column, gpointer user_data)
     sort_list_store(COL_VALUE, sort_value_order);
     update_column_headers();
     scroll_to_selection_or_top();
+    ibus_unikey_config_set_string(CONFIG_MACRO_LIST_SORT,
+                                  (sort_value_order == GTK_SORT_ASCENDING) ? "value:asc" : "value:desc");
 }
 
 /**

@@ -59,6 +59,12 @@
 #define CONFIG_MACROENABLED      "macro-enabled"
 #define CONFIG_STANDALONEW       "standalone-w-as-uw"
 #define CONFIG_MACRO_LASTWORKINGDIR "macro-last-working-dir"
+#define CONFIG_MACRO_LIST_SORT "macro-list-sort"
+#define CONFIG_MACRO_SEARCH_TEXT "macro-search-text"
+#define CONFIG_MACRO_SELECTED_KEY "macro-selected-key"
+#define CONFIG_MACRO_DIALOG_SIZE "macro-dialog-size"
+#define CONFIG_MACRO_DIALOG_POSITION "macro-dialog-position"
+#define CONFIG_MACRO_EXPORT_FORMAT "macro-export-format"
 /** @} */
 
 /**

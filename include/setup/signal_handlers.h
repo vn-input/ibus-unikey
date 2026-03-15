@@ -152,6 +152,12 @@ extern "C"
      */
     G_MODULE_EXPORT gboolean on_macro_dialog_delete(GtkWidget* wid, GdkEvent* ev, gpointer user_data);
 
+    G_MODULE_EXPORT gboolean on_macro_dialog_configure_event(GtkWidget* wid, GdkEvent* event, gpointer user_data);
+
+    G_MODULE_EXPORT void on_macro_search_changed(GtkEditable* editable, gpointer user_data);
+
+    G_MODULE_EXPORT void on_macro_selection_changed(GtkTreeSelection* selection, gpointer user_data);
+
     /**
      * @brief User clicked the Close/Cancel button in the macro dialog.
      *
