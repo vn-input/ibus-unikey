@@ -22,7 +22,5 @@ set_target_properties(ukengine PROPERTIES COMPILE_FLAGS "-funsigned-char -Wno-in
 target_include_directories(ukengine
     PUBLIC
         ${PROJECT_SOURCE_DIR}/include/ukengine
-    PRIVATE
-        ${PROJECT_SOURCE_DIR}/src/ukengine
 )
 
