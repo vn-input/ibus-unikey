@@ -29,6 +29,7 @@
 
 #include "unikey.h"
 #include "vnconv.h"
+#include "uk_shared_constants.h"
 
 #include "engine_private.h"
 #include "unikey_config.h"
@@ -45,13 +46,13 @@
 
 #define CONVERT_BUF_SIZE 1024
 
-static unsigned char WordBreakSyms[] =
-{
-    ',', ';', ':', '.', '\"', '\'', '!', '?', ' ',
-    '<', '>', '=', '+', '-', '*', '/', '\\',
-    '_', '~', '`', '@', '#', '$', '%', '^', '&', '(', ')', '{', '}', '[', ']',
-    '|'
-};
+/**
+ * @brief Word break symbols - uses centralized definition from ukengine.
+ *
+ * Note: ~, `, ^ are intentionally excluded to avoid interfering with
+ * Vietnamese composition.
+ */
+static unsigned char WordBreakSyms[] = { UK_WORD_BREAK_SYMS };
 
 static IBusEngineClass* parent_class = NULL;
 

@@ -19,26 +19,18 @@
 
 #include <iostream>
 #include "inputproc.h"
+#include "uk_shared_constants.h"
 
 using namespace std;
 
-/*
-unsigned char WordBreakSyms[] = {
-	',', ';', ':', '.', '\"', '\'', '!', '?', ' ',
-	'<', '>', '=', '+', '-', '*', '/', '\\',
-	'_', '~', '`', '@', '#', '$', '%', '^', '&', '(', ')', '{', '}', '[', ']'};
-*/
 /**
  * @brief Characters considered to break words (delimiters).
  *
- * Used by the input processor to decide when to end the current word.
- * Note that some punctuation like `~`, `` ` ``, and `^` are intentionally
- * excluded to avoid interfering with Vietnamese composition.
+ * Uses the centralized UK_WORD_BREAK_SYMS macro to avoid duplication.
+ * Note: ~, `, ^ are intentionally excluded to avoid interfering with
+ * Vietnamese composition (tone marks and diacritics).
  */
-unsigned char WordBreakSyms[] = {
-	',', ';', ':', '.', '\"', '\'', '!', '?', ' ',
-	'<', '>', '=', '+', '-', '*', '/', '\\',
-	'_', '@', '#', '$', '%', '&', '(', ')', '{', '}', '[', ']', '|'}; //we excluded ~, `, ^
+unsigned char WordBreakSyms[] = { UK_WORD_BREAK_SYMS };
 
 /**
  * @brief Mapping from ASCII uppercase letters to Vietnamese lexicon names.
@@ -112,7 +104,7 @@ VnLexiName IsoVnLexiMap[256];
  * @brief Flag indicating whether the input classification tables have been
  * initialized.
  */
-bool ClassifierTableInitialized = false;
+bool is_classifier_table_initialized = false;
 
 
 DllExport UkKeyMapping TelexMethodMapping[] = {
@@ -228,7 +220,7 @@ DllExport UkKeyMapping MsViMethodMapping[] = {
  *
  * Populates tables that classify ASCII characters as vowels, consonants,
  * separators, or other special categories used by the input processor.
- * This routine is guarded by `ClassifierTableInitialized` and should only run
+ * This routine is guarded by `is_classifier_table_initialized` and should only run
  * once per process.
  */
 void SetupInputClassifierTable()
@@ -296,9 +288,9 @@ void SetupInputClassifierTable()
  */
 void UkInputProcessor::init()
 {
-  if (!ClassifierTableInitialized) {
+  if (!is_classifier_table_initialized) {
     SetupInputClassifierTable();
-    ClassifierTableInitialized = true;
+    is_classifier_table_initialized = true;
   }
   setIM(UkTelex);
 }
