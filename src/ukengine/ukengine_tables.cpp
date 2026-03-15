@@ -48,7 +48,7 @@
 
 using namespace std;
 
-#include "ukengine_internal.h"
+#include "ukengine_tables.h"
 
 /** @brief ASCII code for the Enter key. */
 #ifndef ENTER_CHAR
@@ -263,38 +263,6 @@ VCPair VCPairList [] = {
 const int VCPairCount = sizeof(VCPairList)/sizeof(VCPair);
 
 //TODO: auto-complete: e.g. luan -> lua^n
-
-/**
- * @brief Member-function pointer type for key-event handlers.
- *
- * Each handler receives the normalized key event and returns non-zero when it
- * transformed the current composition state.
- *
- * @param ev Normalized key event being processed.
- */
-UkKeyProc UkKeyProcList[vneCount] = {
-    &UkEngine::processRoof,    //vneRoofAll
-    &UkEngine::processRoof,    //vneRoof_a
-    &UkEngine::processRoof,    //vneRoof_e
-    &UkEngine::processRoof,    //vneRoof_o
-    &UkEngine::processHook,    //vneHookAll
-    &UkEngine::processHook,    //vneHook_uo
-    &UkEngine::processHook,    //vneHook_u
-    &UkEngine::processHook,    //vneHook_o
-    &UkEngine::processHook,    //vneBowl
-    &UkEngine::processDd,      //vneDd
-    &UkEngine::processTone,    //vneTone0
-    &UkEngine::processTone,    //vneTone1
-    &UkEngine::processTone,    //vneTone2
-    &UkEngine::processTone,    //vneTone3
-    &UkEngine::processTone,    //vneTone4
-    &UkEngine::processTone,    //vneTone5
-    &UkEngine::processTelexW,  //vne_telex_w
-    &UkEngine::processMapChar, //vneMapChar
-    &UkEngine::processEscChar, //vneEscChar
-    &UkEngine::processAppend   //vneNormal
-};
-
 
 /**
  * @brief Look up a vowel-sequence identifier from up to three lexicon symbols.

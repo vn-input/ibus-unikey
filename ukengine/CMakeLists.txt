@@ -8,9 +8,10 @@ set(SOURCES
     ../src/ukengine/mactab.cpp
     ../src/ukengine/pattern.cpp
     ../src/ukengine/ukengine_tables.cpp
+    ../src/ukengine/ukengine_utils.cpp
     ../src/ukengine/ukengine_roof.cpp
     ../src/ukengine/ukengine_mapchar.cpp
-    ../src/ukengine/ukengine_process.cpp
+    ../src/ukengine/ukengine.cpp
     ../src/ukengine/usrkeymap.cpp
     ../src/ukengine/unikey.cpp
 )

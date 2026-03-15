@@ -48,7 +48,8 @@
 
 using namespace std;
 
-#include "ukengine_internal.h"
+#include "ukengine_tables.h"
+#include "ukengine_utils.h"
 
 int UkEngine::processRoof(UkKeyEvent & ev)
 {
@@ -668,38 +669,6 @@ int UkEngine::processDd(UkKeyEvent & ev)
     }
   
     return processAppend(ev);
-}
-
-//----------------------------------------------------------
-/**
- * @brief Flip a Vietnamese lexicon symbol between lowercase and uppercase.
- *
- * @param x Symbol to convert.
- * @return Same symbol in the opposite case, or unchanged for non-Vietnamese values.
- */
-VnLexiName changeCase(VnLexiName x)
-{
-    if (x == vnl_nonVnChar)
-        return x;
-    if (!(x & 0x01))
-        return (VnLexiName)(x+1);
-    return (VnLexiName)(x-1);
-}
-
-//----------------------------------------------------------
-/**
- * @brief Normalize a Vietnamese lexicon symbol to lowercase.
- *
- * @param x Symbol to normalize.
- * @return Lowercase equivalent, or unchanged for non-Vietnamese values.
- */
-VnLexiName vnToLower(VnLexiName x)
-{
-    if (x == vnl_nonVnChar)
-        return x;
-    if (!(x & 0x01)) //even
-        return (VnLexiName)(x+1);
-    return x;
 }
 
 //----------------------------------------------------------

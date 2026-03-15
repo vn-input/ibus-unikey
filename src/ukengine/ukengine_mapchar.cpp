@@ -48,7 +48,8 @@
 
 using namespace std;
 
-#include "ukengine_internal.h"
+#include "ukengine_tables.h"
+#include "ukengine_utils.h"
 
 int UkEngine::processMapChar(UkKeyEvent & ev)
 {

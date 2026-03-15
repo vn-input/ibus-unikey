@@ -48,7 +48,32 @@
 
 using namespace std;
 
-#include "ukengine_internal.h"
+#include "ukengine_tables.h"
+#include "ukengine_utils.h"
+
+typedef int (UkEngine::* UkKeyProc)(UkKeyEvent & ev);
+static UkKeyProc UkKeyProcList[vneCount] = {
+    &UkEngine::processRoof,    //vneRoofAll
+    &UkEngine::processRoof,    //vneRoof_a
+    &UkEngine::processRoof,    //vneRoof_e
+    &UkEngine::processRoof,    //vneRoof_o
+    &UkEngine::processHook,    //vneHookAll
+    &UkEngine::processHook,    //vneHook_uo
+    &UkEngine::processHook,    //vneHook_u
+    &UkEngine::processHook,    //vneHook_o
+    &UkEngine::processHook,    //vneBowl
+    &UkEngine::processDd,      //vneDd
+    &UkEngine::processTone,    //vneTone0
+    &UkEngine::processTone,    //vneTone1
+    &UkEngine::processTone,    //vneTone2
+    &UkEngine::processTone,    //vneTone3
+    &UkEngine::processTone,    //vneTone4
+    &UkEngine::processTone,    //vneTone5
+    &UkEngine::processTelexW,  //vne_telex_w
+    &UkEngine::processMapChar, //vneMapChar
+    &UkEngine::processEscChar, //vneEscChar
+    &UkEngine::processAppend   //vneNormal
+};
 
 int UkEngine::process(unsigned int keyCode, int & backs, unsigned char *outBuf, int & outSize, UkOutputType & outType)
 {
