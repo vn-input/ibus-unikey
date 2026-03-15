@@ -51,6 +51,13 @@ using namespace std;
 #include "ukengine_tables.h"
 #include "ukengine_utils.h"
 
+//------------------------------------------------------------------
+/**
+ * @brief Apply or remove a roof diacritic on the current vowel sequence.
+ *
+ * @param ev Key event describing which roof key was pressed.
+ * @return Non-zero when the event was handled by the composition engine.
+ */
 int UkEngine::processRoof(UkKeyEvent & ev)
 {
     if (!m_pCtrl->vietKey || m_current < 0 || m_buffer[m_current].vOffset < 0)

@@ -537,10 +537,3 @@ ConSeq lookupCSeq(VnLexiName c1, VnLexiName c2, VnLexiName c3)
     return pInfo->cs;
 }
 
-//------------------------------------------------------------------
-/**
- * @brief Apply or remove a roof diacritic on the current vowel sequence.
- *
- * @param ev Key event describing which roof key was pressed.
- * @return Non-zero when the event was handled by the composition engine.
- */
