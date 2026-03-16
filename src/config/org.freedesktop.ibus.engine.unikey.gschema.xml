@@ -89,6 +89,11 @@
       <summary>Macro dialog position</summary>
       <description>Remembers the last X,Y position of the macro dialog when supported by the windowing system.</description>
     </key>
+    <key name="macro-column-widths" type="s">
+      <default>'180,0'</default>
+      <summary>Macro table column widths</summary>
+      <description>Remembers the last widths of the key and value columns in the macro table as KEY_WIDTH,VALUE_WIDTH.</description>
+    </key>
     <key name="macro-export-format" type="s">
       <default>'.txt'</default>
       <summary>Macro export format</summary>

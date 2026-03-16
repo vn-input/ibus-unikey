@@ -6,8 +6,10 @@ add_executable(ibus-setup-unikey
     ../src/setup/app_context.cpp
     ../src/setup/macro_export_filename.cpp
     ../src/setup/macro_dialog_state.cpp
+    ../src/setup/gui/builder/gui_builder.cpp
+    ../src/setup/gui/handlers/add_macro_dialog_handlers.cpp
+    ../src/setup/gui/handlers/main_window_handlers.cpp
     ../src/setup/signal_handlers_settings.cpp
-    ../src/setup/signal_handlers_window.cpp
     ../src/setup/signal_handlers_macros.cpp
     ../src/setup/macro_utils.cpp
     ../src/setup/macro_file_io.cpp
@@ -26,5 +28,10 @@ target_include_directories(ibus-setup-unikey
 )
 
 install(TARGETS ibus-setup-unikey DESTINATION ${LIBEXECDIR})
-install(FILES ibus-unikey.ui DESTINATION ${PKGDATADIR}/ui)
+install(FILES
+    gui/ui/main_window.ui
+    gui/ui/macro_dialog.ui
+    gui/ui/add_macro_dialog.ui
+    DESTINATION ${PKGDATADIR}/ui)
+install(DIRECTORY images DESTINATION ${PKGDATADIR}/ui)
 

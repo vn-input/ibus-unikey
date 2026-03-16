@@ -32,9 +32,10 @@
  * @file signal_handlers.h
  * @brief External declarations for GTK signal callbacks used by the setup UI.
  *
- * These functions are defined in `signal_handlers.cpp` and are exported with
- * `G_MODULE_EXPORT` so that the GTK builder can connect them by name.  Their
- * signatures match the widgets and signals defined in `ibus-unikey.ui`.
+ * These functions are defined in the setup signal-handler modules and are
+ * exported with `G_MODULE_EXPORT` so that the GTK builder can connect them by
+ * name. Their signatures match the widgets and signals defined in the setup
+ * `.ui` files.
  */
 
 extern "C"
@@ -154,7 +155,27 @@ extern "C"
 
     G_MODULE_EXPORT gboolean on_macro_dialog_configure_event(GtkWidget* wid, GdkEvent* event, gpointer user_data);
 
+    G_MODULE_EXPORT gboolean on_add_macro_dialog_delete(GtkWidget* widget,
+                                                        GdkEvent* event,
+                                                        gpointer user_data);
+
+    G_MODULE_EXPORT void on_add_macro_dialog_cancel_clicked(GtkButton* button,
+                                                            gpointer user_data);
+
+    G_MODULE_EXPORT void on_add_macro_dialog_ok_clicked(GtkButton* button,
+                                                        gpointer user_data);
+
     G_MODULE_EXPORT void on_macro_search_changed(GtkEditable* editable, gpointer user_data);
+
+    G_MODULE_EXPORT void on_macro_search_activate(GtkEntry* entry, gpointer user_data);
+
+    G_MODULE_EXPORT void on_macro_search_first_clicked(GtkButton* button, gpointer user_data);
+
+    G_MODULE_EXPORT void on_macro_search_prev_clicked(GtkButton* button, gpointer user_data);
+
+    G_MODULE_EXPORT void on_macro_search_next_clicked(GtkButton* button, gpointer user_data);
+
+    G_MODULE_EXPORT void on_macro_search_last_clicked(GtkButton* button, gpointer user_data);
 
     G_MODULE_EXPORT void on_macro_selection_changed(GtkTreeSelection* selection, gpointer user_data);
 

@@ -33,16 +33,19 @@
  *        utility.
  *
  * This executable provides a simple GTK-based configuration dialog for the
- * engine. Widgets are defined in `ibus-unikey.ui` and accessed by signal
- * handlers via a global builder pointer.
+ * engine. Widgets are defined across the setup `.ui` files and accessed by
+ * signal handlers via a global builder pointer.
  */
 
 #include <libintl.h>
 #include <locale.h>
+#include <cstdarg>
+#include <cstdio>
 #include <gtk/gtk.h>
 
 #include "unikey_config.h"
 #include "app_context.h"
+#include "gui/builder/gui_builder.h"
 
 #define _(string) gettext(string)
 
@@ -51,64 +54,37 @@ GtkWidget* dlgMacro;  /**< Macro editor dialog widget */
 GtkTreeView* tree_macro; /**< Tree view showing macros */
 GtkBuilder* builder;  /**< GTK builder instance used for lookups */
 
-/**
- * @brief Create a GTK builder and fetch commonly used widgets.
- *
- * The builder is stored in the global `builder` variable so that signal
- * handlers (defined elsewhere) can query for widgets when needed. This
- * function also establishes the macro dialog as transient for the main
- * window and initializes the `tree_macro` pointer.
- */
-gboolean init_gtk_builder()
+static void append_debug_log(const char* format, ...)
 {
-    builder = gtk_builder_new();
-    const gchar *override_dir_2 = g_getenv("IBUS_UNIKEY_PKGDATADIR");
-    const gchar *data_dir2 = override_dir_2 ? override_dir_2 : PKGDATADIR;
-    gchar *ui_path = g_strconcat(data_dir2, "/ui/ibus-unikey.ui", NULL);
-    GError *error = NULL;
-    if (!gtk_builder_add_from_file(builder, ui_path, &error)) {
-        g_warning("Failed to load UI file '%s': %s", ui_path, error->message);
-        g_error_free(error);
-        g_free(ui_path);
-        return FALSE;
-    }
-    g_free(ui_path);
-    gtk_builder_connect_signals(builder, NULL);
-
-    mwin = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
-    dlgMacro = GTK_WIDGET(gtk_builder_get_object(builder, "macro_dialog"));
-    gtk_window_set_transient_for(GTK_WINDOW(dlgMacro), GTK_WINDOW(mwin));
-
-    tree_macro = GTK_TREE_VIEW(gtk_builder_get_object(builder, "tree_macro"));
-    gtk_tree_view_set_activate_on_single_click(tree_macro, FALSE);
-
-    // Initialize the centralized app context
-    app_context_init(builder, mwin, dlgMacro, tree_macro);
-
-    GtkCellRenderer* key_renderer = GTK_CELL_RENDERER(gtk_builder_get_object(builder, "cellrenderertext_key"));
-    GtkCellRenderer* value_renderer = GTK_CELL_RENDERER(gtk_builder_get_object(builder, "cellrenderertext_value"));
-    if (key_renderer != NULL) {
-        g_object_set(key_renderer,
-                     "editable", FALSE,
-                     "mode", GTK_CELL_RENDERER_MODE_INERT,
-                     NULL);
-    }
-    if (value_renderer != NULL) {
-        g_object_set(value_renderer,
-                     "editable", FALSE,
-                     "mode", GTK_CELL_RENDERER_MODE_INERT,
-                     NULL);
+    gchar* log_path = g_build_filename(g_get_home_dir(), "debug.log", NULL);
+    FILE* log_file = fopen(log_path, "a");
+    if (log_file == NULL) {
+        g_free(log_path);
+        return;
     }
 
-    // Note: builder is kept global so signal handlers can access widgets
-    return TRUE;
+    GDateTime* now = g_date_time_new_now_local();
+    gchar* timestamp = g_date_time_format(now, "%Y-%m-%d %H:%M:%S");
+    fprintf(log_file, "[%s] ", timestamp != NULL ? timestamp : "unknown-time");
+
+    va_list args;
+    va_start(args, format);
+    vfprintf(log_file, format, args);
+    va_end(args);
+
+    fputc('\n', log_file);
+    fclose(log_file);
+
+    g_free(timestamp);
+    g_date_time_unref(now);
+    g_free(log_path);
 }
 
 /**
  * @brief Entry point for the setup utility.
  *
  * The program initializes localization and GTK, then constructs the
- * configuration dialog defined in `ibus-unikey.ui`.
+ * configuration dialog defined in the setup `.ui` files.
  *
  * @param argc Number of command-line arguments; may be altered by
  *        `gtk_init` during initialization.
@@ -120,17 +96,26 @@ gboolean init_gtk_builder()
  */
 int main(int argc, char** argv)
 {
+    append_debug_log("setup main: start argv0=%s", (argc > 0 && argv[0] != NULL) ? argv[0] : "(null)");
+    append_debug_log("setup main: DISPLAY=%s WAYLAND_DISPLAY=%s XDG_CURRENT_DESKTOP=%s",
+                     g_getenv("DISPLAY") != NULL ? g_getenv("DISPLAY") : "(null)",
+                     g_getenv("WAYLAND_DISPLAY") != NULL ? g_getenv("WAYLAND_DISPLAY") : "(null)",
+                     g_getenv("XDG_CURRENT_DESKTOP") != NULL ? g_getenv("XDG_CURRENT_DESKTOP") : "(null)");
+
     setlocale(LC_ALL, "");
     bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
     textdomain(GETTEXT_PACKAGE);
 
     ibus_unikey_config_init();
+    append_debug_log("setup main: config initialized");
 
     gtk_init(&argc, &argv);
+    append_debug_log("setup main: gtk_init completed");
     const gchar *override_dir = g_getenv("IBUS_UNIKEY_PKGDATADIR");
     const gchar *data_dir = override_dir ? override_dir : PKGDATADIR;
 
     gchar *icon_path = g_strconcat(data_dir, "/icons/ibus-unikey.svg", NULL);
+    append_debug_log("setup main: icon path=%s", icon_path);
     gtk_window_set_default_icon_from_file(icon_path, NULL);
     g_free(icon_path);
 
@@ -140,13 +125,19 @@ int main(int argc, char** argv)
            set a temporary variable that init_gtk_builder will read */
     }
 
+    append_debug_log("setup main: init_gtk_builder start");
     if (!init_gtk_builder()) {
+        append_debug_log("setup main: init_gtk_builder failed");
         g_critical("Failed to initialize GTK builder - cannot proceed");
         return 1;
     }
+    append_debug_log("setup main: init_gtk_builder succeeded");
 
+    append_debug_log("setup main: showing main window");
     gtk_widget_show_all(mwin);
+    append_debug_log("setup main: entering gtk_main");
     gtk_main();
+    append_debug_log("setup main: exited gtk_main");
 
     return 0;
 }

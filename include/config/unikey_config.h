@@ -64,6 +64,7 @@
 #define CONFIG_MACRO_SELECTED_KEY "macro-selected-key"
 #define CONFIG_MACRO_DIALOG_SIZE "macro-dialog-size"
 #define CONFIG_MACRO_DIALOG_POSITION "macro-dialog-position"
+#define CONFIG_MACRO_COLUMN_WIDTHS "macro-column-widths"
 #define CONFIG_MACRO_EXPORT_FORMAT "macro-export-format"
 /** @} */
 
