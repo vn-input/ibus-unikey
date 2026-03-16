@@ -82,6 +82,9 @@ static void update_macro_count_label(void);
 static GtkEntry* get_macro_search_entry(void);
 static const gchar* get_committed_macro_search_text(void);
 static gboolean has_committed_macro_search_text(void);
+static gchar* get_current_selected_macro_key(void);
+static void clear_pre_search_selected_key(void);
+static void snapshot_pre_search_selected_key_if_needed(void);
 static gboolean macro_row_matches_search(const gchar* key,
                                          const gchar* value,
                                          const gchar* search_text);
@@ -93,6 +96,10 @@ static gboolean select_first_macro_match(void);
 static gboolean select_last_macro_match(void);
 static gboolean select_next_macro_match(void);
 static gboolean select_prev_macro_match(void);
+static gboolean select_macro_match_at_path(GtkTreePath* path);
+static gboolean select_and_scroll_to_first_macro_row(void);
+static void restore_selection_after_search_reset(void);
+static void reset_macro_search_and_restore_view(gboolean should_restore_previous_selection);
 
 /**
  * @brief Sort the macro list by the requested column and order.
@@ -238,7 +245,7 @@ static void update_macro_nav_buttons_for_matches(void);
  *
  * @param key Macro key to reveal.
  */
-static void select_and_scroll_to_macro_key(const gchar* key);
+static gboolean select_and_scroll_to_macro_key(const gchar* key);
 
 /**
  * @brief Copy text into a bounded NUL-terminated string.
@@ -325,6 +332,7 @@ static gchar* duplicate_bounded_text(const gchar* text, gsize max_len)
 
 static GtkTreeModelFilter* macro_filter_model = NULL;
 static gchar* macro_committed_search_text = NULL;
+static gchar* macro_pre_search_selected_key = NULL;
 static GtkCssProvider* macro_nav_css_provider = NULL;
 static gboolean is_macro_nav_enabled = FALSE;
 
@@ -539,6 +547,48 @@ static void set_committed_macro_search_text(const gchar* text)
     macro_committed_search_text = g_strdup(text != NULL ? text : "");
 }
 
+static gchar* get_current_selected_macro_key(void)
+{
+    GtkTreeSelection* selection = gtk_tree_view_get_selection(tree_macro);
+    GtkTreeIter iter;
+    GtkTreeModel* model = NULL;
+    const gboolean has_selection = gtk_tree_selection_get_selected(selection, &model, &iter);
+    if (!has_selection || model == NULL) {
+        return NULL;
+    }
+
+    gchar* key = NULL;
+    gtk_tree_model_get(model, &iter, COL_KEY, &key, -1);
+    const gboolean is_real_row = (key != NULL && g_strcmp0(key, STR_NULL_ITEM) != 0);
+    if (!is_real_row) {
+        g_free(key);
+        return NULL;
+    }
+
+    return key;
+}
+
+static void clear_pre_search_selected_key(void)
+{
+    g_clear_pointer(&macro_pre_search_selected_key, g_free);
+}
+
+static void snapshot_pre_search_selected_key_if_needed(void)
+{
+    const gboolean has_snapshot = (macro_pre_search_selected_key != NULL
+        && macro_pre_search_selected_key[0] != '\0');
+    if (has_snapshot) {
+        return;
+    }
+
+    gchar* current_selected_key = get_current_selected_macro_key();
+    if (current_selected_key == NULL) {
+        return;
+    }
+
+    macro_pre_search_selected_key = current_selected_key;
+}
+
 static GtkListStore* get_macro_store(void)
 {
     return GTK_LIST_STORE(gtk_builder_get_object(builder, "list_macro"));
@@ -614,6 +664,57 @@ static gboolean get_selected_store_iter(GtkTreeIter* store_iter)
     }
 
     return convert_view_iter_to_store_iter(&view_iter, store_iter);
+}
+
+static gboolean select_and_scroll_to_first_macro_row(void)
+{
+    GtkTreeModel* model = get_macro_view_model();
+    if (model == NULL) {
+        return FALSE;
+    }
+
+    GtkTreeIter iter;
+    const gboolean has_row = gtk_tree_model_get_iter_first(model, &iter);
+    if (!has_row) {
+        return FALSE;
+    }
+
+    GtkTreePath* path = gtk_tree_model_get_path(model, &iter);
+    const gboolean is_selected = select_macro_match_at_path(path);
+    gtk_tree_path_free(path);
+    return is_selected;
+}
+
+static void restore_selection_after_search_reset(void)
+{
+    gboolean is_restored = FALSE;
+    const gboolean has_pre_search_selected_key = (macro_pre_search_selected_key != NULL
+        && macro_pre_search_selected_key[0] != '\0');
+    if (has_pre_search_selected_key) {
+        is_restored = select_and_scroll_to_macro_key(macro_pre_search_selected_key);
+    }
+
+    if (!is_restored) {
+        is_restored = select_and_scroll_to_first_macro_row();
+    }
+
+    clear_pre_search_selected_key();
+}
+
+static void reset_macro_search_and_restore_view(gboolean should_restore_previous_selection)
+{
+    macro_dialog_remember_search_text("");
+    set_committed_macro_search_text("");
+    refilter_macro_rows();
+    update_macro_count_label();
+
+    if (should_restore_previous_selection) {
+        restore_selection_after_search_reset();
+    } else {
+        apply_macro_search_selection();
+    }
+
+    update_macro_nav_buttons_for_matches();
 }
 
 static gboolean get_store_iter_from_string(const gchar* string_path,
@@ -811,10 +912,14 @@ static void apply_macro_search_selection(void)
     if (!has_search_text) {
         gchar* selected_key = macro_dialog_get_selected_key();
         bool has_selected_key = (selected_key != NULL && selected_key[0] != '\0');
+        gboolean is_restored = FALSE;
         if (has_selected_key) {
-            select_and_scroll_to_macro_key(selected_key);
+            is_restored = select_and_scroll_to_macro_key(selected_key);
         }
         g_free(selected_key);
+        if (!is_restored) {
+            select_and_scroll_to_first_macro_row();
+        }
         return;
     }
 
@@ -952,18 +1057,18 @@ static gboolean select_prev_macro_match(void)
     return ok;
 }
 
-static void select_and_scroll_to_macro_key(const gchar* key)
+static gboolean select_and_scroll_to_macro_key(const gchar* key)
 {
     GtkTreeModel* store_model = GTK_TREE_MODEL(get_macro_store());
     GtkTreeModel* view_model = get_macro_view_model();
     if (store_model == NULL || view_model == NULL || key == NULL) {
-        return;
+        return FALSE;
     }
 
     GtkTreeIter store_iter;
     gboolean found = find_macro_iter_by_key(store_model, key, &store_iter);
     if (!found) {
-        return;
+        return FALSE;
     }
 
     GtkTreePath* store_path = gtk_tree_model_get_path(store_model, &store_iter);
@@ -973,7 +1078,7 @@ static void select_and_scroll_to_macro_key(const gchar* key)
                                                                      store_path);
         gtk_tree_path_free(store_path);
         if (view_path == NULL) {
-            return;
+            return FALSE;
         }
     }
 
@@ -981,6 +1086,7 @@ static void select_and_scroll_to_macro_key(const gchar* key)
     gtk_tree_view_scroll_to_cell(tree_macro, view_path, NULL, TRUE, 0.5, 0.0);
     gtk_widget_grab_focus(GTK_WIDGET(tree_macro));
     gtk_tree_path_free(view_path);
+    return TRUE;
 }
 
 static void save_macro_entry(const gchar* original_key,
@@ -1306,6 +1412,7 @@ gboolean on_main_window_key_press_event(GtkWidget *widget, GdkEventKey *event, g
 
 void on_btn_macroedit_clicked(GtkButton* btn, gpointer user_data)
 {
+    clear_pre_search_selected_key();
     macro_dialog_apply_window_geometry(GTK_WINDOW(dlgMacro));
 
     gchar* macrofile = get_macro_file();
@@ -1415,6 +1522,7 @@ void on_btn_macroedit_clicked(GtkButton* btn, gpointer user_data)
  */
 gboolean on_macro_dialog_delete(GtkWidget* wid, GdkEvent* ev, gpointer user_data)
 {
+    clear_pre_search_selected_key();
     macro_dialog_remember_window_geometry(GTK_WINDOW(dlgMacro));
     gtk_widget_hide(dlgMacro);
     return true;
@@ -1434,6 +1542,7 @@ gboolean on_macro_dialog_configure_event(GtkWidget* wid, GdkEvent* event, gpoint
  */
 void macro_dialog_hide(GtkButton* btn, gpointer user_data)
 {
+    clear_pre_search_selected_key();
     macro_dialog_remember_window_geometry(GTK_WINDOW(dlgMacro));
     gtk_widget_hide(dlgMacro);
 }
@@ -1442,8 +1551,28 @@ void on_macro_search_changed(GtkEditable* editable, gpointer user_data)
 {
     // Typing starts a new (pending) query: disable nav buttons until the user
     // presses Return to commit and the filter can compute real matches.
-    (void)editable;
     (void)user_data;
+    GtkEntry* search_entry = GTK_ENTRY(editable);
+    const gchar* search_text = (search_entry != NULL) ? gtk_entry_get_text(search_entry) : "";
+    const gboolean is_empty_search_text = (search_text == NULL || search_text[0] == '\0');
+
+    if (is_empty_search_text) {
+        const gboolean should_restore_previous_selection = has_committed_macro_search_text()
+            || (macro_pre_search_selected_key != NULL && macro_pre_search_selected_key[0] != '\0');
+        if (should_restore_previous_selection) {
+            reset_macro_search_and_restore_view(TRUE);
+            return;
+        }
+
+        set_macro_nav_buttons_sensitive(FALSE);
+        return;
+    }
+
+    const gboolean can_snapshot_pre_search_selection = !has_committed_macro_search_text();
+    if (can_snapshot_pre_search_selection) {
+        snapshot_pre_search_selected_key_if_needed();
+    }
+
     set_macro_nav_buttons_sensitive(FALSE);
 }
 
@@ -1451,6 +1580,14 @@ void on_macro_search_activate(GtkEntry* entry, gpointer user_data)
 {
     GtkEntry* search_entry = entry;
     const gchar* search_text = (search_entry != NULL) ? gtk_entry_get_text(search_entry) : "";
+    const gboolean is_empty_search_text = (search_text == NULL || search_text[0] == '\0');
+    if (is_empty_search_text) {
+        const gboolean should_restore_previous_selection = has_committed_macro_search_text()
+            || (macro_pre_search_selected_key != NULL && macro_pre_search_selected_key[0] != '\0');
+        reset_macro_search_and_restore_view(should_restore_previous_selection);
+        return;
+    }
+
     macro_dialog_remember_search_text(search_text);
     set_committed_macro_search_text(search_text);
     set_macro_nav_buttons_sensitive(FALSE);
