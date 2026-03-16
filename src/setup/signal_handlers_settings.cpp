@@ -71,15 +71,3 @@ void on_setting_realize(GtkToggleButton* btn, gpointer user_data)
     }
 }
 
-/**
- * @brief Display the macro editor dialog and handle load/save operations.
- *
- * This callback is invoked when the "Edit" button is clicked.  It reads the
- * current macro file into a `CMacroTable`, populates the tree view, allows the
- * user to modify entries, and writes the table back if the dialog is closed with
- * the OK response.  The tree's model is temporarily detached during bulk
- * updates for performance.
- *
- * @param btn Button widget that opened the editor (unused).
- * @param user_data Unused.
- */

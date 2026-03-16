@@ -1410,6 +1410,18 @@ gboolean on_main_window_key_press_event(GtkWidget *widget, GdkEventKey *event, g
  */
 
 
+/**
+ * @brief Display the macro editor dialog and handle load/save operations.
+ *
+ * This callback is invoked when the "Edit" button is clicked.  It reads the
+ * current macro file into a `CMacroTable`, populates the tree view, allows the
+ * user to modify entries, and writes the table back if the dialog is closed with
+ * the OK response.  The tree's model is temporarily detached during bulk
+ * updates for performance.
+ *
+ * @param btn Button widget that opened the editor (unused).
+ * @param user_data Unused.
+ */
 void on_btn_macroedit_clicked(GtkButton* btn, gpointer user_data)
 {
     clear_pre_search_selected_key();
