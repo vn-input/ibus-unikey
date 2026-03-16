@@ -22,50 +22,50 @@ IBus-Unikey IME
 
 ## Recent changes (macro feature set)
 
-Các thay đổi chính đã được thực hiện trong nhánh làm việc này:
-
-* Macro dialog now supports a rich-text, scrollable replacement field so
-  corporate users can enter much larger replacement texts without being
-  constrained by a single-line entry. The underlying engine text limit has also
-  been raised accordingly.
-
+Các thay đổi macro/UI hiện có trong nhánh làm việc này:
 
 1. **Macro storage không còn giới hạn 1024 entries**
-	 - `CMacroTable` chuyển từ mảng tĩnh sang cấp phát động.
-	 - Tự động tăng dung lượng bằng chiến lược nhân đôi.
+	- `CMacroTable` chuyển từ mảng tĩnh sang cấp phát động.
+	- Tự động tăng dung lượng bằng chiến lược nhân đôi.
 
 2. **Dictionary semantics khi load macro file**
-	 - Sau khi sort theo key, các key trùng được gộp.
-	 - Entry xuất hiện **sau** trong file sẽ ghi đè entry trước.
+	- Sau khi sort theo key, các key trùng được gộp.
+	- Entry xuất hiện **sau** trong file sẽ ghi đè entry trước.
 
 3. **Macro dialog CRUD/UI nâng cấp**
-	 - Thêm `Add` / `Remove`, và dùng lại cùng hộp thoại cho việc chỉnh sửa.
-	 - Dialog thêm/chỉnh sửa mở qua double-click; không còn chỉnh sửa inline.
-	 - Replace field là văn bản nhiều dòng, scrollable, phù hợp với các macro lớn.
-	 - Sort theo cột bằng click header.
-	 - Sau khi thêm hoặc lưu thay đổi, danh sách được sort, tự cuộn tới item mới
-	   và highlight.
-	 - Khi đổi sort, giao diện tự cuộn về item đang chọn (hoặc dòng đầu nếu chưa chọn).
+	- Thêm `Add` / `Remove`, và dùng lại cùng hộp thoại cho việc chỉnh sửa.
+	- Dialog thêm/chỉnh sửa mở qua double-click hoặc Enter trên dòng macro; không còn chỉnh sửa inline.
+	- Replace field là `GtkTextView` nhiều dòng, scrollable, phù hợp với các macro lớn.
+	- Label `With:` trong dialog add/edit được canh lên trên để khớp với vùng nhập nhiều dòng.
+	- Sort theo cột bằng click header.
+	- Sau khi thêm hoặc lưu thay đổi, danh sách được sort, tự cuộn tới item mới và chọn lại dòng vừa lưu.
+	- Khi đổi sort, giao diện tự cuộn về item đang chọn (hoặc dòng đầu nếu chưa chọn).
 
-4. **File import/export hỗ trợ**
- 	 - Người dùng có thể nhập khẩu macro từ các định dạng bên ngoài (Espanso YAML,
- 	   macOS text substitutions plist) và xuất khẩu sang các định dạng này.
- 	 - Chức năng có sẵn trong hộp thoại macro; lựa chọn định dạng dựa trên phần
- 	   mở rộng tên tệp (`.yml`/`.yaml`/`.plist`).
- 	 - Dialog import/export ghi nhớ thư mục dùng gần nhất qua `GSettings`, nên
- 	   lần mở kế tiếp sẽ quay lại đúng vị trí trước đó.
- 	 - Tích hợp với `macro_file_io` để tự động chuyển đổi và xử lý trùng lặp.
+4. **Search UX cho macro list**
+	- Có `GtkSearchEntry` ngay trên bảng macro cùng các nút `First` / `Prev` / `Next` / `Last`.
+	- Các nút điều hướng search khởi đầu ở trạng thái disabled-by-style: vẫn có hover muted effect nhưng không xử lý click cho tới khi search có kết quả.
+	- Nhấn Enter để commit search text và cập nhật match navigation.
+	- Khi bấm nút `x` để clear ô search, danh sách đầy đủ được khôi phục ngay lập tức.
+	- Sau khi clear search, giao diện tự cuộn về dòng đã được chọn trước khi bắt đầu search; nếu không có dòng nào, nó quay về dòng đầu tiên.
 
-5. **Tối ưu hiệu năng macro list lớn**
- 	 - Detach model khi nạp hàng loạt.
- 	 - Tránh cập nhật UI theo từng dòng.
+5. **File import/export hỗ trợ**
+	- Người dùng có thể nhập khẩu macro từ các định dạng bên ngoài (Espanso YAML, macOS text substitutions plist) và xuất khẩu sang các định dạng này.
+	- Chức năng có sẵn trong hộp thoại macro; lựa chọn định dạng dựa trên phần mở rộng tên tệp (`.yml`/`.yaml`/`.plist`).
+	- Dialog import/export ghi nhớ thư mục dùng gần nhất qua `GSettings`, nên lần mở kế tiếp sẽ quay lại đúng vị trí trước đó.
+	- Tích hợp với `macro_file_io` để tự động chuyển đổi và xử lý trùng lặp.
 
-6. **Sửa signal binding cho GTK builder**
-	- Macro editor UI, import/export, cấu hình engine options.
-- `src/config/`:
-	- GSettings schema + wrapper đọc/ghi config.
-- `data/`, `po/`:
-	- Tài nguyên giao diện và bản dịch.
+6. **Tối ưu hiệu năng macro list lớn**
+	- Detach model khi nạp hàng loạt.
+	- Tránh cập nhật UI theo từng dòng.
+
+7. **Tổ chức lại setup UI theo hướng production-style**
+	- Tách UI thành các file độc lập trong `setup/gui/ui/`:
+	  - `main_window.ui`
+	  - `macro_dialog.ui`
+	  - `add_macro_dialog.ui`
+	- GTK builder bootstrap tập trung ở `src/setup/gui/builder/gui_builder.cpp`.
+	- Handlers được tách theo owner dialog/window trong `src/setup/gui/handlers/`.
+	- Cấu hình engine options, macro editor, và dialog add/edit vẫn dùng cùng builder nên signal binding của GTK giữ nguyên.
 
 ### Runtime flow (high level)
 
@@ -110,11 +110,24 @@ chuyển đổi sang bảng nội bộ với cùng quy tắc dedupe như khi loa
 	- Parse / load / write file.
 	- Lookup theo key trong lúc gõ.
 
-- `setup/macro_utils.h`, `setup/macro_utils.cpp`
+- `src/setup/macro_utils.cpp`
 	- Chuyển đổi qua lại giữa `CMacroTable` và `GtkListStore`.
 
-- `setup/signal_handlers.cpp`
-	- Toàn bộ hành vi UI của Macro dialog (CRUD/sort/import/export).
+- `src/setup/macro_file_io.cpp`
+	- Nhập/xuất macro theo định dạng native, YAML, và plist.
+
+- `src/setup/macro_dialog_state.cpp`
+	- Lưu search text, selected key, import/export folder, dialog geometry, và các trạng thái UX liên quan.
+
+- `src/setup/signal_handlers_macros.cpp`
+	- Toàn bộ hành vi macro dialog hiện tại: CRUD, sort, search, match navigation, import/export, và reset selection sau khi clear search.
+
+- `src/setup/gui/builder/gui_builder.cpp`
+	- Nạp toàn bộ setup UI từ nhiều file `.ui` vào cùng một `GtkBuilder`.
+
+- `src/setup/gui/handlers/main_window_handlers.cpp`
+- `src/setup/gui/handlers/add_macro_dialog_handlers.cpp`
+	- Tách handlers theo owner dialog/window để cấu trúc setup dễ bảo trì hơn.
 
 ### Important behavior notes
 

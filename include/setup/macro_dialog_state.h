@@ -59,4 +59,16 @@ void macro_dialog_apply_import_folder(GtkFileChooser* chooser);
  */
 void macro_dialog_apply_export_folder(GtkFileChooser* chooser);
 
+void macro_dialog_remember_search_text(const gchar* text);
+gchar* macro_dialog_get_search_text(void);
+
+void macro_dialog_remember_selected_key(const gchar* key);
+gchar* macro_dialog_get_selected_key(void);
+
+void macro_dialog_remember_export_format(const gchar* extension);
+gchar* macro_dialog_get_export_format(void);
+
+void macro_dialog_remember_window_geometry(GtkWindow* window);
+void macro_dialog_apply_window_geometry(GtkWindow* window);
+
 #endif

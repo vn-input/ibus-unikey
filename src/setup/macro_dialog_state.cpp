@@ -8,6 +8,7 @@
 //   UniKey project: http://unikey.org
 //------------------------------------------------------------------------------
 
+#include <cstdio>
 #include <cstring>
 
 #include "macro_dialog_state.h"
@@ -95,6 +96,26 @@ static void apply_saved_folder(GtkFileChooser* chooser)
     g_free(saved_dir);
 }
 
+static gchar* get_saved_string_or_empty(const gchar* key)
+{
+    gchar* saved_value = NULL;
+    const gboolean has_saved_value = ibus_unikey_config_has_key(key)
+        && ibus_unikey_config_get_string(key, &saved_value)
+        && saved_value != NULL;
+    if (has_saved_value) {
+        return saved_value;
+    }
+
+    g_free(saved_value);
+    return g_strdup("");
+}
+
+static void remember_simple_string(const gchar* key, const gchar* value)
+{
+    const bool has_value = (value != NULL);
+    ibus_unikey_config_set_string(key, has_value ? value : "");
+}
+
 void macro_dialog_remember_import_file(const gchar* filename)
 {
     remember_file_dir(filename);
@@ -123,4 +144,78 @@ void macro_dialog_apply_import_folder(GtkFileChooser* chooser)
 void macro_dialog_apply_export_folder(GtkFileChooser* chooser)
 {
     apply_saved_folder(chooser);
+}
+
+void macro_dialog_remember_search_text(const gchar* text)
+{
+    remember_simple_string(CONFIG_MACRO_SEARCH_TEXT, text);
+}
+
+gchar* macro_dialog_get_search_text(void)
+{
+    return get_saved_string_or_empty(CONFIG_MACRO_SEARCH_TEXT);
+}
+
+void macro_dialog_remember_selected_key(const gchar* key)
+{
+    remember_simple_string(CONFIG_MACRO_SELECTED_KEY, key);
+}
+
+gchar* macro_dialog_get_selected_key(void)
+{
+    return get_saved_string_or_empty(CONFIG_MACRO_SELECTED_KEY);
+}
+
+void macro_dialog_remember_export_format(const gchar* extension)
+{
+    remember_simple_string(CONFIG_MACRO_EXPORT_FORMAT, extension);
+}
+
+gchar* macro_dialog_get_export_format(void)
+{
+    return get_saved_string_or_empty(CONFIG_MACRO_EXPORT_FORMAT);
+}
+
+void macro_dialog_remember_window_geometry(GtkWindow* window)
+{
+    if (window == NULL) {
+        return;
+    }
+
+    int width = 0;
+    int height = 0;
+    gtk_window_get_size(window, &width, &height);
+    gchar* size_text = g_strdup_printf("%dx%d", width, height);
+    remember_simple_string(CONFIG_MACRO_DIALOG_SIZE, size_text);
+    g_free(size_text);
+
+    int x = 0;
+    int y = 0;
+    gtk_window_get_position(window, &x, &y);
+    gchar* position_text = g_strdup_printf("%d,%d", x, y);
+    remember_simple_string(CONFIG_MACRO_DIALOG_POSITION, position_text);
+    g_free(position_text);
+}
+
+void macro_dialog_apply_window_geometry(GtkWindow* window)
+{
+    if (window == NULL) {
+        return;
+    }
+
+    gchar* size_text = get_saved_string_or_empty(CONFIG_MACRO_DIALOG_SIZE);
+    int width = 0;
+    int height = 0;
+    if (sscanf(size_text, "%dx%d", &width, &height) == 2 && width > 0 && height > 0) {
+        gtk_window_set_default_size(window, width, height);
+    }
+    g_free(size_text);
+
+    gchar* position_text = get_saved_string_or_empty(CONFIG_MACRO_DIALOG_POSITION);
+    int x = 0;
+    int y = 0;
+    if (sscanf(position_text, "%d,%d", &x, &y) == 2) {
+        gtk_window_move(window, x, y);
+    }
+    g_free(position_text);
 }
