@@ -1,4 +1,71 @@
 This folder contains ukengine (with changes
-for better use in my project) taking from project
+for better use in this project) taken from
 x-unikey (http://www.unikey.org).
+
+ukengine developer guide
+========================
+
+Purpose
+-------
+`ukengine` is the core Vietnamese text processing engine used by ibus-unikey.
+It handles:
+
+- Key event processing and Vietnamese composition rules
+- Tone/mark placement and correction
+- Macro table lookup and expansion
+- Charset conversion in/out of internal representation
+
+Important files and roles
+-------------------------
+
+- `ukengine.cpp` / `ukengine.h`
+	- Main engine logic (`UkEngine::process`, backspace handling, restore flow).
+
+- `inputproc.cpp` / `inputproc.h`
+	- Maps key code to input events and method-specific mappings (Telex/VNI/VIQR).
+
+- `mactab.cpp` / `mactab.h`
+	- Macro table storage, file load/save, lookup, sorting, duplicate handling.
+
+- `charset.cpp` / `charset.h`, `convert.cpp`
+	- Charset abstractions and conversion pipeline.
+
+- `pattern.cpp` / `pattern.h`
+	- Pattern/state matching utilities used by conversion logic.
+
+- `unikey.cpp` / `unikey.h`
+	- Public C-style API wrappers used by outer modules (e.g. IBus engine layer).
+
+Data invariants you should keep
+-------------------------------
+
+- Macro table must remain sorted before binary search lookup.
+- Key/text offsets inside macro memory block must always point to valid NUL-terminated entries.
+- Internal engine state buffers must be synchronized when output changes (`synchKeyStrokeBuffer`).
+
+Recent macro-related implementation notes
+----------------------------------------
+
+- Macro storage is dynamic (no 1024 hard limit anymore).
+- Macro duplicates are resolved with dictionary semantics:
+	- same key => the last occurrence in source file wins.
+- This is implemented after sort in `CMacroTable::removeDuplicates()`.
+
+Safe editing workflow for ukengine
+----------------------------------
+
+1. Keep changes local to one subsystem when possible.
+2. Rebuild and run stress tests after touching `mactab.*` or processing logic.
+3. Validate behavior with a real user macro file and a generated large macro file.
+
+Example quick check
+-------------------
+
+From repository root:
+
+```
+cmake -S . -B build
+cmake --build build -j"$(nproc)"
+bash tools/stress_macro_test.sh build 50000
+```
 
