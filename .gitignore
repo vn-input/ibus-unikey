@@ -27,3 +27,6 @@ po/insert-header.sin
 po/quot.sed
 po/remove-potcdate.sin
 po/POTFILES
+
+build/
+build-system/

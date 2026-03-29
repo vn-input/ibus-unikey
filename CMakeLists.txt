@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 3.5)
 project (ibus-unikey)
 
+enable_testing()
+
 cmake_policy(SET CMP0054 NEW)
 
 add_compile_options(-std=c++11 -Werror)
@@ -22,17 +24,14 @@ add_definitions(
     -DPACKAGE_BUGREPORT="https://github.com/vn-input/ibus-unikey/issues"
     -DLOCALEDIR="${LOCALEDIR}"
     -DPKGDATADIR="${PKGDATADIR}"
+    -DUNIKEY_GSETTINGS_DIR="${CMAKE_INSTALL_FULL_DATADIR}/glib-2.0/schemas"
     -DLIBEXECDIR="${LIBEXECDIR}"
-)
-
-include_directories(
-    ${PROJECT_SOURCE_DIR}/ukengine
-    ${PROJECT_SOURCE_DIR}/src/config
 )
 
 add_subdirectory(ukengine)
 add_subdirectory(src)
 add_subdirectory(setup)
+add_subdirectory(tests)
 add_subdirectory(data)
 add_subdirectory(po)
 

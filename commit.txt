@@ -1,0 +1,38 @@
+0001-20260329-breakup-ukengine-to-components
+
+- Refactor ukengine code organization into explicit component modules.
+- Moved headers from include/ukengine/ to component directories:
+  - core (ukengine.h, uk_shared_constants.h)
+  - io (byteio.h, charset.h, data.h, inputproc.h)
+  - mapping (keycons.h, vnconv.h, vnlexi.h, uk_validation.h)
+  - macro (mactab.h)
+  - pattern (pattern.h)
+  - roof (if any future roof-specific headers)
+  - tables (ukengine_tables.h)
+  - utils (ukengine_utils.h)
+  - unikey (unikey.h)
+  - usrkeymap (usrkeymap.h)
+- Moved sources from src/ukengine/ to matching module dirs:
+  - core/ukengine.cpp
+  - io/{byteio.cpp,charset.cpp,data.cpp,inputproc.cpp}
+  - mapping/{convert.cpp,error.cpp,ukengine_mapchar.cpp}
+  - macro/mactab.cpp
+  - pattern/pattern.cpp
+  - roof/ukengine_roof.cpp
+  - tables/ukengine_tables.cpp
+  - utils/ukengine_utils.cpp
+  - unikey/unikey.cpp
+  - usrkeymap/usrkeymap.cpp
+- Added shim headers in include/ukengine/*.h to preserve existing include path semantics
+  by redirecting to include/ukengine/<module>/<name>.h.
+- Updated ukengine/CMakeLists.txt SOURCES to the new src/ukengine/<module> paths.
+
+Rationale:
+1. Improve maintainability and modularity of core engine logic.
+2. Group related functionality in self-contained components (mapping, roof, tables, patterns, I/O, etc.).
+3. Reduce coupling of a single large ukengine directory while keeping public includes stable.
+4. Prepare for easier future independent module testing and replacement.
+
+Verification:
+- Successfully built full project after refactor with cmake + make.
+- Existing tests for ukengine path compiled and ran.
