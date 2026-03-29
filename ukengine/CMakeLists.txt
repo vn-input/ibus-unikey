@@ -1,19 +1,19 @@
 set(SOURCES
-    ../src/ukengine/byteio.cpp
-    ../src/ukengine/charset.cpp
-    ../src/ukengine/convert.cpp
-    ../src/ukengine/data.cpp
-    ../src/ukengine/error.cpp
-    ../src/ukengine/inputproc.cpp
-    ../src/ukengine/mactab.cpp
-    ../src/ukengine/pattern.cpp
-    ../src/ukengine/ukengine_tables.cpp
-    ../src/ukengine/ukengine_utils.cpp
-    ../src/ukengine/ukengine_roof.cpp
-    ../src/ukengine/ukengine_mapchar.cpp
-    ../src/ukengine/ukengine.cpp
-    ../src/ukengine/usrkeymap.cpp
-    ../src/ukengine/unikey.cpp
+    ../src/ukengine/io/byteio.cpp
+    ../src/ukengine/io/charset.cpp
+    ../src/ukengine/mapping/convert.cpp
+    ../src/ukengine/mapping/error.cpp
+    ../src/ukengine/io/data.cpp
+    ../src/ukengine/io/inputproc.cpp
+    ../src/ukengine/macro/mactab.cpp
+    ../src/ukengine/pattern/pattern.cpp
+    ../src/ukengine/tables/ukengine_tables.cpp
+    ../src/ukengine/utils/ukengine_utils.cpp
+    ../src/ukengine/roof/ukengine_roof.cpp
+    ../src/ukengine/mapping/ukengine_mapchar.cpp
+    ../src/ukengine/core/ukengine.cpp
+    ../src/ukengine/usrkeymap/usrkeymap.cpp
+    ../src/ukengine/unikey/unikey.cpp
 )
 
 add_library(ukengine STATIC ${SOURCES})
