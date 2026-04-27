@@ -483,6 +483,8 @@ static gboolean ibus_unikey_engine_process_key_event_preedit(IBusEngine* engine,
 
     else if (modifiers & IBUS_CONTROL_MASK
              || modifiers & IBUS_MOD1_MASK // alternate mask
+             || modifiers & IBUS_SUPER_MASK
+             || modifiers & IBUS_MOD4_MASK
              || keyval == IBUS_Control_L
              || keyval == IBUS_Control_R
              || keyval == IBUS_Tab
